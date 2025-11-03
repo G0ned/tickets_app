@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('id_attendees', 9);
             $table->unsignedBigInteger('id_event');
             $table->primary(['id_attendees', 'id_event']);
-            $table->foreign('id_attendees')->references('id')->on('attendees')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('id_attendees')->references('user_id')->on('attendees')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('id_event')->references('id')->on('events')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
