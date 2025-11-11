@@ -10,11 +10,14 @@ class Event extends Model
         'name',
         'location',
         'date',
-        'user_id'
+        'user_id',
+        'is_active',
+        'capacity'
     ];
 
     protected $casts = [
         'date' => 'date',
+        'is_active' => 'boolean',
     ];
 
     public function user()

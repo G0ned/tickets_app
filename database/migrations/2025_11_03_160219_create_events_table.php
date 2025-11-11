@@ -18,7 +18,7 @@ return new class extends Migration
             $table->date('date');
             $table->string('user_id', 9);
             $table->foreign('user_id')
-                    ->references('id')
+                    ->references('identification')
                     ->on('users')
                     ->onDelete('cascade');
             $table->timestamps();

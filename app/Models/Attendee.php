@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Attendee extends Model
 {
+
+    public $timestamps = false;
+
+    protected $primaryKey = 'user_id';
+
     protected $fillable = [
         'user_id',
         'phone',

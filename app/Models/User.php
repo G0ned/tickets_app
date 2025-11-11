@@ -18,14 +18,13 @@ class User extends Authenticatable
      * @var list<string>
      */
 
-    protected $primaryKey = 'id';
-
-    public $autoincrement = false;
-
+    public $timestamps = false;
+    protected $primaryKey = 'identification';
+    public $incrementing = false;
     public $keyType = 'string';
 
     protected $fillable = [
-        'id',
+        'identification',
         'firstname',
         'surname',
         'email',
@@ -54,5 +53,55 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the name of the unique identifier for the user.
+     * 
+     * @return string
+     */
+    public function getAuthIdentifierName()
+    {
+        return $this->primaryKey;
+    }
+
+    /**
+     * Get the unique identifier for the user.
+     * 
+     * @return mixed
+     */
+    public function getAuthIdentifier()
+    {
+        return $this->{$this->getAuthIdentifierName()};
+    }
+
+    public function getAuthPassword()
+    {
+        return $this->password;
+    }
+
+    public function getRememberTokenName()
+    {
+        return 'remember_token';
+    }
+
+    public function setRememberToken($value)
+    {
+        $this->{$this->getRememberTokenName()} = $value;
+    }
+
+    public function getRememberToken()
+    {
+        return $this->{$this->getRememberTokenName()};
+    }
+
+    public function getRole()
+    {
+        return $this->role;
+    }
+
+    public function attendee()
+    {
+        return $this->hasOne(Attendee::class, 'user_id', 'identification');
     }
 }

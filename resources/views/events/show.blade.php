@@ -1,0 +1,26 @@
+<x-layout>
+    <x-slot:title>Evento: {{ $event->name }}</x-slot:title>
+    <x-slot:heading>Detalles del Evento</x-slot:heading>
+    <div class="flex items-center justify-between mt-6">
+        @role('admin')
+            <x-button href="/events">Volver a Eventos</x-button>
+            <x-button href="/events/{{ $event->id }}/edit">Editar Evento</x-button>
+        @endrole
+    </div>
+    <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+        <div class="mb-6 flex items-center justify-between">
+            <h2 class="text-2xl font-semibold text-gray-500 mb-4">{{ $event->name }}</h2>
+            <img src="{{ asset('img/poster/Bobobo_Theatre.jpg')}}" height="100" width="100" alt="Poster del evento Bobobo Theatre">
+        </div>
+        <div class="space-y-4">
+            <div class="flex items">
+                <strong class="w-32 text-gray-700">Fecha:</strong>
+                <span class="text-gray-900">{{ $event->date }}</span>
+            </div>
+            <div class="flex items">
+                <strong class="w-32 text-gray-700">Localización:</strong>
+                <span class="text-gray-900">{{ $event->location }}</span>
+            </div>
+        </div>
+    </div>
+</x-layout>

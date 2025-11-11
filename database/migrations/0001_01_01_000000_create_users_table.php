@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->string('id', 9)->primary();
+            $table->string('identification', 9)->primary();
             $table->string('firstname');
             $table->string('surname');
             $table->string('email')->unique();
@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('password');
             $table->string('role')->default('attendee');
             $table->rememberToken();
-            $table->timestamps();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -30,8 +29,9 @@ return new class extends Migration
         });
 
         Schema::create('sessions', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
+            $table->string('id')->primary(); //PK of the Sessions table
+            $table->string('user_id')->nullable()->index(); //References the ID of the User table. It must respect the name and data type of the original table (User).
+            $table->foreign('user_id')->references('identification')->on('users')->onDelete('cascade');
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload');

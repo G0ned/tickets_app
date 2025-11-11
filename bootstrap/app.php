@@ -11,7 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        //Register a custom middleware alias called 'role' which will be executed only on specific routes (web.php).
+        $middleware->alias([
+            'role' => App\Http\Middleware\CheckUserRole::class 
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

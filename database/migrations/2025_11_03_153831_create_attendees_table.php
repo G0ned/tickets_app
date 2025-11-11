@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('attendees', function (Blueprint $table) {
             $table->string('user_id', 9)->primary();
             $table->foreign('user_id')
-                  ->references('id')
+                  ->references('identification')
                   ->on('users')
                   ->onDelete('cascade');
             $table->string('phone')->nullable();
