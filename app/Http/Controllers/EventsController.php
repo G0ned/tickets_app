@@ -10,10 +10,12 @@ class EventsController extends Controller
     public function index()
     {
         //Show all active events
-        $events = Event::all();
-        return view('events.index', [
-            'events' => $events
-        ]);
+        if (auth()->user() && auth()->user()->getRole() == 'admin') {
+            $events = Event::all();
+        } else {
+            $events = Event::where('is_active', '=', true)->get();
+        }
+        return view('events.index', ['events' => $events]);
     }
 
     public function create()
@@ -46,6 +48,12 @@ class EventsController extends Controller
         return view('events.show', ['event' => $event]);
     }
 
+    public function showActive()
+    {
+        $active_events = Event::where('is_active', '=', true)->get(); //whereDate('date', '<', Carbon::now()->toDateString())
+        return view('events.active', ['events' => $active_events]);
+    }
+    
     public function edit(Event $event)
     {
         //Return event edit form

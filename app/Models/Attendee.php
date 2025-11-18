@@ -9,6 +9,10 @@ class Attendee extends Model
 
     public $timestamps = false;
 
+    public $keyType = 'string';
+
+    public $incrementing = false;
+
     protected $primaryKey = 'user_id';
 
     protected $fillable = [

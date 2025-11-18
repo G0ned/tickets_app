@@ -4,14 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\EventsController;
+use App\Http\Controllers\EventActivationController;
+use App\Http\Controllers\EventsSignUpController;
 
 Route::get('/', function () {
     return view('welcome');
 });
-
- //Events
-Route::get('/events', [EventsController::class, 'index']);
-Route::get('/events/{event}', [EventsController::class, 'show'])->name('events.show');
 
 Route::middleware(['guest'])->group(function () {
     //User management
@@ -23,19 +21,21 @@ Route::middleware(['guest'])->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-
     Route::get('/dashboard', function () {
         return view('attendee.dashboard', ['user' => auth()->user()]);
         })->name('dashboard');
 
     Route::post('/logout', [SessionController::class, 'destroy']);
-});
-
-Route::middleware(['auth', 'role'])->group(function () {
     //Events
-    Route::get('/events/create', [EventsController::class, 'create']);
-    Route::post('/events', [EventsController::class, 'store']);
-    Route::get('/events/{event}/edit', [EventsController::class, 'edit']);
-});
+    Route::middleware(['role:admin'])->group(function () {
+        Route::get('/events/create', [EventsController::class, 'create'])->name('events.create');
+        Route::post('/events', [EventsController::class, 'store']);
+        Route::get('/events/{event}/edit', [EventsController::class, 'edit']);
+        Route::post('/events/{event}/activate', [EventActivationController::class, 'activate']);
+        
+    });
+    Route::get('/events', [EventsController::class, 'index']);
+    Route::get('/events/{event}', [EventsController::class, 'show'])->name('events.show');
 
-Route::resource('attendees', UserController::class);
+    Route::post('/events/signup/{eventId}/', [EventsSignUpController::class, 'store']);
+});

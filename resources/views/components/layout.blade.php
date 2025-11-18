@@ -24,7 +24,9 @@
                 @guest
                 <x-nav_link href="/attendees/create" :active="request()->is('attendees') ">Registro</x-nav_link>
                 @endguest
-                <x-nav_link href="/events" :active="request()->is('events')">Eventos</x-nav_link>
+                @auth
+                  <x-nav_link href="/events" :active="request()->is('events')">Eventos</x-nav_link>
+                @endauth
             </div>
           </div>
         </div>

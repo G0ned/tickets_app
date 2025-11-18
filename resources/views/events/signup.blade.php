@@ -3,9 +3,6 @@
     <x-slot:heading>Detalles del Evento</x-slot:heading>
     <div class="flex items-center justify-between mt-6">
         <x-button href="/events">Volver a Eventos</x-button>
-        @role('admin')
-            <x-button href="/events/{{ $event->id }}/edit">Editar Evento</x-button>
-        @endrole
     </div>
     <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
         <div class="mb-6 flex items-center justify-between">
@@ -23,11 +20,11 @@
             </div>
         </div>
 
-        <form action="/events/{{ $event->id }}/activate" method="POST" class="mt-6">
+        <form action="/events/{{ $event->id }}/activate" method="POST" class="flex items-center justify-between mt-6">
             @csrf
             <label for="is_active" class="ml-2 text-gray-700 font-semibold">Estado:</label>
             @if($event->is_active)
-                <span class="inline ml-2 text-green-600 font-semibold">Activo</span>  
+                <h3 class="inline ml-2 text-green-600 font-semibold">Activo</h3>
                 @role('admin')
                 <button type="submit" class="ml-4 bg-teal-800 text-white px-4 py-2 rounded hover:bg-red-600">Desactivar Evento</button>
                 @endrole
@@ -37,12 +34,6 @@
                 <button type="submit" class="ml-4 bg-teal-800 text-white px-4 py-2 rounded hover:bg-green-600">Activar Evento</button>
                 @endrole
             @endif
-        </form>
-        <div>
-                    <form action="/events/signup/{{ $event->id }}/" method="POST" class="mt-6">
-                    @csrf
-                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800">Inscribirse al Evento</button> 
-                    </form>
-        </div>
+        </form  
     </div>
 </x-layout>

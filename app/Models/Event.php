@@ -27,6 +27,8 @@ class Event extends Model
 
     public function assistants()
     {
-        return $this->belongsToMany(Attendee::class, 'attendee_event', 'id_attendees', 'id_event');
+        return $this->belongsToMany(Attendee::class, 'attendees_events', 'id_event', 'id_attendees')->withCasts([
+            'id_attendees' => 'string',
+        ]);
     }
 }

@@ -3,7 +3,7 @@
     <x-slot:heading>Eventos Activos</x-slot:heading>
     @role('admin')
         <div class="mb-6">
-            <x-button href="/events/create">Crear Evento</x-button>
+            <x-button href='/events/create'>Crear Evento</x-button>
         </div>
     @endrole
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -36,7 +36,11 @@
                         </div>
 
                         <div class="flex items-center text-sm text-gray-600">
-                           Estado: {{ $event->is_active }}
+                           Estado: @if ($event->is_active)
+                                <span class="ml-2 text-green-600 font-semibold">Activo</span>
+                            @else
+                                <span class="ml-2 text-red-600 font-semibold">Inactivo</span>
+                            @endif
                         </div>
                     </div>
                 </div>
