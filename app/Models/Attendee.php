@@ -26,10 +26,10 @@ class Attendee extends Model
     ];
 
     public function user(){
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'identification'); //Specify which keys are used in the relationship (current model - reference model) to avoide nullable reference errors. 
     }
 
     public function events(){
-        return $this-> belongsToMany(Events::class, 'attendee_event', 'id_attendees', 'id_event');
+        return $this-> belongsToMany(Event::class, 'attendees_events', 'id_attendees', 'id_event');
     }
 }

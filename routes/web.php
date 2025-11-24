@@ -6,6 +6,7 @@ use App\Http\Controllers\SessionController;
 use App\Http\Controllers\EventsController;
 use App\Http\Controllers\EventActivationController;
 use App\Http\Controllers\EventsSignUpController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -21,9 +22,7 @@ Route::middleware(['guest'])->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('attendee.dashboard', ['user' => auth()->user()]);
-        })->name('dashboard');
+    Route::get('/attendee/dashboard', [DashboardController::class, 'index'])->name('attendee.dashboard');
 
     Route::post('/logout', [SessionController::class, 'destroy']);
     //Events

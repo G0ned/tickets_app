@@ -24,13 +24,15 @@ class SessionController extends Controller
         if (Auth::attempt($credentials))
             {
                 request()->session()->regenerate();
-                return redirect()->intended('/')->with('debug', [
+                return redirect()->intended('/attendee/dashboard')->with('debug', [
                 'auth_check' => Auth::check(),
                 'user' => Auth::user()
                 ]);
             }
         else{
-            dd('Login failed');
+            return back()->withErrors([
+                'email' => 'Inicio de sesión fallido. Compruebe sus credenciales.',
+            ]);
         }
         
     }

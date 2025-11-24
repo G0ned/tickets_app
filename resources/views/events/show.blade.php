@@ -15,7 +15,7 @@
         <div class="space-y-4">
             <div class="flex items">
                 <strong class="w-32 text-gray-700">Fecha:</strong>
-                <span class="text-gray-900">{{ $event->date }}</span>
+                <span class="text-gray-900">{{ $event->date->format('d/m/Y') }}</span>
             </div>
             <div class="flex items">
                 <strong class="w-32 text-gray-700">Localización:</strong>
