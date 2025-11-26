@@ -30,6 +30,6 @@ class Attendee extends Model
     }
 
     public function events(){
-        return $this-> belongsToMany(Event::class, 'attendees_events', 'id_attendees', 'id_event');
+        return $this-> belongsToMany(Event::class, 'attendees_events', 'id_attendees', 'id_event')->withPivot("has_attended", "checked_in_at");
     }
 }

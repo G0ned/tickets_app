@@ -19,6 +19,7 @@ class EventsSignUpController extends Controller
         $ticketData = 
         [
             'id' => $event->id,
+            'at_id' => $attendee->user->identification,
             'at_name' => $attendee->user->firstname,
             'at_surname' => $attendee->user->surname,
             'event_name' => $event->name,
@@ -34,7 +35,7 @@ class EventsSignUpController extends Controller
                 if(!$event->assistants->contains($attendee))
                     {
                         try{
-                            $fileName = "/tickets/ticket_event_" . $event->id . "_attendee_" . $attendee->user->firstname . "_" . $attendee->user->surname;
+                            $fileName = "/tickets/ticket_event_{$event->id}_attendee_ {$attendee->user->firstname}_{$attendee->user->surname}.svg";
                             $qrImage = QrCode::format('svg')
                                                 ->size(300)
                                                 ->generate($jsonPayLoad);

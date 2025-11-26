@@ -7,6 +7,7 @@ use App\Http\Controllers\EventsController;
 use App\Http\Controllers\EventActivationController;
 use App\Http\Controllers\EventsSignUpController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\CheckInController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -31,6 +32,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/events', [EventsController::class, 'store']);
         Route::get('/events/{event}/edit', [EventsController::class, 'edit']);
         Route::post('/events/{event}/activate', [EventActivationController::class, 'activate']);
+        Route::get('/events/checkin', [CheckInController::class, 'create']);
+        Route::post('/events/checkin', [CheckInController::class, 'update']);
         
     });
     Route::get('/events', [EventsController::class, 'index']);
