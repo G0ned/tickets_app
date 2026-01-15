@@ -1,5 +1,5 @@
 <x-layout>
-    <x-slot:title>Crear Evento</x-slot:title>
+    @section('title', 'New Event')
     <x-slot:heading>Nuevo Evento</x-slot:heading>
     <div class="container px-5 py-10 mx-auto">
         <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">

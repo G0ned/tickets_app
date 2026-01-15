@@ -1,5 +1,5 @@
 <x-layout>
-    <x-slot:title>Eventos</x-slot:title>
+    @section('title', 'Eventos')
     <x-slot:heading>Eventos Activos</x-slot:heading>
     @role('admin')
         <div class="mb-6">

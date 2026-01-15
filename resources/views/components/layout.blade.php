@@ -3,14 +3,14 @@
   <head>
       <meta charset="UTF-8"/>
       <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-      <title>{{ $title ?? 'Home'}}</title>
+      <title> @yield('title', 'Home')</title>
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
       <script src="https://cdn.tailwindcss.com"></script>
       <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   </head>
-  <body>
-    <div class="min-h-full">
+  <body class="flex flex-col min-h-screen">
+    <div class="grow">
       <nav class="bg-teal-800">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div class="flex h-16 items-center justify-between">
@@ -84,19 +84,35 @@
           </div>
       </main>
     </div>
-    <footer class="bg-gray-700 fixed bottom-0 w-full">
-        <div class="text-white flex items-center justify-between">
-          <img class="w-content" src="{{ asset('img/logo.png')}}" height="100" width="100" alt="Logo de la compañía"></img>
-          <div>
-            <div class="flex items-center justify-between">
-              <img src="{{ asset('img/mail.png')}}" height="20", width="20" alt="Símbolo correo" class="mr-1"></img>
-              <p>Correo electrónico: correoempresarial@mail.test</p>
+
+<footer class="bg-gray-800 text-gray-300 w-full py-8 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div class="flex flex-col items-start">
+                <img src="{{ asset('img/logo.png') }}" alt="Company Logo" class="h-12 w-auto mb-4">
             </div>
-            <p>Dirección:</p>
-            <p>Teléfono:</p>
-            <p>Dónde encontrarnos</p>
-          </div>
+            <div class="flex flex-col md:items-end space-y-2">
+                <h3 class="text-white font-semibold uppercase tracking-wider text-sm mb-2">Contacto</h3>
+                <a href="mailto:correoempresarial@mail.test" class="flex items-center hover:text-white transition-colors duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2 text-teal-400">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                    </svg>
+                    <span>correoempresarial@mail.test</span>
+                </a>
+                <div class="flex items-center">
+                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2 text-teal-400">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                    </svg>
+                    <span>+34 900 123 456</span>
+                </div>
+            </div>
+
         </div>
-    </footer>
+        <div class="border-t border-gray-700 mt-8 pt-8 text-sm text-center">
+            &copy; {{ date('Y') }} Compañía. Todos los derechos reservados.
+        </div>
+        
+    </div>
+</footer>
   </body>
 </html>

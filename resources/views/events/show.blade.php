@@ -1,5 +1,5 @@
 <x-layout>
-    <x-slot:title>Evento: {{ $event->name }}</x-slot:title>
+    @section('title', 'Mostrar')
     <x-slot:heading>Detalles del Evento</x-slot:heading>
     <div class="flex items-center justify-between mt-6">
         <x-button href="/events">Volver a Eventos</x-button>
