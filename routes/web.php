@@ -31,6 +31,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/events/create', [EventsController::class, 'create'])->name('events.create');
         Route::post('/events', [EventsController::class, 'store']);
         Route::get('/events/{event}/edit', [EventsController::class, 'edit']);
+        Route::put('/events/{event}/edit', [EventsController::class, 'update']);
+        Route::delete('/events/{event}/delete', [EventsController::class, 'destroy']);
         Route::post('/events/{event}/activate', [EventActivationController::class, 'activate']);
         Route::get('/events/checkin', [CheckInController::class, 'create']);
         Route::post('/events/checkin', [CheckInController::class, 'update']);

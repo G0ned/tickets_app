@@ -60,15 +60,27 @@ class EventsController extends Controller
         return view('events.edit', ['event' => $event]);
     }
 
-    public function update()
+    public function update(Event $event)
     {
         //Update an event
-        dd('To do');
+        $eventData = request()->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'location' => ['required', 'string', 'max:255'],
+            'date' => ['required', 'date'],
+            'capacity' => ['required', 'integer' ]
+        ]);
+        try {
+            $event->update($eventData);
+            return redirect('/events')->with('success', 'Evento actualizado correctamente');
+        } catch (\Exception $e) {
+            return back()->withError('No ha sido posible actualizar el evento.' . $e->getMessage())->withInput();
+        }
     }
 
-    public function destroy()
+    public function destroy(Event $event)
     {
         //Delete an event
-        dd('To do');
+        $event->delete();
+        return redirect('/events')->with('success', 'Evento eliminado correctamente');
     }
 }

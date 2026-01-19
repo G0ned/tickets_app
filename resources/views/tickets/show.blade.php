@@ -2,7 +2,7 @@
     <div class="md:flex">
         <div class="p-8">
             <div class="uppercase tracking-wide text-sm text-indigo-500 font-semibold">
-                Event Ticket
+                Escaneo de Entradas
             </div>
             <a href="#" class="block mt-1 text-lg leading-tight font-medium text-black hover:underline">
                 {{ $event->name }}
@@ -13,7 +13,7 @@
             </p>
 
             <div class="mt-4 border-t pt-4">
-                <p class="text-gray-700 font-bold">Attendee:{{ $attendee->user?->firstname }}</p>
+                <p class="text-gray-700 font-bold">Asistente:{{ $attendee->user?->firstname }}</p>
             </div>
 
             <div class="mt-6 flex justify-center">
@@ -21,7 +21,7 @@
             </div>
 
             <div clas="mt-4 text-center text-xs text-gray-400">
-                Scan this code at the entrance
+                Escanee este código QR en la entrada del evento.
             </div>
         </div>
     </div>

@@ -1,12 +1,7 @@
 <x-layout>
     @section('title', 'Mostrar')
     <x-slot:heading>Detalles del Evento</x-slot:heading>
-    <div class="flex items-center justify-between mt-6">
-        <x-button href="/events">Volver a Eventos</x-button>
-        @role('admin')
-            <x-button href="/events/{{ $event->id }}/edit">Editar Evento</x-button>
-        @endrole
-    </div>
+    <x-button href="/events">Volver a Eventos</x-button>
     <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
         <div class="mb-6 flex items-center justify-between">
             <h2 class="text-2xl font-semibold text-gray-500 mb-4">{{ $event->name }}</h2>
@@ -44,5 +39,15 @@
                     <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800">Inscribirse al Evento</button> 
                     </form>
         </div>
+        <div class="flex items-center justify-between mt-6">
+        @role('admin')
+            <x-button href="/events/{{ $event->id }}/edit">Editar Evento</x-button>
+            <form action="/events/{{ $event->id }}/delete" method="POST" class="mt-6">
+                @csrf
+                @method("DELETE")
+                <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-800">Eliminar Evento</button>
+            </form>
+        @endrole
+    </div>
     </div>
 </x-layout>

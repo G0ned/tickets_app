@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Event Scanner</title>
+    <title>Escáner QR</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -9,8 +9,8 @@
 <body class="bg-gray-900 text-white h-screen flex flex-col items-center justify-center">
 
     <div class="text-center mb-4">
-        <h1 class="text-2xl font-bold">Entrance Scanner</h1>
-        <p class="text-gray-400">Point camera at QR Code</p>
+        <h1 class="text-2xl font-bold">Escáner de entradas</h1>
+        <p class="text-gray-400">Apunte la cámara al código QR</p>
     </div>
 
     <div id="reader" class="w-full max-w-sm bg-black rounded-lg overflow-hidden"></div>
@@ -25,7 +25,7 @@
             try {
                 html5QrcodeScanner.pause(true); 
             } catch (err) {
-                console.log("Scanner was already paused (likely file upload). Proceeding...");
+                console.log("Escáner en pausa. Inicializando...");
             }
             try {
                 const data = JSON.parse(decodedText);
