@@ -11,6 +11,8 @@
             <div class="flex items">
                 <strong class="w-32 text-gray-700">Fecha:</strong>
                 <span class="text-gray-900">{{ $event->date->format('d/m/Y') }}</span>
+                <strong class="w-32 text-gray-700 ml-10">Hora:</strong>
+                <span class="text-gray-900">{{ $event->date->format('H:i') }}</span>
             </div>
             <div class="flex items">
                 <strong class="w-32 text-gray-700">Localización:</strong>
@@ -33,16 +35,18 @@
                 @endrole
             @endif
         </form>
+        @role('attendee')
         <div>
-                    <form action="/events/signup/{{ $event->id }}/" method="POST" class="mt-6">
-                    @csrf
-                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800">Inscribirse al Evento</button> 
-                    </form>
+                <form action="/events/signup/{{ $event->id }}/" method="POST" class="mt-6">
+                @csrf
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800">Inscribirse al Evento</button> 
+                </form>
         </div>
+        @endrole
         <div class="flex items-center justify-between mt-6">
         @role('admin')
             <x-button href="/events/{{ $event->id }}/edit">Editar Evento</x-button>
-            <form action="/events/{{ $event->id }}/delete" method="POST" class="mt-6">
+            <form action="/events" method="POST" class="mt-6">
                 @csrf
                 @method("DELETE")
                 <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-800">Eliminar Evento</button>

@@ -31,10 +31,12 @@ class EventsController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'location' => ['required', 'string', 'max:255'],
             'date' => ['required', 'date'],
+            'time' => ['required', 'date_format:H:i'],
             'capacity' => ['required', 'integer' ]
         ]);
         $eventData['user_id'] = auth()->id();
         $eventData['is_active'] = false;
+        $eventData['date'] = $eventData['date'] . " " . $eventData['time'];
         try {
         $event = Event::create($eventData);
         return redirect('/events')->with('success', 'Evento creado correctamente');

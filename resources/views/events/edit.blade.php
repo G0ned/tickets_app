@@ -3,7 +3,7 @@
     <x-slot:heading>Editar Evento</x-slot:heading>
     <div class="container px-5 py-10 mx-auto">
         <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-            <form method="POST" action="/events/{{ $event->id }}/edit" class="space-y-6">
+            <form method="POST" action="/events" class="space-y-6">
                 @csrf
                 @method("PUT")
                 <div class="grid grid-cols-2 gap-6">

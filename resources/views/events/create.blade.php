@@ -1,6 +1,6 @@
 <x-layout>
-    @section('title', 'New Event')
-    <x-slot:heading>Nuevo Evento</x-slot:heading>
+    @section('title', 'Create Event')
+    <x-slot:heading>Crear Evento</x-slot:heading>
     <div class="container px-5 py-10 mx-auto">
         <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
             <form method="POST" action="/events" class="space-y-6">
@@ -40,6 +40,17 @@
                             min="{{ now()->format('d-m-Y') }}"
                             required />
                         <x-form-error name="date" />
+                    </div>
+
+                     <div>
+                        <x-form-label for="time">Hora del evento</x-form-label>
+                        <x-form-input 
+                            type="time" 
+                            id="time" 
+                            name="time"
+                            value="{{ old('time') }}"
+                            required />
+                        <x-form-error name="time" />
                     </div>
 
                     <div>
