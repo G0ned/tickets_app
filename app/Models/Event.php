@@ -22,13 +22,13 @@ class Event extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'identification');
     }
 
     public function assistants()
     {
         return $this->belongsToMany(Attendee::class, 'attendees_events', 'id_event', 'id_attendees')->withCasts([
             'id_attendees' => 'string',
-        ]);
+        ])->withPivot('has_attended', 'checked_in_at');
     }
 }

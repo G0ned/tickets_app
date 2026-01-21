@@ -104,4 +104,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(Attendee::class, 'user_id', 'identification');
     }
+
+    public function events()
+    {
+        return $this->hasMany(Event::class, 'user_id', 'identification');
+    }
 }

@@ -9,14 +9,16 @@
         </div>
         <div class="space-y-4">
             <div class="flex items">
-                <strong class="w-32 text-gray-700">Fecha:</strong>
+                <strong class="w-20 text-gray-700">Fecha:</strong>
                 <span class="text-gray-900">{{ $event->date->format('d/m/Y') }}</span>
-                <strong class="w-32 text-gray-700 ml-10">Hora:</strong>
+                <strong class="w-20 text-gray-700 ml-5">Hora:</strong>
                 <span class="text-gray-900">{{ $event->date->format('H:i') }}</span>
             </div>
             <div class="flex items">
                 <strong class="w-32 text-gray-700">Localización:</strong>
                 <span class="text-gray-900">{{ $event->location }}</span>
+                <strong class="w-32 text-gray-700 ml-10">Aforo máximo:</strong>
+                <span class="text-gray-900">{{ $event->capacity }}</span>
             </div>
         </div>
 
@@ -35,6 +37,7 @@
                 @endrole
             @endif
         </form>
+
         @role('attendee')
         <div>
                 <form action="/events/signup/{{ $event->id }}/" method="POST" class="mt-6">
@@ -52,6 +55,24 @@
                 <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-800">Eliminar Evento</button>
             </form>
         @endrole
+        </div>
     </div>
+    <hr class="my-10 w-full">
+    <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+        <h2 class="text-2xl font-semibold text-gray-700 mb-4 text-center">Lista de Asistentes</h2>
+        <table class="overflow-y-auto table-auto w-full mt-10 border-collapse border border-gray-300">
+            <tr>
+                <th class="border px-4 py-2">ID Asistente</th>
+                <th class="border px-4 py-2">Nombre</th>
+                <th class="border px-4 py-2">Apellido</th>
+            </tr>
+            @foreach ($event->assistants as $attendee)
+                <tr>
+                    <td class="border px-4 py-2">{{ $attendee->user_id }}</td>
+                    <td class="border px-4 py-2">{{ $attendee->user->firstname }}</td>
+                    <td class="border px-4 py-2">{{ $attendee->user->surname }}</td>
+                </tr>
+            @endforeach
+        </table>
     </div>
 </x-layout>

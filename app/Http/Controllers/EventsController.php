@@ -47,6 +47,7 @@ class EventsController extends Controller
 
     public function show(Event $event)
     {
+        $event->load('assistants.user'); //Se carga la relación aquí para evitar consultas N+1 en la vista objetivo y así optimizar el rendimiento.
         return view('events.show', ['event' => $event]);
     }
 
