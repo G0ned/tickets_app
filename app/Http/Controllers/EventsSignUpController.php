@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\DB;
+use App\Events\AttendeSignUpEvent;
 use App\Models\Event;
 use App\Models\Attendee;
 
@@ -26,7 +28,7 @@ class EventsSignUpController extends Controller
             'event_date' => $event->date,
             'event_location' => $event->location
         ];
-        //Encode the data 
+      
         $jsonPayLoad = json_encode($ticketData);
         $qrContent = (string) $jsonPayLoad;
 
@@ -35,13 +37,16 @@ class EventsSignUpController extends Controller
                 if(!$event->assistants->contains($attendee))
                     {
                         try{
-                            $fileName = "/tickets/ticket_event_{$event->id}_attendee_ {$attendee->user->firstname}_{$attendee->user->surname}.svg";
-                            $qrImage = QrCode::format('svg')
+                           return DB::transaction (function () use ($event, $attendee, $jsonPayLoad) {
+                                $event->assistants()->attach($attendee);
+                                AttendeSignUpEvent::dispatch($event);
+                                $fileName = "/tickets/ticket_event_{$event->id}_attendee_ {$attendee->user->firstname}_{$attendee->user->surname}.svg";
+                                $qrImage = QrCode::format('svg')
                                                 ->size(300)
                                                 ->generate($jsonPayLoad);
-                            Storage::disk('public')->put($fileName, $qrImage);
-                            $event->assistants()->attach($attendee);
-                            return redirect('/attendee/dashboard')->with('success', 'Inscripción realizada correctamente.');
+                                Storage::disk('public')->put($fileName, $qrImage);
+                                return redirect('/attendee/dashboard')->with('success', 'Inscripción realizada correctamente.');
+                            });    
                         }
                         catch (\Exception $e){
                             return back()->withError('No ha sido posible inscribirse al evento.' . $e->getMessage())->withInput();

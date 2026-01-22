@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
-
+use Illuminate\Support\Facades\Event;
+use App\Events\AttendeSignUpEvent;
+use App\Listeners\EventCapacityControlListener;
 class AppServiceProvider extends ServiceProvider
 {
     /**

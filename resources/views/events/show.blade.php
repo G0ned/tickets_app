@@ -17,8 +17,10 @@
             <div class="flex items">
                 <strong class="w-32 text-gray-700">Localización:</strong>
                 <span class="text-gray-900">{{ $event->location }}</span>
-                <strong class="w-32 text-gray-700 ml-10">Aforo máximo:</strong>
+                <strong class="w-32 text-gray-700 ml-10">Aforo restante:</strong>
                 <span class="text-gray-900">{{ $event->capacity }}</span>
+                <strong class="w-32 text-gray-700 ml-10">Asistentes:</strong>
+                <span class="text-gray-900">{{ $event->number_of_attendees }}</span>
             </div>
         </div>
 
@@ -30,7 +32,7 @@
                 @role('admin')
                 <button type="submit" class="ml-4 bg-teal-800 text-white px-4 py-2 rounded hover:bg-red-600">Desactivar Evento</button>
                 @endrole
-            @else
+            @elseif(!$event->is_active || $event->capacity <= 0)
                 <h3 class="inline ml-2 text-red-600 font-semibold">Inactivo</h3>
                 @role('admin')
                 <button type="submit" class="ml-4 bg-teal-800 text-white px-4 py-2 rounded hover:bg-green-600">Activar Evento</button>

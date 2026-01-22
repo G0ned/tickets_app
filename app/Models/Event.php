@@ -12,7 +12,8 @@ class Event extends Model
         'date',
         'user_id',
         'is_active',
-        'capacity'
+        'capacity',
+        'number_of_attendees',
     ];
 
     protected $casts = [
