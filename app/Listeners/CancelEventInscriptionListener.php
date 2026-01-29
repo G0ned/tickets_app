@@ -4,11 +4,10 @@ namespace App\Listeners;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Support\Facades\Event;
-use App\Events\AttendeSignUpEvent;
+use App\Events\CancelSignUpEvent;
 use App\Models\Event as EventModel;
 
-class EventCapacityControlListener
+class CancelEventInscriptionListener
 {
     /**
      * Create the event listener.
@@ -21,10 +20,9 @@ class EventCapacityControlListener
     /**
      * Handle the event.
      */
-    public function handle(AttendeSignUpEvent $event): void
+    public function handle(CancelSignUpEvent $event): void
     {
-      $event->event->decrement('capacity');
-      $event->event->increment('number_of_attendees');
-      
+        $event->event->increment('capacity');
+        $event->event->decrement('number_of_attendees');
     }
 }

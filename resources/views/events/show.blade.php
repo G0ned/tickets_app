@@ -18,9 +18,11 @@
                 <strong class="w-32 text-gray-700">Localización:</strong>
                 <span class="text-gray-900">{{ $event->location }}</span>
                 <strong class="w-32 text-gray-700 ml-10">Aforo restante:</strong>
-                <span class="text-gray-900">{{ $event->capacity }}</span>
+                <span class="text-gray-900">{{ $event->capacity}}</span>
+                @role('admin')
                 <strong class="w-32 text-gray-700 ml-10">Asistentes:</strong>
                 <span class="text-gray-900">{{ $event->number_of_attendees }}</span>
+                @endrole
             </div>
         </div>
 
@@ -32,7 +34,7 @@
                 @role('admin')
                 <button type="submit" class="ml-4 bg-teal-800 text-white px-4 py-2 rounded hover:bg-red-600">Desactivar Evento</button>
                 @endrole
-            @elseif(!$event->is_active || $event->capacity <= 0)
+            @elseif(!$event->is_active)
                 <h3 class="inline ml-2 text-red-600 font-semibold">Inactivo</h3>
                 @role('admin')
                 <button type="submit" class="ml-4 bg-teal-800 text-white px-4 py-2 rounded hover:bg-green-600">Activar Evento</button>
@@ -42,21 +44,35 @@
 
         @role('attendee')
         <div>
-                <form action="/events/signup/{{ $event->id }}/" method="POST" class="mt-6">
-                @csrf
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800">Inscribirse al Evento</button> 
-                </form>
+                @if($event->isSignedUp(auth()->user()->identification))
+                    <form action="/events/signup/cancel/{{ $event->id }}/" method="POST" class="mt-6">
+                    @csrf
+                    <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-800">Cancelar Inscripción</button> 
+                    </form>
+                @elseif($event->capacity <= 0)
+                    <span>{{$event->isSignedUp(auth()->user()->identification)}}</span>
+                    <span class="text-gray-500 mt-6 block">El evento no admite más inscripciones. Lamentamos las molestias.</span>
+                @else
+                    <form action="/events/signup/{{ $event->id }}/" method="POST" class="mt-6">
+                    @csrf
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800">Inscribirse al Evento</button> 
+                    </form>
+                @endif
         </div>
         @endrole
         <div class="flex items-center justify-between mt-6">
         @role('admin')
-            <x-button href="/events/{{ $event->id }}/edit">Editar Evento</x-button>
-            <form action="/events" method="POST" class="mt-6">
-                @csrf
-                @method("DELETE")
-                <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-800">Eliminar Evento</button>
-            </form>
-        @endrole
+            @if($event->user_id === auth()->user()->identification)
+                <x-button href="/events/{{ $event->id }}/edit">Editar Evento</x-button>
+                <form action="/events" method="POST" class="mt-6">
+                    @csrf
+                    @method("DELETE")
+                    <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-800">Eliminar Evento</button>
+                </form>
+            @else
+                <span class="text-gray-500">No tienes permisos para editar o eliminar este evento.</span>
+            @endif
+        
         </div>
     </div>
     <hr class="my-10 w-full">
@@ -77,4 +93,5 @@
             @endforeach
         </table>
     </div>
+    @endrole
 </x-layout>

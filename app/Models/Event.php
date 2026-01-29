@@ -32,4 +32,16 @@ class Event extends Model
             'id_attendees' => 'string',
         ])->withPivot('has_attended', 'checked_in_at');
     }
+
+    public function isSignedUp($attendeeId): bool
+    {
+        return $this->assistants->contains('user_id', $attendeeId);
+    }
+
+    /*
+    public function isFull(): bool
+    {
+        return $this->number_of_attendees >= $this->capacity;
+    }
+    */
 }

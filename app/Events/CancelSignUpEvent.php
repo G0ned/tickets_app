@@ -10,18 +10,17 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Event;
-use App\Models\Attendee;
 
-class AttendeSignUpEvent
+class CancelSignUpEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public function __construct(public \App\Models\Event $event, public \App\Models\Attendee $attendee, public string $jsonPayLoad){}
+    public function __construct(public \App\Models\Event $event){}
     
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('attendee-signup-channel'),
+            new PrivateChannel('cancel-signup-channel'),
         ];
     }
 }

@@ -41,5 +41,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/events', [EventsController::class, 'index']);
     Route::get('/events/{event}', [EventsController::class, 'show'])->name('events.show');
 
-    Route::post('/events/signup/{eventId}/', [EventsSignUpController::class, 'store']);
+    Route::post('/events/signup/{event}/', [EventsSignUpController::class, 'store']);
+    Route::post('events/signup/cancel/{event}/', [EventsSignUpController::class, 'destroy']);
 });

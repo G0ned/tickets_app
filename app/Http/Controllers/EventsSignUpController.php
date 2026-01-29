@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\DB;
 use App\Events\AttendeSignUpEvent;
+use App\Events\CancelSignUpEvent;
 use App\Models\Event;
 use App\Models\Attendee;
 
@@ -17,7 +16,7 @@ class EventsSignUpController extends Controller
     {
         $event = Event::find($eventId);
         $attendee = Attendee::find(auth()->id());
-        //Compile all the data that will be saved on the QR code Ticket
+        //Se compilan todos los datos que se guardarán en el código QR.
         $ticketData = 
         [
             'id' => $event->id,
@@ -30,21 +29,28 @@ class EventsSignUpController extends Controller
         ];
       
         $jsonPayLoad = json_encode($ticketData);
-        $qrContent = (string) $jsonPayLoad;
 
         if($event->is_active)
             {
-                if(!$event->assistants->contains($attendee))
+                if($event->capacity <=0)
+                    {
+                        return back()->withError('El evento no admite más inscripciones. Lamentamos las molestias.')->withInput();
+                    }
+                elseif(!$event->assistants->contains($attendee))
                     {
                         try{
                            return DB::transaction (function () use ($event, $attendee, $jsonPayLoad) {
+                                $event = Event::where('id', $event->id)->lockForUpdate()->first();
+
+                                if($event->capacity <=0)
+                                    {
+                                        throw new \Exception('El evento no admite más inscripciones. Lamentamos las molestias.');
+                                    }
+
                                 $event->assistants()->attach($attendee);
-                                AttendeSignUpEvent::dispatch($event);
-                                $fileName = "/tickets/ticket_event_{$event->id}_attendee_ {$attendee->user->firstname}_{$attendee->user->surname}.svg";
-                                $qrImage = QrCode::format('svg')
-                                                ->size(300)
-                                                ->generate($jsonPayLoad);
-                                Storage::disk('public')->put($fileName, $qrImage);
+
+                                AttendeSignUpEvent::dispatch($event, $attendee, $jsonPayLoad);
+
                                 return redirect('/attendee/dashboard')->with('success', 'Inscripción realizada correctamente.');
                             });    
                         }
@@ -58,5 +64,23 @@ class EventsSignUpController extends Controller
                         return back()->withError('Ya estás inscrito en este evento.')->withInput();
                     }
             }
+    }
+
+    public function destroy($eventId)
+    {
+        $event = Event::find($eventId);
+        $attendee = Attendee::find(auth()->id());
+
+        try{
+            return DB::transaction (function () use ($event, $attendee) {
+                Event::where('id', $event->id)->lockForUpdate()->first();
+                $event->assistants()->detach($attendee);
+                CancelSignUpEvent::dispatch($event);
+                return redirect('/attendee/dashboard')->with('success', 'Inscripción cancelada correctamente.');
+            });    
+        }
+        catch (\Exception $e){
+            return back()->withError('No ha sido posible cancelar la inscripción al evento.' . $e->getMessage())->withInput();
+        }
     }
 }
