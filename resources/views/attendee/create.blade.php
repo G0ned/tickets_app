@@ -80,10 +80,10 @@
                                 required/>
                             <x-form-error name="email" />
                         </div>
-
+                        
                         <div class="col-span-2">
                             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                                <div>
+                                 <!-- <div>
                                     <x-f-assistant-label for="password">Contraseña</x-f-assistant-label>
                                     <x-form-input
                                         type="password"
@@ -92,10 +92,10 @@
                                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                         placeholder="********"
                                         required/>
-                                    <x-form-error name="password" />
-                                </div>
+                                    <x-form-error name="password" /> 
+                                 </div-->
 
-                                <div>
+                                <!-- <div>
                                     <x-f-assistant-label for="password_confirmation">Confirm. contraseña</x-f-assistant-label>
                                     <x-form-input
                                         type="password"
@@ -105,10 +105,9 @@
                                         placeholder="********"
                                         required/>
                                     <x-form-error name="password_confirmation" />
-                                </div>
+                                </div-->
                             </div>
                         </div>
-
                         <div>
                             <x-f-assistant-label for="phone">Nº Teléfono</x-f-assistant-label>
                             <x-form-input

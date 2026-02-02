@@ -15,15 +15,15 @@ Route::get('/', function () {
 
 Route::middleware(['guest'])->group(function () {
     //User management
-    Route::get('/attendees/create', [UserController::class, 'create']);
-    Route::post('/attendees', [UserController::class, 'store']);
+    Route::get('/attendees/create', [UserController::class, 'create']); //Muestra el formulario de refistro que, en esta versión directamente inscribirá al usuario en un evento dado.
+    Route::post('/attendees', [EventsSignUpController::class, 'store']); //Ahora directamente el controlador al que se dirige es aquel dedicado a las inscripciones.
     //Session management
     Route::get('/login', [SessionController::class, 'create'])->name('login');
     Route::post('/login', [SessionController::class, 'store']);
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/attendee/dashboard', [DashboardController::class, 'index'])->name('attendee.dashboard');
+    //Route::get('/attendee/dashboard', [DashboardController::class, 'index'])->name('attendee.dashboard');
 
     Route::post('/logout', [SessionController::class, 'destroy']);
     //Events
@@ -41,6 +41,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/events', [EventsController::class, 'index']);
     Route::get('/events/{event}', [EventsController::class, 'show'])->name('events.show');
 
-    Route::post('/events/signup/{event}/', [EventsSignUpController::class, 'store']);
-    Route::post('events/signup/cancel/{event}/', [EventsSignUpController::class, 'destroy']);
+    //Eliminar?
+    //Route::post('/events/signup/{event}/', [EventsSignUpController::class, 'store']);
+    //Route::post('events/signup/cancel/{event}/', [EventsSignUpController::class, 'destroy']);
 });

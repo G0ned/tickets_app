@@ -16,7 +16,7 @@ class AttendeSignUpEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public function __construct(public \App\Models\Event $event, public \App\Models\Attendee $attendee, public string $jsonPayLoad){}
+    public function __construct(public \App\Models\Event $event, public \App\Models\Attendee $attendee){}
     
     public function broadcastOn(): array
     {

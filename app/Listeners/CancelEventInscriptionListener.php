@@ -5,7 +5,6 @@ namespace App\Listeners;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Events\CancelSignUpEvent;
-use App\Models\Event as EventModel;
 
 class CancelEventInscriptionListener
 {
