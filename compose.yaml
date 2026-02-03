@@ -22,8 +22,23 @@ services:
         networks:
             - sail
         depends_on:
-            - mysql
+            - mysql:
+                condition: service_healthy
             - mailpit
+        entrypoint: ["sh", "-c", "
+            if [ ! -d vendor ]; then
+                composer install -no-interaction --prefer-dist --optimize-autoloader;
+            fi;
+            if [ ! -f .env ]; then
+                cp .env.example .env;
+            fi;
+            if ! grep -q 'APP_KEY=base64' .env; then
+                php artisan key:generate --force;
+            fi;
+            php artisan migrate:fresh --seed --force;
+            exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+            "]
+        
     mysql:
         image: 'mysql:8.0.34'
         ports:
