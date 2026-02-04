@@ -138,49 +138,66 @@
                     <div class="space-y-6 mt-8">
                         <div class="relative flex items-start">
                             <div class="flex items-center h-5">
-                                <x-form-input type="hidden" name="img_rights_ads" value="0"/>
-                                <x-checkbox-input type="checkbox" id="img_rights_ads" name="img_rights_ads" value="1" required/>
                             </div>
                             <div class="ml-3 text-sm">
                                 <x-f-assistant-label for="img_rights_ads">Autorización para publicidad</x-f-assistant-label>
-                                <p class="text-gray-500">Autorizo a publicar mi imagen/voz por DISTRIBUCIONES EUROCOS, S.L.U. en Piezas Audiovisuales o Gráficas, Medios Escritos y Digitales, Televisión, Cine, Vallas Publicitarias Pancartas y Carteles Publicitarios para ser utilizados en Cursos de Formación / Talleres / Entregar a Peluquerías con promociones de productos que distribuya DISTRIBUCIONES EUROCOS, S.L.U. con fines comerciales y de publicidad de productos y marcas.</p>
+                                <div class="flex items-center">
+                                    <select id="img_rights_ads" name="img_rights_ads" value="{{ old('img_rights_ads') }}" class="block rounded-md border-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                        <option value="0" selected>No</option>
+                                        <option value="1">Sí</option>
+                                    </select>
+                                    <p class="text-gray-500 ml-2">Autorizo a publicar mi imagen/voz por DISTRIBUCIONES EUROCOS, S.L.U. en Piezas Audiovisuales o Gráficas, Medios Escritos y Digitales, Televisión, Cine, Vallas Publicitarias Pancartas y Carteles Publicitarios para ser utilizados en Cursos de Formación / Talleres / Entregar a Peluquerías con promociones de productos que distribuya DISTRIBUCIONES EUROCOS, S.L.U. con fines comerciales y de publicidad de productos y marcas.</p>
+                                </div>
                             </div>
                         </div>
 
                         <div class="relative flex items-start">
                             <div class="flex items-center h-5">
-                                <x-form-input type="hidden" name="img_rights_web" value="0"/>
-                                <x-checkbox-input type="checkbox" id="img_rights_web" name="img_rights_web" value="1" required/>
                             </div>
                             <div class="ml-3 text-sm">
                                 <x-f-assistant-label for="img_rights_web" >Autorización web</x-f-assistant-label>
-                                <p class="text-gray-500">Autorizo a publicar mi imagen/voz por DISTRIBUCIONES EUROCOS, S.L.U. en su Página Web.</p>
+                                <div class="flex items-center">
+                                    <select id="img_rights_web" name="img_rights_web" value="{{ old('img_rights_web') }}" class="block rounded-md border-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                        <option value="0" selected>No</option>
+                                        <option value="1">Sí</option>
+                                    </select>
+                                    <p class="text-gray-500 ml-2">Autorizo a publicar mi imagen/voz por DISTRIBUCIONES EUROCOS, S.L.U. en su Página Web.</p>
+                                </div>                              
                             </div>
                         </div>
 
                         <div class="relative flex items-start">
                             <div class="flex items-center h-5">
-                                <x-form-input type="hidden" name="img_rights_rss" value="0"/>
-                                <x-checkbox-input type="checkbox" id="img_rights_rss" name="img_rights_rss" value="1" required/>
                             </div>
                             <div class="ml-3 text-sm">
                                 <x-f-assistant-label for="img_rights_rss" >Autorización redes sociales</x-f-assistant-label>
-                                <p class="text-gray-500">Autorizo a publicar mi imagen/voz por DISTRIBUCIONES EUROCOS, S.L.U. en redes sociales.</p>
+                                <div class="flex items-center">
+                                    <select id="img_rights_rss" name="img_rights_rss" value="{{ old('img_rights_rss') }}" class="block rounded-md border-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                        <option value="0" selected>No</option>
+                                        <option value="1">Sí</option>
+                                    </select>
+                                    <p class="text-gray-500 ml-2">Autorizo a publicar mi imagen/voz por DISTRIBUCIONES EUROCOS, S.L.U. en redes sociales. Autorizo la transferencia internacional de datos según el Marco de Privacidad de Datos UE-EEUU (Data Privacy Framework). 
+                                        Decisión de Ejecución de la Comisión de 10.7.2023, de conformidad con el 
+                                    <a href='https://www.dataprivacyframework.gov/s/participant-search/participantdetail?id=a2zt0000000GnywAAC&status=Active' class="text-blue-500 hover:underline"> Reglamento (UE) 2016/679 del Parlamento Europeo y del Consejo sobre el Nivel Adecuado de Protección de Datos Personales Bajo la Privacidad de Datos UE-EE.UU</a> 
+                                    </p>
+                                </div> 
                             </div>
                         </div>
 
                         <div class="relative flex items-start">
                             <div class="flex items-center h-5">
-                                <x-form-input type="hidden" name="privacy_policy" value="0"/>
-                                <x-checkbox-input type="checkbox" id="privacy_policy" name="privacy_policy" value="1" required/>
                             </div>
                             <div class="ml-3 text-sm">
-                                <x-f-assistant-label for="privacy_policy" >Política de privacidad</x-f-assistant-label>
-                                <p class="text-gray-500">Autorizo la transferencia internacional de datos según el Marco de Privacidad de Datos UE-EEUU (Data Privacy Framework). Decisión de Ejecución de la Comisión de 10.7.2023, de conformidad con el Reglamento (UE) 2016/679 del Parlamento Europeo y del Consejo sobre el Nivel Adecuado de Protección de Datos Personales Bajo la Privacidad de Datos UE-EE.UU (https://www.dataprivacyframework.gov/s/participant-search/participantdetail?id=a2zt0000000GnywAAC&status=Active).</p>
+                                <div class="flex items-center">
+                                    <select id="privacy_policy" name="privacy_policy" value="{{ old('privacy_policy') }}" class="block rounded-md border-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>
+                                        <option value="0" selected>No</option>
+                                        <option value="1">Sí</option>
+                                    </select>
+                                    <p class="font-bold ml-2">He leído y acepto la <a href="{{ route('privacy-policy') }}" target="_blank" class="text-blue-500 hover:underline"> Política de Privacidad</a> </p>
+                                </div>
+                                <x-form-error name="privacy_policy" />
                             </div>
                         </div>
-                    </div>
-
                     <div class="max-w-sm mx-auto pt-6">
                         <x-form-button>
                             Registrar Asistente 

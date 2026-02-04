@@ -20,6 +20,10 @@ Route::middleware(['guest'])->group(function () {
     //Session management
     Route::get('/login', [SessionController::class, 'create'])->name('login');
     Route::post('/login', [SessionController::class, 'store']);
+
+    Route::get('/privacy-policy', function () {
+        return view('politics.privacy');
+    })->name('privacy-policy');
 });
 
 Route::middleware(['auth'])->group(function () {

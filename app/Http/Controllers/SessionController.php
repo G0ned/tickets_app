@@ -24,7 +24,7 @@ class SessionController extends Controller
         if (Auth::attempt($credentials))
             {
                 request()->session()->regenerate();
-                return redirect()->intended('/attendee/dashboard')->with('debug', [
+                return redirect()->intended('/')->with('debug', [
                 'auth_check' => Auth::check(),
                 'user' => Auth::user()
                 ]);

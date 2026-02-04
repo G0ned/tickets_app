@@ -1,5 +1,5 @@
 services:
-    laravel.test:
+    laravel.test: 
         build:
             context: './vendor/laravel/sail/runtimes/8.5'
             dockerfile: Dockerfile
@@ -22,11 +22,18 @@ services:
         networks:
             - sail
         depends_on:
-            - mysql:
-                condition: service_healthy
-            - mailpit
-        entrypoint: ["sh", "-c", "
-            if [ ! -d vendor ]; then
+             mysql:
+                condition: service_healthy #Espera a que la base de datos esté lista antes de iniciarse el servicio ya que la base de datos se crea desde cero en este archivo.
+             mailpit:
+                condition: service_started
+        entrypoint: 
+            #Primero se comprueba si está instalado el composer comprobando si el directorio /vendor/autoload.php existe. Si no es el caso, se instala.
+            #Posteriormente se comprueba si el archivo .env existe. Si no es así, se crea a partir del .env.example.
+            #A continuación se compprueba si la APP_KEY de la aplicación existe y si no es así, se genera una nueva.
+            #Por último, se ejecutan las migraciones para crear las tablas de la base de datos y se generan nuevos registros a partir de los seeders de Laravel.
+
+            ["sh", "-c", "
+            if [ ! -d vendor/autoload.php ]; then
                 composer install --no-interaction --prefer-dist --optimize-autoloader;
             fi;
             if [ ! -f .env ]; then
@@ -37,12 +44,11 @@ services:
             fi;
             php artisan migrate:fresh --seed --force;
             exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
-            "]
-        
+            "]        
     mysql:
         image: 'mysql:8.0.34'
         ports:
-            - '${FORWARD_DB_PORT:-5555}:3307'
+            - '${FORWARD_DB_PORT:-5555}:3306'
         environment:
             MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
             MYSQL_ROOT_HOST: '%'
@@ -53,7 +59,6 @@ services:
             MYSQL_EXTRA_OPTIONS: '${MYSQL_EXTRA_OPTIONS:-}'
         volumes:
             - 'db-data:/var/lib/mysql'
-            - './vendor/laravel/sail/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
         networks:
             - sail
         healthcheck:

@@ -34,12 +34,9 @@ class SendTicketkMail
         $qrPayload = [
             'ticket_id' => uniqid('ticket_'),
             'event_id' => $event->id,
-            'user_id' => $user->identification,
-            'user_name' => $user->firstname,
-            'user_surname' => $user->surname,
-            'event_name' => $event->name,
+            'at_id' => $user->identification,
             'event_date' => $event->date,
-            'event_location' => $event->location
+            'event_location' => $event->location,
         ];
         $fileName = $event->id . '_' . $event->name . '_' . $user->surname . '_' . $user->name . '.svg';
         try{

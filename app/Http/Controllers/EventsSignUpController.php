@@ -33,6 +33,7 @@ class EventsSignUpController extends Controller
             'surname' => ['required', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
         ]);
+        
         $userData['password'] = 'EEUCONOAA1';
         $userData['role'] = 'attendee';
 
@@ -40,10 +41,14 @@ class EventsSignUpController extends Controller
             'phone' => ['required', 'max:9'],
             'zip_code' => ['required', 'max:5'],
             'privacy_policy' => ['required', 'boolean'],
-            'img_rights_ads' => ['required', 'boolean'],
-            'img_rights_web' => ['required', 'boolean'],
-            'img_rights_rss' => ['required', 'boolean'],
+            'img_rights_ads' => ['boolean'],
+            'img_rights_web' => ['boolean'],
+            'img_rights_rss' => ['boolean'],
         ]);
+
+        if ($info['privacy_policy'] != 1){
+            return back()->withErrors(['privacy_policy'=>'Debes aceptar la Política de Privacidad para poder registrarte y asistir al evento.'])->withInput();
+        }
 
         //Creación del usuario y asistente en la BD.
         return DB::transaction (function () use ($userData, $info, $event){
@@ -56,7 +61,7 @@ class EventsSignUpController extends Controller
             $createdUser->attendee()->create($info);
         
             if($event->is_active){ //Esta comprobación es redundante ya que el evento que se obtiene al inicio está activo. Se mantendrá por ahora
-
+                
                 if($event->capacity <=0)
                     {
                         return back()->withError('El evento no admite más inscripciones. Lamentamos las molestias.')->withInput();
