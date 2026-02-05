@@ -47,7 +47,8 @@ services:
             
             php artisan migrate:fresh --seed --force;
             exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
-            "]        
+            "]
+            #En la línea 48 debe de borrarse :fresh y --seed para que, tras el primer incio del contenedor no se borre la base de datos ni los registros.        
     mysql:
         image: 'mysql:8.0.34'
         ports:
