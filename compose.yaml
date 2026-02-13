@@ -1,11 +1,6 @@
 services:
     laravel.test: 
-        build:
-            context: './vendor/laravel/sail/runtimes/8.5'
-            dockerfile: Dockerfile
-            args:
-                WWWGROUP: '${WWWGROUP}'
-        image: 'sail-8.5/app'
+        image: 'laravelsail/php83-composer:latest'
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         ports:
@@ -33,7 +28,7 @@ services:
             #Por último, se ejecutan las migraciones para crear las tablas de la base de datos y se generan nuevos registros a partir de los seeders de Laravel.
 
             ["sh", "-c", "
-            if [ ! -d vendor/autoload.php ]; then
+            if [ ! -f vendor/autoload.php ]; then
                 composer install --no-interaction --prefer-dist --optimize-autoloader;
             fi;
             if [ ! -f .env ]; then
@@ -77,9 +72,6 @@ services:
         image: axllent/mailpit:latest
         networks:
             - sail
-        ports:
-            - '${FORWARD_MAILPIT_PORT:-1025}:1025'
-            - '${FORWARD_MAILPIT_WEB_PORT:-8025}:8025'
 networks:
     sail:
         driver: bridge

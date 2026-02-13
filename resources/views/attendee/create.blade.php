@@ -134,11 +134,20 @@
                             <x-form-error name="zip_code" />
                         </div>
                     </div>
-
+                    <hr class="my-6 border-gray-300" />
                     <div class="space-y-6 mt-8">
-                        <div class="relative flex items-start">
-                            <div class="flex items-center h-5">
+                        <div class="text-sm text-justify">
+                                <p>
+                                    Solicitamos su consentimiento para tratar los datos con las finalidades relacionadas 
+                                    a continuación. La base jurídica que legitima el tratamiento es su consentimiento explícito 
+                                    y se entenderá prestado a través de la marcación de la casilla correspondiente. 
+                                    Podrá retirar su consentimiento en cualquier momento sin que la retirada del mismo para estas 
+                                    finalidades condicione la ejecución de la relación establecida. 
+                                    Las imágenes obtenidas, a través de las fotos y vídeos, serán utilizadas tanto para publicaciones presentes 
+                                    como para publicaciones futuras, siempre que no retire el consentimiento otorgado.
+                                </p>
                             </div>
+                        <div class="relative flex items-start">
                             <div class="ml-3 text-sm">
                                 <x-f-assistant-label for="img_rights_ads">Autorización para publicidad</x-f-assistant-label>
                                 <div class="flex items-center">
@@ -146,7 +155,10 @@
                                         <option value="0" selected>No</option>
                                         <option value="1">Sí</option>
                                     </select>
-                                    <p class="text-gray-500 ml-2">Autorizo a publicar mi imagen/voz por DISTRIBUCIONES EUROCOS, S.L.U. en Piezas Audiovisuales o Gráficas, Medios Escritos y Digitales, Televisión, Cine, Vallas Publicitarias Pancartas y Carteles Publicitarios para ser utilizados en Cursos de Formación / Talleres / Entregar a Peluquerías con promociones de productos que distribuya DISTRIBUCIONES EUROCOS, S.L.U. con fines comerciales y de publicidad de productos y marcas.</p>
+                                    <p class="text-gray-500 ml-2 text-justify">
+                                        Envío de comunicaciones comerciales por medios electrónicos relacionadas con actividades, 
+                                        productos y eventos de DISTRIBUCIONES EUROCOS, S.L.U.
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -155,13 +167,14 @@
                             <div class="flex items-center h-5">
                             </div>
                             <div class="ml-3 text-sm">
-                                <x-f-assistant-label for="img_rights_web" >Autorización web</x-f-assistant-label>
+                                <x-f-assistant-label for="img_rights_web" >Autorización comunicaciones</x-f-assistant-label>
                                 <div class="flex items-center">
                                     <select id="img_rights_web" name="img_rights_web" value="{{ old('img_rights_web') }}" class="block rounded-md border-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                                         <option value="0" selected>No</option>
                                         <option value="1">Sí</option>
                                     </select>
-                                    <p class="text-gray-500 ml-2">Autorizo a publicar mi imagen/voz por DISTRIBUCIONES EUROCOS, S.L.U. en su Página Web.</p>
+                                    <p class="text-gray-500 ml-2 text-justify">Envío por DISTRIBUCIONES EUROCOS, S.L.U. de comunicaciones posteriores al Evento 
+                                        para la realización de encuestas de satisfacción y acciones de seguimiento.</p>
                                 </div>                              
                             </div>
                         </div>
@@ -176,14 +189,13 @@
                                         <option value="0" selected>No</option>
                                         <option value="1">Sí</option>
                                     </select>
-                                    <p class="text-gray-500 ml-2">Autorizo a publicar mi imagen/voz por DISTRIBUCIONES EUROCOS, S.L.U. en redes sociales. Autorizo la transferencia internacional de datos según el Marco de Privacidad de Datos UE-EEUU (Data Privacy Framework). 
-                                        Decisión de Ejecución de la Comisión de 10.7.2023, de conformidad con el 
-                                    <a href='https://www.dataprivacyframework.gov/s/participant-search/participantdetail?id=a2zt0000000GnywAAC&status=Active' class="text-blue-500 hover:underline"> Reglamento (UE) 2016/679 del Parlamento Europeo y del Consejo sobre el Nivel Adecuado de Protección de Datos Personales Bajo la Privacidad de Datos UE-EE.UU</a> 
+                                    <p class="text-gray-500 ml-2 text-justify">Captar y publicar su imagen / voz durante el Evento con fines de comunicación y 
+                                        difusión en los canales corporativos de DISTRIBUCIONES EUROCOS, S.L.U. (Página Web, RRSS, entre otros)
                                     </p>
                                 </div> 
                             </div>
                         </div>
-
+                        
                         <div class="relative flex items-start">
                             <div class="flex items-center h-5">
                             </div>
@@ -193,11 +205,16 @@
                                         <option value="0" selected>No</option>
                                         <option value="1">Sí</option>
                                     </select>
-                                    <p class="font-bold ml-2">He leído y acepto la <a href="{{ route('privacy-policy') }}" target="_blank" class="text-blue-500 hover:underline"> Política de Privacidad</a> </p>
+                                    <p class="font-bold ml-2">He leído y acepto la <a href="{{ route('privacy-policy') }}" target="_blank" class="text-blue-500 hover:underline"> Política de Privacidad</a> y el Aviso Legal </p>
                                 </div>
                                 <x-form-error name="privacy_policy" />
                             </div>
                         </div>
+                    <div class="text-sm text-justify mb-4 flex items-start pt-6">
+                           <strong class="pr-4">Atención:</strong> Para enviar el formulario debe activar las casillas según corresponda. 
+                           Declara haber sido informado sobre la Política de Privacidad y el Aviso Legal, aceptando y consintiendo el 
+                           tratamiento de los datos por DISTRIBUCIONES EUROCOS, S.L.U. en la forma y con las finalidades descritas.
+                    </div>
                     <div class="max-w-sm mx-auto pt-6">
                         <x-form-button>
                             Registrar Asistente 
