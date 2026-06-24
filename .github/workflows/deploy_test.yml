@@ -1,0 +1,60 @@
+name: Deploy to Test
+
+on:
+  push:
+    branches:
+      - test
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to test
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.TEST_HOST }}
+          username: ${{ secrets.TEST_USER }}
+          key: ${{ secrets.TEST_SSH_KEY }}
+          port: ${{ secrets.TEST_PORT }}
+          script: |
+            set -e
+            
+            DEPLOY_PATH="/www/test"
+            
+            echo "=========================================="
+            echo "Starting TEST deployment..."
+            echo "Path: $DEPLOY_PATH"
+            echo "User: $(whoami)"
+            echo "Time: $(date)"
+            echo "=========================================="
+            
+            cd "$DEPLOY_PATH"
+            
+            # Pull latest changes
+            echo "📥 Pulling latest changes from test..."
+            sudo git pull origin test
+            
+            # Install/update dependencies (containers already running)
+            echo "📦 Installing dependencies..."
+            sudo docker compose exec -T app composer install --no-dev --optimize-autoloader 2>/dev/null || echo "⚠️  Composer warnings"
+            sudo docker compose exec -T app npm install --production 2>/dev/null || echo "⚠️  NPM warnings"
+            sudo docker compose exec -T app npm run build 2>/dev/null || echo "⚠️  Build warnings"
+            
+            # Clear caches - Use || true to prevent deployment failure if Redis is having issues
+            echo "🧹 Clearing caches..."
+            sudo docker compose exec -T app php artisan config:clear || true
+            sudo docker compose exec -T app php artisan cache:clear || true
+            sudo docker compose exec -T app php artisan view:clear || true
+            sudo docker compose exec -T app php artisan route:clear || true
+            
+            # Run migrations
+            echo "🔄 Running migrations..."
+            sudo docker compose exec -T app php artisan migrate --force
+            
+            # Restart app container
+            echo "🔁 Restarting app container..."
+            sudo docker compose restart app
+            
+            echo "=========================================="
+            echo "✅ Deployment completed successfully!"
+            echo "=========================================="

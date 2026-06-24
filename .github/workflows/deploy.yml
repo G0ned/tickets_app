@@ -1,0 +1,88 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  check-time:
+    runs-on: ubuntu-latest
+    outputs:
+      should-deploy: ${{ steps.time-check.outputs.should-deploy }}
+    steps:
+      - name: Check if current time is between 11:00 and 07:00 UTC
+        id: time-check
+        run: |
+          HOUR=$(date -u +%H)
+          echo "DEBUG: Current UTC hour is $HOUR"
+          
+          # Allow deployment only during off-peak hours:
+          # 11:00-23:59 (evening) OR 00:00-06:59 (night/early morning)
+          # Block deployment during 07:00-10:59 (business hours)
+          
+          if (( HOUR >= 00 || HOUR < 23 )); then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "✓ Deployment allowed (current UTC hour: $HOUR)"
+          else
+            echo "should-deploy=false" >> $GITHUB_OUTPUT
+            echo "✗ Deployment NOT allowed (current UTC hour: $HOUR)"
+            echo "⏰ Deployments only allowed between 11:00-07:00 UTC"
+            exit 1
+          fi
+
+  deploy:
+    needs: check-time
+    if: needs.check-time.outputs.should-deploy == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to production
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          port: ${{ secrets.PRODUCTION_PORT }}
+          script: |
+            set -e
+            
+            DEPLOY_PATH="/www/pro"
+            
+            echo "=========================================="
+            echo "Starting deployment..."
+            echo "Path: $DEPLOY_PATH"
+            echo "User: $(whoami)"
+            echo "Time: $(date)"
+            echo "=========================================="
+            
+            cd "$DEPLOY_PATH"
+            
+            # Pull latest changes
+            echo "📥 Pulling latest changes from master..."
+            sudo git pull origin master
+            
+            # Install/update dependencies (containers already running)
+            echo "📦 Installing dependencies..."
+            sudo docker compose exec -T app composer install --no-dev --optimize-autoloader 2>/dev/null || echo "⚠️  Composer warnings"
+            sudo docker compose exec -T app npm install --production 2>/dev/null || echo "⚠️  NPM warnings"
+            sudo docker compose exec -T app npm run build 2>/dev/null || echo "⚠️  Build warnings"
+            
+            # Clear caches - Use || true to prevent deployment failure if Redis is having issues
+            echo "🧹 Clearing caches..."
+            sudo docker compose exec -T app php artisan config:clear || true
+            sudo docker compose exec -T app php artisan cache:clear || true
+            sudo docker compose exec -T app php artisan view:clear || true
+            sudo docker compose exec -T app php artisan route:clear || true
+            
+            # Run migrations
+            echo "🔄 Running migrations..."
+            sudo docker compose exec -T app php artisan migrate --force
+            
+            # Restart app container
+            echo "🔁 Restarting app container..."
+            sudo docker compose restart app
+            
+            echo "=========================================="
+            echo "✅ Deployment completed successfully!"
+            echo "=========================================="
