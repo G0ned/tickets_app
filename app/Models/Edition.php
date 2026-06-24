@@ -22,7 +22,7 @@ class Edition extends Model
 
     public function event():BelongsTo
     {
-        return $this->belogsTo(Event::class, 'event_id');
+        return $this->belongsTo(Event::class, 'event_id');
     } 
 
     public function managers(): BelongsToMany
