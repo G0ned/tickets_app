@@ -67,6 +67,12 @@ class EditionController extends Controller
             ->with('success', 'Gestor asignado correctamente.');
     }
 
+    public function managerEditions(User $user)
+    {
+        $user_editions = $user->managed_events()->with('event')->get();
+        return view('editions.manager-editions')->with('editions', $user_editions);
+    }
+
     public function update(Edition $edition)
     {
         $validated = request()->validate([
