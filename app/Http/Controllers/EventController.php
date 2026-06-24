@@ -1,0 +1,102 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Event;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class EventController extends Controller
+{
+    public function index()
+    {
+        $events = Event::with('createdBy')->get();
+        return view('events.index')->with('events', $events);
+    }
+
+    public function create()
+    {
+        return view('events.create');
+    }
+
+    public function show(Event $event)
+    {
+        $event->load(['createdBy', 'editions']);
+        return view('events.details')->with('event', $event);
+    }
+
+    public function store()
+    {
+        $event_info = request()->validate([
+            'name' => ['required', 'string'],
+            'poster' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'public' => ['required', 'boolean'],
+            'desc' => ['required', 'string']
+        ]);
+        
+        $posterPath = null;
+
+        if(request()->hasFile('poster'))
+        {
+            $posterPath = request()->file('poster')->store('posters', 'public');
+        }
+        try{
+            $new_event = Event::create([
+                'name' => $event_info['name'],
+                'description' => $event_info['desc'],
+                'public' => $event_info['public'],
+                'poster_path' => $posterPath,
+                'created_by' => Auth::user()->id
+            ]);
+            return redirect(route('editions-create', ['event' => $new_event->id]));
+        } catch(\Exception $e){
+            return back()->withErrors($e->getMessage())->withInput();
+        }
+    }
+    
+     public function edit(Event $event)
+    {
+        return view('events.edit')->with('event', $event);
+    }
+    
+    public function update(Event $event)
+    {
+        $event_new_data = request()->validate([
+            'name' => ['required', 'string'],
+            'poster_path' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp|max:2048'],
+            'public' => ['required', 'boolean'],
+            'desc' => ['required', 'string'] 
+        ]);
+
+        $posterPath = $event->poster_path;
+
+        if(request()->hasFile('poster_path'))
+        {
+            if($event->poster_path)
+            {
+                Storage::disk('public')->delete($posterPath);
+            }
+            $posterPath = request()->file('poster_path')->store('posters', 'public');
+        }
+        try{
+            $result = $event->update([
+            'name' => $event_new_data['name'],
+            'public' => $event_new_data['public'],
+            'description' => $event_new_data['desc'],
+            'poster_path' => $posterPath
+            ]);
+            return redirect(route('events-show', $event->id));
+        }
+        catch(\Exception $e){
+            dd($e->getMessage());
+        }
+    }
+
+    public function destroy(Event $event)
+    {
+        $event->delete();
+        return redirect(route('events-index'));
+    }
+}
