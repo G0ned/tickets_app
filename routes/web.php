@@ -7,6 +7,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\EditionController;
 use App\Http\Controllers\ClientPortfolioController;
 use App\Http\Controllers\GuestListController;
+use App\Http\Controllers\InvitationListController;
 
 Route::get('/', [SessionController::class, 'create'])->name('home');
 Route::post('/', [SessionController::class, 'store'])->name('login');
@@ -33,4 +34,7 @@ Route::middleware(['auth'])->group(function (){
     Route::get('/edition/{edition}/guest-list/create', [GuestListController::class, 'create'])->name('guest-list-create');
     Route::get('/user/{id}/portfolio', [ClientPortfolioController::class, 'index'])->name('portfolios-index');
     Route::get('/portfolio/{portfolio}', [ClientPortfolioController::class, 'show'])->name('portfolios-show');
+    Route::get('/user/{user}/editions', [EditionController::class, 'managerEditions'])->name('manager-editions');
+    Route::get('/edition/{edition}/invitations', [InvitationListController::class, 'create'])->name('edition-invitation-list');
+    Route::post('/edition/{edition}/invitations', [InvitationListController::class, 'store'])->name('invitation-list-store');
 });
