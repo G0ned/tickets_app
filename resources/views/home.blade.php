@@ -1,8 +1,5 @@
 <x-layout>
     <x-slot:heading>Bienvenido a Eventia</x-slot:heading>
-    <h1>
-        Número de usuarios: {{$number}}
-    </h1>
     <div>
         <div class="max-w-sm mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-gray-700 rounded-lg shadow-sm p-6 sm:p-8">
