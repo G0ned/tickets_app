@@ -1,4 +1,5 @@
 <x-layout>
+    @section('title', 'Formulario de registro')
     <x-slot:title>Registro de Asistentes</x-slot:title>
     <div>
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -1,5 +1,5 @@
 <x-layout>
-    <x-slot:title name="title">Aviso Legal</x-slot:title>
+    @section('title', 'Aviso Legal')
     <x-slot:heading>Aviso Legal</x-slot:heading>
     <div class="container bg-white rounded-lg shadow-sm p-6">
         <div class="justify-center align-center flex-items-center">
