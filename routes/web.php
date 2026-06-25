@@ -37,4 +37,8 @@ Route::middleware(['auth'])->group(function (){
     Route::get('/user/{user}/editions', [EditionController::class, 'managerEditions'])->name('manager-editions');
     Route::get('/edition/{edition}/invitations', [InvitationListController::class, 'create'])->name('edition-invitation-list');
     Route::post('/edition/{edition}/invitations', [InvitationListController::class, 'store'])->name('invitation-list-store');
+    Route::get('/user/{id}/invitation-list', [InvitationListController::class, 'index'])->name('invitation-lists-index');
+    Route::get('/invitation-list/{list}', [InvitationListController::class, 'show'])->name('invitation-list-show');
+    Route::patch('/invitation-list/{list}', [InvitationListController::class, 'update'])->name('invitation-list-update');
 });
+
