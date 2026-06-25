@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\User;
+use App\Models\InvitationList;
 
 class ClientPortfolio extends Model
 {
@@ -24,5 +25,10 @@ class ClientPortfolio extends Model
     public function persons(): HasMany
     {
         return $this->hasMany(Person::class, 'client_portfolio_id');
+    }
+
+    public function invitationLists(): HasMany
+    {
+        return $this->hasMany(InvitationList::class, 'client_portfolio_id');
     }
 }
