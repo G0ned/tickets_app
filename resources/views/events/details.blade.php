@@ -61,11 +61,18 @@
                                 </x-button>
                             </div>
 
+
                             <form action="{{route('events-delete', $event->id)}}" method="POST" class="mt-1" onsubmit="return confirm('¿Seguro que quieres eliminar el evento &quot;{{ $event->name }}&quot;? Esta acción no se puede deshacer.')">
                                 @csrf
                                 @method('DELETE')
                                 <x-delete-button type="submit">Eliminar evento</x-delete-button>
                             </form>
+
+                            <div class="mt-1">
+                                <x-button href="{{route('event-signup', $event->id)}}">
+                                    Formulario de Registro
+                                </x-button>
+                            </div>
                     </div>
                 </div>
 
