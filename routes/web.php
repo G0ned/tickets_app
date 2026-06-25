@@ -17,6 +17,9 @@ Route::post('/event/{event}/signup-form', [FormController::class, 'store'])->nam
 Route::get('privacy-policy', function(){
     return view('privacy-policy');
 })->name('privacy-policy');
+Route::get('/signup-success', function(){
+    return view('form.success');
+})->name('form-success');
 
 Route::middleware(['admin:admin'])->group(function(){
     Route::get('/events/create', [EventController::class, 'create'])->name('events-create');
