@@ -11,8 +11,7 @@ class SessionController extends Controller
 {
 
     public function create(){
-        $n_users = DB::table('users')->count();
-        return view('home')->with('number', $n_users);
+        return view('home');
     }
 
     public function store(){
