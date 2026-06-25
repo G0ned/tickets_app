@@ -8,8 +8,6 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Pivot table that links each InvitationList to the Person records it contains.
-        // Matches the BelongsToMany definition in InvitationList::persons().
         Schema::create('invitation_list_person', function (Blueprint $table) {
             $table->foreignId('invitation_list_id')
                 ->constrained('invitation_lists')
