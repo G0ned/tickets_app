@@ -8,6 +8,8 @@ use App\Models\Person;
 use App\Models\Edition;
 use App\Rules\ValidateId;
 use Illuminate\Support\Facades\DB;
+use App\Events\AttendeeEditionSignUpEvent as signup_event;
+
 class FormController extends Controller
 {
     public function create(Event $event)
@@ -68,6 +70,7 @@ class FormController extends Controller
                 'auth_image_rights' => $validated['img_rights_rss'],
                 'privacy_policy' => $validated['privacy_policy']
             ]);
+            signup_event::dispatch($edition, $attendee);
             return redirect()->route('form-success');
         });
     }
