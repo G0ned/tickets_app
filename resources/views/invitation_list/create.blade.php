@@ -3,8 +3,6 @@
     <x-slot:heading>Lista de invitaciones — {{ $edition->event->name }}</x-slot:heading>
 
     <div class="max-w-3xl mx-auto space-y-6">
-
-        {{-- Edition summary card --}}
         <div class="bg-gray-700 rounded-lg p-5">
             <p class="text-white font-semibold text-base">{{ $edition->event->name }}</p>
             <p class="text-gray-300 text-sm mt-1">
@@ -12,7 +10,6 @@
                 · {{ $edition->date->format('H:i') }}
                 · {{ $edition->location }}
             </p>
-            {{-- Only show the capacity badge when the admin has set a limit for this manager --}}
             @if ($managerPivot?->invitations_capacity !== null)
                 <p class="mt-2 inline-flex items-center gap-1.5 text-sm text-yellow-300">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -25,7 +22,6 @@
             @endif
         </div>
 
-        {{-- Guard: manager has no portfolios yet --}}
         @if ($portfolios->isEmpty())
             <div class="bg-gray-700 rounded-lg p-10 text-center">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -38,14 +34,6 @@
             </div>
         @else
 
-        {{--
-            Alpine.js component that drives the entire form:
-            - portfolioId: which portfolio tab is currently active
-            - selected: array of person IDs the manager has checked
-            - capacity: the max invitations allowed (null = unlimited)
-            Switching portfolio tabs clears the selection to avoid cross-portfolio contamination,
-            since an InvitationList belongs to a single portfolio (client_portfolio_id FK).
-        --}}
         <div x-data="{
             portfolioId: {{ $portfolios->first()->id }},
             selected: [],
@@ -79,11 +67,7 @@
         }">
             <form method="POST" action="{{ route('invitation-list-store', $edition->id) }}" class="space-y-6">
                 @csrf
-
-                {{-- Reactive hidden input: sends whichever portfolio is active when the form is submitted --}}
                 <input type="hidden" name="portfolio_id" :value="portfolioId">
-
-                {{-- ── List name + portfolio selector ─────────────────────────────────── --}}
                 <div class="bg-gray-700 rounded-lg p-5 space-y-4">
                     <div>
                         <x-form-label for="name">Nombre de la lista</x-form-label>
@@ -96,8 +80,6 @@
                             required />
                         <x-form-error name="name" />
                     </div>
-
-                    {{-- Portfolio tab buttons — only shown when the manager has more than one portfolio --}}
                     @if ($portfolios->count() > 1)
                         <div>
                             <p class="text-sm font-medium text-gray-300 mb-2">Portfolio</p>
@@ -116,21 +98,12 @@
                         </div>
                     @endif
                 </div>
-
-                {{-- ── Person list ─────────────────────────────────────────────────────── --}}
                 @foreach ($portfolios as $portfolio)
                     @php
-                        // Pre-compute the JS array literal for this portfolio's person IDs.
-                        // Used in Alpine expressions for toggleAll / allSelected.
                         $personIds = $portfolio->persons->pluck('id')->values()->all();
                     @endphp
-
-                    {{-- x-show keeps the element in the DOM (so checked state is maintained)
-                         but hides/shows it depending on the active portfolio tab. --}}
                     <div x-show="portfolioId === {{ $portfolio->id }}"
                          class="bg-gray-700 rounded-lg overflow-hidden">
-
-                        {{-- Select-all row --}}
                         <div class="px-5 py-3 bg-gray-600 border-b border-gray-500 flex items-center justify-between">
                             <label class="flex items-center gap-2 cursor-pointer select-none">
                                 <input type="checkbox"
@@ -150,12 +123,6 @@
                                     <li class="hover:bg-gray-600 transition-colors">
                                         {{-- The label wraps the whole row so clicking anywhere toggles the checkbox --}}
                                         <label class="flex items-center gap-4 px-5 py-3 cursor-pointer w-full select-none">
-                                            {{--
-                                                We manage checked state via Alpine (:checked / @change) rather than x-model
-                                                to keep the selected array as numbers and avoid string/number type mismatches.
-                                                Unchecked boxes are not submitted by the browser, so the form only sends
-                                                the IDs that are truly selected.
-                                            --}}
                                             <input type="checkbox"
                                                 name="persons[]"
                                                 value="{{ $person->id }}"
@@ -177,15 +144,11 @@
                         @endif
                     </div>
                 @endforeach
-
-                {{-- ── Footer: live counter + submit ──────────────────────────────────── --}}
                 <div class="bg-gray-700 rounded-lg p-5 flex items-center justify-between gap-4 flex-wrap">
                     <div class="space-y-1 text-sm">
                         <p class="text-gray-300">
                             <span class="text-white font-semibold" x-text="selected.length"></span>
                             <span x-text="selected.length === 1 ? ' persona seleccionada' : ' personas seleccionadas'"></span>
-
-                            {{-- Capacity counter: only rendered when a limit exists --}}
                             @if ($managerPivot?->invitations_capacity !== null)
                                 <span class="mx-1 text-gray-500">&middot;</span>
                                 <span :class="overCapacity ? 'text-red-400 font-semibold' : 'text-gray-400'">
@@ -193,19 +156,13 @@
                                 </span>
                             @endif
                         </p>
-
-                        {{-- Over-capacity warning --}}
                         <p x-show="overCapacity" x-cloak class="text-red-400 text-xs">
                             Has superado tu límite de invitaciones para esta edición.
                         </p>
-
-                        {{-- Server-side validation error for persons[] --}}
                         @error('persons')
                             <p class="text-red-400 text-xs">{{ $message }}</p>
                         @enderror
                     </div>
-
-                    {{-- Submit disabled when nothing is selected or capacity is exceeded --}}
                     <button type="submit"
                         :disabled="!canSubmit"
                         :class="canSubmit
