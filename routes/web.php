@@ -8,9 +8,14 @@ use App\Http\Controllers\EditionController;
 use App\Http\Controllers\ClientPortfolioController;
 use App\Http\Controllers\GuestListController;
 use App\Http\Controllers\InvitationListController;
+use App\Http\Controllers\FormController;
 
 Route::get('/', [SessionController::class, 'create'])->name('home');
 Route::post('/', [SessionController::class, 'store'])->name('login');
+Route::get('/event/{event}/signup-form', [FormController::class, 'create'], )->name('event-signup');
+Route::get('privacy-policy', function(){
+    return view('privacy-policy');
+})->name('privacy-policy');
 
 Route::middleware(['admin:admin'])->group(function(){
     Route::get('/events/create', [EventController::class, 'create'])->name('events-create');
