@@ -8,9 +8,36 @@
                     <x-slot:heading>Registro de Asistentes</x-slot:heading>
                 </div>
 
-                <form method="POST" action="/attendees" class="space-y-8">
+                <diV class="max-w-2xl mx-auto px-2">
+                    <div class="bg-gray-700 p-8 rounded-xl shadow-xl">
+                    <div class="flex gap-8">
+                    <div class="w-48 shrink-0">
+                        @if($event->poster_path)
+                            <img
+                                src="{{ Storage::url($event->poster_path) }}"
+                                alt="Poster del evento {{ $event->name }}"
+                                class="w-full h-48 object-cover rounded-lg text-white shadow-md"
+                            >
+                        @else
+                            <div class="w-full h-48 bg-gray-600 rounded-lg flex items-center justify-center">
+                                <span class="text-gray-400 text-sm">Sin cartel</span>
+                            </div>
+                        @endif
+                    </div>
+                    <div class="flex-1 space-y-4">
+                        <h2 class="text-2xl font-bold text-white">{{ $event->name }}</h2>
+
+                        <div>
+                            <span class="text-gray-400 text-sm uppercase tracking-wide">Descripción</span>
+                            <p class="text-white mt-1">{{ $event->description }}</p>
+                        </div>
+                        <hr class="bg-white my-6">
+                    </div>
+            </div>
+        </div>
+                <form method="POST" action="/attendees" class="space-y-8 rounded-sm shadow-lg">
                     @csrf
-                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 p-4">
                         @if (session('error'))
                             <div class="alert alert-danger">
                                 {{ session('error') }}
@@ -110,7 +137,7 @@
                     </div>
                     <hr class="my-6 border-gray-300" />
                     <div class="space-y-6 mt-8">
-                        <div class="text-sm text-justify">
+                        <div class="text-sm text-justify px-2">
                                 <p>
                                     Solicitamos su consentimiento para tratar los datos con las finalidades relacionadas 
                                     a continuación. La base jurídica que legitima el tratamiento es su consentimiento explícito 
@@ -184,12 +211,12 @@
                                 <x-form-error name="privacy_policy" />
                             </div>
                         </div>
-                    <div class="text-sm text-justify mb-4 flex items-start pt-6">
+                    <div class="text-sm text-justify mb-4 flex items-start p-2">
                            <strong class="pr-4">Atención:</strong> Para enviar el formulario debe activar las casillas según corresponda. 
                            Declara haber sido informado sobre la Política de Privacidad y el Aviso Legal, aceptando y consintiendo el 
                            tratamiento de los datos por DISTRIBUCIONES EUROCOS, S.L.U. en la forma y con las finalidades descritas.
                     </div>
-                    <div class="max-w-sm mx-auto pt-6">
+                    <div class="max-w-sm mx-auto p-4">
                         <x-form-button>
                             Registrar Asistente 
                         </x-form-button>
