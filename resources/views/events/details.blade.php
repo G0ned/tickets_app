@@ -100,23 +100,32 @@
                                 <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Hora</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Duración</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Ubicación</th>
+                                <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Aforo</th>
+                                <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Nº Registros</th>
+                                <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Acciones</th>
+                                
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-600">
                             @foreach($event->editions as $edition)
                                 <tr class="hover:bg-gray-600 transition-colors duration-150">
-                                    <td class="px-4 py-3 text-white whitespace-nowrap">{{ $edition->id }}</td>
-                                    <td class="px-4 py-3 text-white whitespace-nowrap">{{ $edition->date->format('d-m-Y') }}</td>
-                                    <td class="px-4 py-3 text-white whitespace-nowrap">{{ $edition->date->format('H:i') }}</td>
-                                    <td class="px-4 py-3 text-white whitespace-nowrap">{{ $edition->duration }} min</td>
-                                    <td class="px-4 py-3 text-white whitespace-nowrap">{{ $edition->location ?? '-' }}</td>
-                                    <td class="px-4 py-3"><x-button href="{{route('editions-edit', $edition->id)}}">Editar</x-button></td>
-                                    <td><form action="{{route('editions-delete', $edition->id)}}" method="POST"
-                                            onsubmit="return confirm('¿Seguro que quieres eliminar esta edición?. Esta acción no se puede deshacer.')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <x-delete-button type="submit">Eliminar</x-delete-button>
-                                        </form>
+                                    <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->id }}</td>
+                                    <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->date->format('d-m-Y') }}</td>
+                                    <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->date->format('H:i') }}</td>
+                                    <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->duration }} min</td>
+                                    <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->location ?? '-' }}</td>
+                                    <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->capacity }}</td>
+                                    <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->attendees->count() }}</td>
+                                    <td class="px-4 py-3">
+                                        <div class="flex items-center gap-2">
+                                            <x-button href="{{route('editions-edit', $edition->id)}}">Editar</x-button>
+                                            <form action="{{route('editions-delete', $edition->id)}}" method="POST"
+                                                onsubmit="return confirm('¿Seguro que quieres eliminar esta edición?. Esta acción no se puede deshacer.')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <x-delete-button type="submit">Eliminar</x-delete-button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
