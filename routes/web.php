@@ -13,6 +13,7 @@ use App\Http\Controllers\FormController;
 Route::get('/', [SessionController::class, 'create'])->name('home');
 Route::post('/', [SessionController::class, 'store'])->name('login');
 Route::get('/event/{event}/signup-form', [FormController::class, 'create'], )->name('event-signup');
+Route::post('/event/{event}/signup-form', [FormController::class, 'store'])->name('event-signup-store');
 Route::get('privacy-policy', function(){
     return view('privacy-policy');
 })->name('privacy-policy');

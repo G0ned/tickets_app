@@ -11,4 +11,9 @@ class FormController extends Controller
     {
         return view('form.create')->with('event', $event);
     }
+
+    public function store()
+    {
+        //TODO
+    }
 }
