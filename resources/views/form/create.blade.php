@@ -35,8 +35,25 @@
                     </div>
             </div>
         </div>
-                <form method="POST" action="/attendees" class="space-y-8 rounded-sm shadow-lg">
+                <form method="POST" action="{{route('event-signup-store', $event->id)}}" class="space-y-8 rounded-sm shadow-lg">
                     @csrf
+                    <div class="grid grid-cols-1 gap-4 p-4">
+                    
+                        <label for="editions">
+                            <div class="fles items-center">
+                            
+                                <select id="editions" name="editions" value="{{ old('editions') }}" class="block rounded-md border-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                    <option value="" disabled selected>--- Seleccione la edición a la que dese asistir ---</option>
+                                    @foreach($event->editions as $edition)
+                                    <option value="{{$edition->id}}">Fecha: {{$edition->date->format('d-m-Y')}} - Hora {{$edition->date->format('H:i')}}</option>
+                                    @endforeach
+                                </select>
+
+                            </div>
+                        </label>
+
+                    </div>
+
                     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 p-4">
                         @if (session('error'))
                             <div class="alert alert-danger">
@@ -148,12 +165,13 @@
                                     como para publicaciones futuras, siempre que no retire el consentimiento otorgado.
                                 </p>
                             </div>
-                        <div class="relative flex items-start">
+                        <div class="relative flex items-start px-2">
                             <div class="ml-3 text-sm">
                                 <label for="img_rights_ads">Autorización para publicidad</label>
                                 <div class="flex items-center">
                                     <select id="img_rights_ads" name="img_rights_ads" value="{{ old('img_rights_ads') }}" class="block rounded-md border-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
-                                        <option value="0" selected>No</option>
+                                        <option value="" disabled selected>Elija una opción</option>
+                                        <option value="0">No</option>
                                         <option value="1">Sí</option>
                                     </select>
                                     <p class="text-gray-500 ml-2 text-justify">
@@ -164,14 +182,15 @@
                             </div>
                         </div>
 
-                        <div class="relative flex items-start">
+                        <div class="relative flex items-start px-2">
                             <div class="flex items-center h-5">
                             </div>
                             <div class="ml-3 text-sm">
                                 <label for="img_rights_web" >Autorización comunicaciones</label>
                                 <div class="flex items-center">
                                     <select id="img_rights_web" name="img_rights_web" value="{{ old('img_rights_web') }}" class="block rounded-md border-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
-                                        <option value="0" selected>No</option>
+                                        <option value="" disabled selected>Elija una opción</option>
+                                        <option value="0">No</option>
                                         <option value="1">Sí</option>
                                     </select>
                                     <p class="text-gray-500 ml-2 text-justify">Envío por DISTRIBUCIONES EUROCOS, S.L.U. de comunicaciones posteriores al Evento 
@@ -180,14 +199,15 @@
                             </div>
                         </div>
 
-                        <div class="relative flex items-start">
+                        <div class="relative flex items-start px-2">
                             <div class="flex items-center h-5">
                             </div>
                             <div class="ml-3 text-sm">
                                 <label for="img_rights_rss" >Autorización redes sociales</label>
                                 <div class="flex items-center">
                                     <select id="img_rights_rss" name="img_rights_rss" value="{{ old('img_rights_rss') }}" class="block rounded-md border-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
-                                        <option value="0" selected>No</option>
+                                        <option value="" disabled selected>Elija una opción</option>
+                                        <option value="0">No</option>
                                         <option value="1">Sí</option>
                                     </select>
                                     <p class="text-gray-500 ml-2 text-justify">Captar y publicar su imagen / voz durante el Evento con fines de comunicación y 
@@ -197,13 +217,14 @@
                             </div>
                         </div>
                         
-                        <div class="relative flex items-start">
+                        <div class="relative flex items-start px-2">
                             <div class="flex items-center h-5">
                             </div>
                             <div class="ml-3 text-sm">
                                 <div class="flex items-center">
                                     <select id="privacy_policy" name="privacy_policy" value="{{ old('privacy_policy') }}" class="block rounded-md border-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>
-                                        <option value="0" selected>No</option>
+                                        <option value="" disabled selected>Elija una opción</option>
+                                        <option value="0">No</option>
                                         <option value="1">Sí</option>
                                     </select>
                                     <p class="font-bold ml-2">He leído y acepto la <a href="{{ route('privacy-policy') }}" target="_blank" class="text-blue-500 hover:underline"> Política de Privacidad</a> y el Aviso Legal </p>
