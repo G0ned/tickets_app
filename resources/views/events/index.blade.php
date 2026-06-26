@@ -29,7 +29,7 @@
 
                         <div class="flex items-center text-sm text-white">
                            @if ($event->public)
-                                <span class="ml-2 text-white font-bold">Evento público/span>
+                                <span class="ml-2 text-white font-bold">Evento público</span>
                             @else
                                 <span class="ml-2 text-white font-bold">Evento privado</span>
                             @endif
