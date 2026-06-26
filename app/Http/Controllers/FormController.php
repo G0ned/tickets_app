@@ -35,42 +35,37 @@ class FormController extends Controller
             'privacy_policy' => ['required', 'in:1'],
         ]);
 
-        return DB::transaction(function() use ($validated)
-        {
-            $edition = Edition::find($validated['editions']);
-            if($edition->capacity <= 0)
-                {
-                    return back()->withErrors(['error', 'La edición no admite a más asistentes. Pruebe a registrarse en otra edición']);
-                }
+        return DB::transaction(function () use ($validated) {
+            $edition = Edition::where('id', $validated['editions'])
+                ->lockForUpdate()
+                ->firstOrFail();
 
-            elseif(Edition::find($validated['editions'])->attendees->contains('attendee_id', $validated['identification']))
-                {
-                    return back()->withErrors(['error' ,'Usuario ya registrado en esta edición...']);
-                }
-            elseif(!Person::where('passport', $validated['identification'])->exists())
-                {
-                    $attendee = Person::create([
-                        'name' => $validated['firstname'],
-                        'surname' => $validated['surname'],
-                        'email' => $validated['email'],
-                        'phone' => $validated['phone'],
-                        'passport' => $validated['identification'],
-                    ]);
-                }
-            else
-                {
+            if ($edition->capacity <= 0) {
+                return back()->withErrors(['error' => 'La edición no admite a más asistentes. Pruebe a registrarse en otra edición.']);
+            }
+            $attendee = Person::firstOrCreate(
+                ['passport' => $validated['identification']],
+                [
+                    'name'    => $validated['firstname'],
+                    'surname' => $validated['surname'],
+                    'email'   => $validated['email'],
+                    'phone'   => $validated['phone'],
+                ]
+            );
 
-                    $attendee = Person::where('passport', $validated['identification'])->first();
-                }
-            
-            $edition->lockForUpdate();
+            if ($edition->attendees()->where('attendee_id', $attendee->id)->exists()) {
+                return back()->withErrors(['error' => 'Ya estás registrado en esta edición.']);
+            }
+
             $edition->attendees()->attach($attendee->id, [
-                'auth_for_ad' => $validated['img_rights_ads'],
-                'auth_for_comms' => $validated['img_rights_web'],
+                'auth_for_ad'       => $validated['img_rights_ads'],
+                'auth_for_comms'    => $validated['img_rights_web'],
                 'auth_image_rights' => $validated['img_rights_rss'],
-                'privacy_policy' => $validated['privacy_policy']
+                'privacy_policy'    => $validated['privacy_policy'],
             ]);
+
             signup_event::dispatch($edition, $attendee);
+
             return redirect()->route('form-success');
         });
     }
