@@ -9,6 +9,7 @@ use App\Http\Controllers\ClientPortfolioController;
 use App\Http\Controllers\GuestListController;
 use App\Http\Controllers\InvitationListController;
 use App\Http\Controllers\FormController;
+use App\Http\Controllers\UserController;
 
 Route::get('/', [SessionController::class, 'create'])->name('home');
 Route::post('/', [SessionController::class, 'store'])->name('login');
@@ -33,6 +34,8 @@ Route::middleware(['admin:admin'])->group(function(){
     Route::delete('/edition/{edition}', [EditionController::class, 'destroy'])->name('editions-delete');
     Route::post('/edition/{edition}/assign-manager', [EditionController::class, 'assignManager'])->name('assign-user');
     Route::get('/edition/{edition}/attendees', [EditionController::class, 'attendees'])->name('edition-attendees');
+    Route::get('/user/create', [UserController::class, 'create'])->name('user-create');
+    Route::post('/user/create', [UserController::class, 'store'])->name('user-store');
 });
 
 Route::middleware(['auth'])->group(function (){
