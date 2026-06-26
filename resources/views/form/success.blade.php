@@ -17,26 +17,12 @@
             <div class="space-y-2">
                 <h2 class="text-2xl font-bold text-white">¡Registro completado!</h2>
                 <p class="text-gray-300 text-sm">
-                    Tu inscripción ha sido procesada correctamente. Recibirás un correo electrónico
-                    de confirmación con los detalles de tu asistencia.
+                    Tu inscripción ha sido procesada correctamente. Puedes cerrar esta página.
                 </p>
             </div>
 
             {{-- Divider --}}
             <hr class="border-gray-600">
-
-            {{-- Info note --}}
-            <p class="text-gray-400 text-xs">
-                Si no recibes el correo en los próximos minutos, revisa tu carpeta de spam.
-            </p>
-
-            {{-- Back button --}}
-            <div>
-                <a href="{{ route('home') }}"
-                   class="inline-block bg-teal-700 hover:bg-teal-600 text-white font-semibold px-6 py-2.5 rounded-lg transition-colors duration-150">
-                    Volver al inicio
-                </a>
-            </div>
 
         </div>
     </div>
