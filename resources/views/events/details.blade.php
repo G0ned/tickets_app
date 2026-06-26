@@ -130,8 +130,8 @@
                                         </div>
                                     </td>
                                     @admin()
-                                    <td class="px-4 py-3">
-                                    <x-button href="{{route('edition-attendees', $edition->id)}}">Ver asistentes</x-button>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <x-button href="{{route('edition-attendees', $edition->id)}}">Ver asistentes</x-button>
                                     </td>
                                     @endadmin
                                 </tr>
