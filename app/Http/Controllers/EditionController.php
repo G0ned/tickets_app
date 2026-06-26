@@ -107,9 +107,13 @@ class EditionController extends Controller
         return redirect(route('events-index'));
     }
 
-    public function details()
+    public function attendees(Edition $edition)
     {
-        //TODO
+        // Eager-load the event (for context in the view) and all attendees
+        // including every pivot column defined in the relationship.
+        $edition->load(['event', 'attendees']);
+
+        return view('editions.attendees', compact('edition'));
     }
 
 }

@@ -32,6 +32,7 @@ Route::middleware(['admin:admin'])->group(function(){
     Route::patch('/edition/{edition}', [EditionController::class, 'update'])->name('editions-update');
     Route::delete('/edition/{edition}', [EditionController::class, 'destroy'])->name('editions-delete');
     Route::post('/edition/{edition}/assign-manager', [EditionController::class, 'assignManager'])->name('assign-user');
+    Route::get('/edition/{edition}/attendees', [EditionController::class, 'attendees'])->name('edition-attendees');
 });
 
 Route::middleware(['auth'])->group(function (){

@@ -103,7 +103,9 @@
                                 <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Aforo</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Nº Registros</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Acciones</th>
-                                
+                                @admin()
+                                <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Asistentes</th>
+                                @endadmin
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-600">
@@ -127,6 +129,11 @@
                                             </form>
                                         </div>
                                     </td>
+                                    @admin()
+                                    <td class="px-4 py-3">
+                                    <x-button href="{{route('edition-attendees', $edition->id)}}">Ver asistentes</x-button>
+                                    </td>
+                                    @endadmin
                                 </tr>
                             @endforeach
                         </tbody>
