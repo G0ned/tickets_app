@@ -47,34 +47,30 @@
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="border-b border-gray-600 bg-gray-600">
-                                {{-- Personal data --}}
                                 <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Nombre</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Apellidos</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Email</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Teléfono</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Pasaporte / ID</th>
-                                {{-- Pivot columns --}}
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Publicidad</th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Comunicaciones</th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Imagen</th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Privacidad</th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Asistencia</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Check-in</th>
+                                <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Acción</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-600">
                             @foreach($edition->attendees as $attendee)
                                 <tr class="hover:bg-gray-600 transition-colors duration-150">
-                                    {{-- Personal data --}}
                                     <td class="px-4 py-3 text-white whitespace-nowrap font-medium">{{ $attendee->name }}</td>
                                     <td class="px-4 py-3 text-white whitespace-nowrap">{{ $attendee->surname }}</td>
                                     <td class="px-4 py-3 text-gray-300 whitespace-nowrap">{{ $attendee->email }}</td>
                                     <td class="px-4 py-3 text-gray-300 whitespace-nowrap">{{ $attendee->phone }}</td>
                                     <td class="px-4 py-3 text-gray-300 whitespace-nowrap font-mono">{{ $attendee->passport ?? '-' }}</td>
 
-                                    {{-- Boolean pivot columns — green tick / red cross --}}
                                     @php
-                                        // Helper to avoid repeating the badge markup for every boolean column.
                                         $yes = '<span class="inline-flex items-center justify-center w-6 h-6 bg-green-600 rounded-full text-white text-xs font-bold">✓</span>';
                                         $no  = '<span class="inline-flex items-center justify-center w-6 h-6 bg-red-700  rounded-full text-white text-xs font-bold">✗</span>';
                                     @endphp
@@ -85,12 +81,22 @@
                                     <td class="px-4 py-3 text-center">{!! $attendee->pivot->privacy_policy  ? $yes : $no !!}</td>
                                     <td class="px-4 py-3 text-center">{!! $attendee->pivot->attendance      ? $yes : $no !!}</td>
 
-                                    {{-- Nullable datetime --}}
                                     <td class="px-4 py-3 text-gray-300 whitespace-nowrap">
                                         {{ $attendee->pivot->checked_in_at
                                             ? \Carbon\Carbon::parse($attendee->pivot->checked_in_at)->format('d/m/Y H:i')
                                             : '—' }}
                                     </td>
+                                    @admin()
+                                    <td class="px-4 py-3 text-gray-300 whitespace-nowrap">
+                                        <div class="flex items-cemter gap-2">
+                                            <form action="{{route('cancel-attendee-edition', ['edition' => $edition->id, 'attendee' => $attendee->id])}}" method="POST" onsubmit="return confirm('¿Seguro que quieres cancelar de este asistente a la edición?. Esta acción no se puede deshacer.')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <x-delete-button type="submit">Eliminar asistente de la edición</x-delete-button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                    @endadmin()
                                 </tr>
                             @endforeach
                         </tbody>

@@ -36,6 +36,7 @@ Route::middleware(['admin:admin'])->group(function(){
     Route::get('/edition/{edition}/attendees', [EditionController::class, 'attendees'])->name('edition-attendees');
     Route::get('/user/create', [UserController::class, 'create'])->name('user-create');
     Route::post('/user/create', [UserController::class, 'store'])->name('user-store');
+    Route::delete('/edition/{edition}/attendee/{attendee}', [FormController::class, 'cancel_attendee'])->name('cancel-attendee-edition');
 });
 
 Route::middleware(['auth'])->group(function (){

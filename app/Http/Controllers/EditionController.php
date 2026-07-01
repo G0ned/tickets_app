@@ -109,8 +109,6 @@ class EditionController extends Controller
 
     public function attendees(Edition $edition)
     {
-        // Eager-load the event (for context in the view) and all attendees
-        // including every pivot column defined in the relationship.
         $edition->load(['event', 'attendees']);
 
         return view('editions.attendees', compact('edition'));

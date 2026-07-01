@@ -69,4 +69,9 @@ class FormController extends Controller
             return redirect()->route('form-success');
         });
     }
+    public function cancel_attendee(Request $request, Edition $edition, Person $attendee)
+    {
+        $edition->attendees()->detach($attendee->id);
+        return redirect()->route('edition-attendees', ['edition' => $edition->id]);
+    }
 }
