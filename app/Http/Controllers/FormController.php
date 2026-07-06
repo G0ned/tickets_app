@@ -72,9 +72,9 @@ class FormController extends Controller
             ]);
 
             $qr = QrCode::format('png')->size(300)->generate($ticket_token);
-            Storage::put('tickets/' . $ticket_token . '.png', $qr);
+            Storage::disk('public')->put('tickets/' . $ticket_token . '.png', $qr);
 
-            signup_event::dispatch($edition, $attendee);
+            signup_event::dispatch($edition, $attendee, $ticket_token);
 
             return redirect()->route('form-success');
         });
@@ -84,8 +84,8 @@ class FormController extends Controller
     {
         $token = $edition->attendees()->find($attendee->id)->pivot->token;
         $path = 'tickets/' . $token . '.png';
-        abort_unless(Storage::exists($path), 404);
-        return Storage::download($path, 'ticket-' . $attendee->surname . '-' . $attendee->name . '-' . $edition->id . '.png');
+        abort_unless(Storage::disk('public')->exists($path), 404);
+        return Storage::disk('public')->download($path, 'ticket-' . $attendee->surname . '-' . $attendee->name . '-' . $edition->id . '.png');
     }
 
 
