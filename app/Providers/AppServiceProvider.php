@@ -6,8 +6,6 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
 use App\Models\Event;
 use App\Observers\EventObserver;
-use App\Listeners\EditionCapacityControlListener;
-use App\Events\AttendeeEditionSignUpEvent;
 
 class AppServiceProvider extends ServiceProvider
 {
