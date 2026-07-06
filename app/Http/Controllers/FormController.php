@@ -79,6 +79,16 @@ class FormController extends Controller
             return redirect()->route('form-success');
         });
     }
+
+    public function downloadTicket(Edition $edition, Person $attendee)
+    {
+        $token = $edition->attendees()->find($attendee->id)->pivot->token;
+        $path = 'tickets/' . $token . '.png';
+        abort_unless(Storage::exists($path), 404);
+        return Storage::download($path, 'ticket-' . $attendee->surname . '-' . $attendee->name . '-' . $edition->id . '.png');
+    }
+
+
     public function cancel_attendee(Request $request, Edition $edition, Person $attendee)
     {
         $edition->attendees()->detach($attendee->id);

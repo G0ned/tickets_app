@@ -58,6 +58,7 @@
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Privacidad</th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Asistencia</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Check-in</th>
+                                <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Tickets</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Acción</th>
                             </tr>
                         </thead>
@@ -86,6 +87,12 @@
                                             ? \Carbon\Carbon::parse($attendee->pivot->checked_in_at)->format('d/m/Y H:i')
                                             : '—' }}
                                     </td>
+
+                                   <td class='px-4 py-3 text-gray-300 whitespace-nowrap'>
+                                        <x-button href="{{ route('ticket-download', ['edition' => $edition->id, 'attendee' => $attendee->id]) }}">
+                                            Descargar ticket
+                                        </x-button>
+                                    </td> 
                                     @admin()
                                     <td class="px-4 py-3 text-gray-300 whitespace-nowrap">
                                         <div class="flex items-cemter gap-2">
