@@ -16,8 +16,11 @@ class AttendeeEditionSignUpEvent
     /**
      * Create a new event instance.
      */
-    public function __construct(public \App\Models\Edition $edition, public \App\Models\Person $person )
-    {
+    public function __construct(
+        public \App\Models\Edition $edition,
+        public \App\Models\Person $person,
+        public string $token
+    ) {
         //
     }
     public function broadcastOn(): array
