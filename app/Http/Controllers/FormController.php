@@ -8,7 +8,11 @@ use App\Models\Person;
 use App\Models\Edition;
 use App\Rules\ValidateId;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use App\Events\AttendeeEditionSignUpEvent as signup_event;
+use App\Events\AttendeeEditionCancelAssistance as cancel_assistance;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\Storage;
 
 class FormController extends Controller
 {
@@ -57,12 +61,18 @@ class FormController extends Controller
                 return back()->withErrors(['error' => 'Ya estás registrado en esta edición.']);
             }
 
+            $ticket_token = (string) Str::uuid();
+
             $edition->attendees()->attach($attendee->id, [
                 'auth_for_ad'       => $validated['img_rights_ads'],
                 'auth_for_comms'    => $validated['img_rights_web'],
                 'auth_image_rights' => $validated['img_rights_rss'],
                 'privacy_policy'    => $validated['privacy_policy'],
+                'token' => $ticket_token
             ]);
+
+            $qr = QrCode::format('png')->size(300)->generate($ticket_token);
+            Storage::put('tickets/' . $ticket_token . '.png', $qr);
 
             signup_event::dispatch($edition, $attendee);
 
@@ -72,6 +82,8 @@ class FormController extends Controller
     public function cancel_attendee(Request $request, Edition $edition, Person $attendee)
     {
         $edition->attendees()->detach($attendee->id);
+        cancel_assistance::dispatch($edition, $attendee);
+
         return redirect()->route('edition-attendees', ['edition' => $edition->id]);
     }
 }
