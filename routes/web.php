@@ -8,6 +8,7 @@ use App\Http\Controllers\EditionController;
 use App\Http\Controllers\ClientPortfolioController;
 use App\Http\Controllers\GuestListController;
 use App\Http\Controllers\InvitationListController;
+use App\Http\Controllers\InvitationRegistrationController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\UserController;
 
@@ -15,6 +16,8 @@ Route::get('/', [SessionController::class, 'create'])->name('home');
 Route::post('/', [SessionController::class, 'store'])->name('login');
 Route::get('/event/{event}/signup-form', [FormController::class, 'create'], )->name('event-signup');
 Route::post('/event/{event}/signup-form', [FormController::class, 'store'])->name('event-signup-store');
+Route::get('/invitations/{token}', [InvitationRegistrationController::class, 'create'])->name('invitation-registration-create');
+Route::post('/invitations/{token}', [InvitationRegistrationController::class, 'store'])->name('invitation-registration-store');
 Route::get('privacy-policy', function(){
     return view('privacy-policy');
 })->name('privacy-policy');
@@ -55,5 +58,6 @@ Route::middleware(['auth'])->group(function (){
     Route::get('/user/{id}/invitation-list', [InvitationListController::class, 'index'])->name('invitation-lists-index');
     Route::get('/invitation-list/{list}', [InvitationListController::class, 'show'])->name('invitation-list-show');
     Route::patch('/invitation-list/{list}', [InvitationListController::class, 'update'])->name('invitation-list-update');
+    Route::post('/invitation-list/{list}/send', [InvitationListController::class, 'sendInvitations'])->name('invitation-list-send');
 });
 
