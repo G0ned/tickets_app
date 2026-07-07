@@ -37,13 +37,22 @@
         <div x-data="{
             portfolioId: {{ $portfolios->first()->id }},
             selected: [],
+            registrations: {},
             capacity: {{ $managerPivot?->invitations_capacity ?? 'null' }},
-            get overCapacity() { return this.capacity !== null && this.selected.length > this.capacity; },
+            get totalRegistrations() {
+                return this.selected.reduce((sum, id) => sum + (parseInt(this.registrations[id]) || 0), 0);
+            },
+            get overCapacity() { return this.capacity !== null && this.totalRegistrations > this.capacity; },
             get canSubmit()    { return this.selected.length > 0 && !this.overCapacity; },
 
             togglePerson(id) {
                 const idx = this.selected.indexOf(id);
-                idx === -1 ? this.selected.push(id) : this.selected.splice(idx, 1);
+                if (idx === -1) {
+                    this.selected.push(id);
+                    if (this.registrations[id] === undefined) this.registrations[id] = 1;
+                } else {
+                    this.selected.splice(idx, 1);
+                }
             },
             isSelected(id) { return this.selected.includes(id); },
 
@@ -53,7 +62,10 @@
                     // Deselect only the persons of the current portfolio
                     this.selected = this.selected.filter(id => !personIds.includes(id));
                 } else {
-                    personIds.forEach(id => { if (!this.selected.includes(id)) this.selected.push(id); });
+                    personIds.forEach(id => {
+                        if (!this.selected.includes(id)) this.selected.push(id);
+                        if (this.registrations[id] === undefined) this.registrations[id] = 1;
+                    });
                 }
             },
             allSelected(personIds) {
@@ -120,9 +132,15 @@
                         @else
                             <ul class="divide-y divide-gray-600">
                                 @foreach ($portfolio->persons as $person)
-                                    <li class="hover:bg-gray-600 transition-colors">
-                                        {{-- The label wraps the whole row so clicking anywhere toggles the checkbox --}}
-                                        <label class="flex items-center gap-4 px-5 py-3 cursor-pointer w-full select-none">
+                                    <li class="hover:bg-gray-600 transition-colors flex items-center gap-4 px-5 py-3">
+                                        {{--
+                                            The label makes the checkbox + person info clickable.
+                                            The registrations input below is a SIBLING of this label
+                                            (not nested inside it) — a nested <label> would be invalid
+                                            HTML and some browsers forward its clicks to the checkbox,
+                                            silently deselecting the person while editing their count.
+                                        --}}
+                                        <label class="flex items-center gap-4 flex-1 min-w-0 cursor-pointer select-none">
                                             <input type="checkbox"
                                                 name="persons[]"
                                                 value="{{ $person->id }}"
@@ -138,6 +156,16 @@
                                                 </p>
                                             </div>
                                         </label>
+
+                                        <div x-show="isSelected({{ $person->id }})" x-cloak
+                                             class="flex items-center gap-1.5 shrink-0">
+                                            <span class="text-xs text-gray-400 whitespace-nowrap">Registros</span>
+                                            <input type="number"
+                                                name="registrations[{{ $person->id }}]"
+                                                x-model.number="registrations[{{ $person->id }}]"
+                                                min="0"
+                                                class="w-16 bg-gray-800 border border-gray-500 rounded px-2 py-1 text-white text-sm text-center">
+                                        </div>
                                     </li>
                                 @endforeach
                             </ul>
@@ -151,8 +179,12 @@
                             <span x-text="selected.length === 1 ? ' persona seleccionada' : ' personas seleccionadas'"></span>
                             @if ($managerPivot?->invitations_capacity !== null)
                                 <span class="mx-1 text-gray-500">&middot;</span>
+                                <span class="text-gray-400">
+                                    <span x-text="totalRegistrations"></span> registros asignados
+                                </span>
+                                <span class="mx-1 text-gray-500">&middot;</span>
                                 <span :class="overCapacity ? 'text-red-400 font-semibold' : 'text-gray-400'">
-                                    <span x-text="capacity - selected.length"></span> restantes
+                                    <span x-text="capacity - totalRegistrations"></span> restantes
                                 </span>
                             @endif
                         </p>

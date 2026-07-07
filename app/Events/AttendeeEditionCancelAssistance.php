@@ -9,24 +9,19 @@ use Illuminate\Queue\SerializesModels;
 use App\Models\Edition;
 use App\Models\Person;
 
-class AttendeeEditionSignUpEvent
+class AttendeeEditionCancelAssistance
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * Create a new event instance.
-     */
-    public function __construct(
-        public \App\Models\Edition $edition,
-        public \App\Models\Person $person,
-        public string $token
-    ) {
+    public function __construct(public Edition $edition, public Person $person)
+    {
         //
     }
+
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('person-signup-channel'),
+            new PrivateChannel('person-cancel-assistance-channel'),
         ];
     }
 }
