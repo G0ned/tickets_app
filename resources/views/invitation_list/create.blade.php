@@ -163,6 +163,7 @@
                                             <input type="number"
                                                 name="registrations[{{ $person->id }}]"
                                                 x-model.number="registrations[{{ $person->id }}]"
+                                                :disabled="!isSelected({{ $person->id }})"
                                                 min="0"
                                                 class="w-16 bg-gray-800 border border-gray-500 rounded px-2 py-1 text-white text-sm text-center">
                                         </div>
