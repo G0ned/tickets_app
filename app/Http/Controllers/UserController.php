@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -74,5 +75,23 @@ class UserController extends Controller
     {
         $users = User::all();
         return view('admin.user_list')->with('users', $users);
+    }
+
+    public function destroy(User $user)
+    {
+        if ($user->id === Auth::id()) {
+            return back()->with('error', 'No puedes eliminar tu propia cuenta.');
+        }
+
+        // Soft-deleted events still hold a row referencing created_by, which blocks
+        // the user delete via FK even though the event is already gone for the app.
+        $user->events()->onlyTrashed()->forceDelete();
+
+        try {
+            $user->delete();
+            return redirect()->route('user-list')->with('success', 'Usuario eliminado correctamente');
+        } catch (\Illuminate\Database\QueryException $e) {
+            return back()->with('error', 'No se ha podido eliminar el usuario porque tiene eventos asociados.');
+        }
     }
 }

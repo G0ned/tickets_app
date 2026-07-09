@@ -87,10 +87,10 @@ class EventController extends Controller
             'description' => $event_new_data['desc'],
             'poster_path' => $posterPath
             ]);
-            return redirect(route('events-show', $event->id));
+            return redirect(route('events-show', $event->id))->with('success', 'Datos del evento actualizados correctamente');
         }
         catch(\Exception $e){
-            dd($e->getMessage());
+            return redirect(route('events-show', $event->id))->with('error', 'No se ha sido posible modificar el evento');
         }
     }
 

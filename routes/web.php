@@ -12,6 +12,7 @@ use App\Http\Controllers\InvitationRegistrationController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CheckInController;
+use App\Http\Controllers\PersonController;
 //Home route
 Route::get('/', [SessionController::class, 'create'])->name('home');
 //Login route
@@ -47,6 +48,9 @@ Route::middleware(['admin:admin'])->group(function(){
     Route::get('/user/edit/{user}', [UserController::class, 'edit'])->name('user-edit');
     Route::patch('/user/edit/{user}', [UserController::class, 'update'])->name('user-update');
     Route::get('/user-list', [UserController::class, 'index'])->name('user-list');
+    Route::delete('/user/{user}/delete', [UserController::class, 'destroy'])->name('user-delete');
+    Route::get('/contacts', [PersonController::class, 'index'])->name('contacts-index');
+    Route::delete('/contacts', [PersonController::class, 'destroy'])->name('contacts-delete');
     //Cancel assistance route
     Route::delete('/edition/{edition}/attendee/{attendee}', [FormController::class, 'cancel_attendee'])->name('cancel-attendee-edition');
     //Tickets route
