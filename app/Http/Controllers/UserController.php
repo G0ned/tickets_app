@@ -83,15 +83,11 @@ class UserController extends Controller
             return back()->with('error', 'No puedes eliminar tu propia cuenta.');
         }
 
-        // Soft-deleted events still hold a row referencing created_by, which blocks
-        // the user delete via FK even though the event is already gone for the app.
-        $user->events()->onlyTrashed()->forceDelete();
-
         try {
             $user->delete();
             return redirect()->route('user-list')->with('success', 'Usuario eliminado correctamente');
         } catch (\Illuminate\Database\QueryException $e) {
-            return back()->with('error', 'No se ha podido eliminar el usuario porque tiene eventos asociados.');
+            return back()->with('error', 'No se ha podido eliminar el usuario porque tiene eventos o portfolios asociados.');
         }
     }
 }
