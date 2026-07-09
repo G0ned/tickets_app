@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Models\User;
 
 class UserController extends Controller
@@ -37,5 +38,41 @@ class UserController extends Controller
 
         return redirect()->route('events-index')
             ->with('success', 'Usuario creado correctamente.');
+    }
+
+    public function edit(User $user)
+    {
+        return view('users.edit')->with('user', $user);
+    }
+
+    public function update(User $user)
+    {
+        $user_new_data = request()->validate([
+            'name'      => ['required', 'string', 'max:255'],
+            'surname'   => ['required', 'string', 'max:255'],
+            'email'     => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
+            'is_admin'      => ['nullable', 'boolean'],
+            'is_supervisor' => ['nullable', 'boolean'],
+        ]);
+
+        if ($user_new_data['email'] === $user->email) {
+            unset($user_new_data['email']);
+        }
+
+        $user_new_data['is_admin'] = request()->boolean('is_admin');
+        $user_new_data['is_supervisor'] = request()->boolean('is_supervisor');
+
+        try{
+            $user->update($user_new_data);
+            return redirect(route('user-list'))->with('success', 'Datos de usuario modificados correctamente');
+        } catch(\Exception $e){
+            return back()->with('error', 'Error al modificar los datos del usuario');
+        }
+    }
+
+    public function index()
+    {
+        $users = User::all();
+        return view('admin.user_list')->with('users', $users);
     }
 }
