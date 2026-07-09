@@ -11,13 +11,15 @@ use App\Http\Controllers\InvitationListController;
 use App\Http\Controllers\InvitationRegistrationController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\UserController;
-
+use App\Http\Controllers\CheckInController;
+//Home route
 Route::get('/', [SessionController::class, 'create'])->name('home');
+//Login route
 Route::post('/', [SessionController::class, 'store'])->name('login');
+//Event sign-up route
 Route::get('/event/{event}/signup-form', [FormController::class, 'create'], )->name('event-signup');
 Route::post('/event/{event}/signup-form', [FormController::class, 'store'])->name('event-signup-store');
-Route::get('/invitations/{token}', [InvitationRegistrationController::class, 'create'])->name('invitation-registration-create');
-Route::post('/invitations/{token}', [InvitationRegistrationController::class, 'store'])->name('invitation-registration-store');
+//Policies routes
 Route::get('privacy-policy', function(){
     return view('privacy-policy');
 })->name('privacy-policy');
@@ -26,21 +28,31 @@ Route::get('/signup-success', function(){
 })->name('form-success');
 
 Route::middleware(['admin:admin'])->group(function(){
+    //Event routes
     Route::get('/events/create', [EventController::class, 'create'])->name('events-create');
     Route::post('/events/create', [EventController::class, 'store'])->name('events-store');
     Route::get('/event/{event}/edit', [EventController::class, 'edit'])->name('events-edit');
     Route::patch('event/{event}/edit', [EventController::class, 'update'])->name('events-update');
     Route::delete('/event/{event}/delete', [EventController::class, 'destroy'])->name('events-delete');
+    //Edition routes
     Route::get('/event/{event}/edition', [EditionController::class, 'create'])->name('editions-create');
     Route::post('/event/{event}/edition', [EditionController::class, 'store'])->name('editions-store');
     Route::patch('/edition/{edition}', [EditionController::class, 'update'])->name('editions-update');
     Route::delete('/edition/{edition}', [EditionController::class, 'destroy'])->name('editions-delete');
     Route::post('/edition/{edition}/assign-manager', [EditionController::class, 'assignManager'])->name('assign-user');
     Route::get('/edition/{edition}/attendees', [EditionController::class, 'attendees'])->name('edition-attendees');
+    //User routes
     Route::get('/user/create', [UserController::class, 'create'])->name('user-create');
     Route::post('/user/create', [UserController::class, 'store'])->name('user-store');
+    Route::get('/user/edit/{user}', [UserController::class, 'edit'])->name('user-edit');
+    Route::patch('/user/edit/{user}', [UserController::class, 'update'])->name('user-update');
+    Route::get('/user-list', [UserController::class, 'index'])->name('user-list');
+    //Cancel assistance route
     Route::delete('/edition/{edition}/attendee/{attendee}', [FormController::class, 'cancel_attendee'])->name('cancel-attendee-edition');
-     Route::get('edition/{edition}/attendee/{attendee}/ticket', [FormController::class, 'downloadTicket'])->name('ticket-download');
+    //Tickets route
+    Route::get('edition/{edition}/attendee/{attendee}/ticket', [FormController::class, 'downloadTicket'])->name('ticket-download');
+    Route::get('/checkin', [CheckInController::class, 'create'])->name('checkin');
+    Route::post('/checkin', [CheckInController::class, 'store'])->name('checkin-store');
 });
 
 Route::middleware(['auth'])->group(function (){
@@ -53,6 +65,9 @@ Route::middleware(['auth'])->group(function (){
     Route::get('/user/{id}/portfolio', [ClientPortfolioController::class, 'index'])->name('portfolios-index');
     Route::get('/portfolio/{portfolio}', [ClientPortfolioController::class, 'show'])->name('portfolios-show');
     Route::get('/user/{user}/editions', [EditionController::class, 'managerEditions'])->name('manager-editions');
+    //Invitations route
+    Route::get('/invitations/{token}', [InvitationRegistrationController::class, 'create'])->name('invitation-registration-create');
+    Route::post('/invitations/{token}', [InvitationRegistrationController::class, 'store'])->name('invitation-registration-store');
     Route::get('/edition/{edition}/invitations', [InvitationListController::class, 'create'])->name('edition-invitation-list');
     Route::post('/edition/{edition}/invitations', [InvitationListController::class, 'store'])->name('invitation-list-store');
     Route::get('/user/{id}/invitation-list', [InvitationListController::class, 'index'])->name('invitation-lists-index');
