@@ -5,7 +5,7 @@
     <div class="max-w-7xl mx-auto space-y-6">
         @admin()
             <div>
-                <x-button href="{{ route('events-create') }}">Crear Evento</x-button>
+                <x-button href="{{ route('events-create') }}">+ Evento</x-button>
             </div>
         @endadmin
 

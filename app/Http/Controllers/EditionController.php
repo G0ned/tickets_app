@@ -48,31 +48,6 @@ class EditionController extends Controller
         return view('editions.edit', compact('edition', 'isManager', 'assignableUsers'));
     }
 
-    public function assignManager(Request $request, Edition $edition)
-    {
-        $validated = $request->validate([
-            'user_id'              => ['required', 'exists:users,id'],
-            'is_supervisor'        => ['boolean'],
-            'is_doorman'           => ['boolean'],
-            'invitations_capacity' => ['nullable', 'integer', 'min:0'],
-        ]);
-
-        $edition->managers()->attach($validated['user_id'], [
-            'is_supervisor'        => $validated['is_supervisor'] ?? false,
-            'is_doorman'           => $validated['is_doorman'] ?? false,
-            'invitations_capacity' => $validated['invitations_capacity'] ?? null,
-        ]);
-
-        return redirect()->route('editions-edit', $edition->id)
-            ->with('success', 'Gestor asignado correctamente.');
-    }
-
-    public function managerEditions(User $user)
-    {
-        $user_editions = $user->managed_events()->with('event')->get();
-        return view('editions.manager-editions')->with('editions', $user_editions);
-    }
-
     public function update(Edition $edition)
     {
         $validated = request()->validate([
@@ -107,11 +82,42 @@ class EditionController extends Controller
         return redirect(route('events-index'));
     }
 
+    public function assignManager(Request $request, Edition $edition)
+    {
+        $validated = $request->validate([
+            'user_id'              => ['required', 'exists:users,id'],
+            'is_supervisor'        => ['boolean'],
+            'is_doorman'           => ['boolean'],
+            'invitations_capacity' => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        $edition->managers()->attach($validated['user_id'], [
+            'is_supervisor'        => $validated['is_supervisor'] ?? false,
+            'is_doorman'           => $validated['is_doorman'] ?? false,
+            'invitations_capacity' => $validated['invitations_capacity'] ?? null,
+        ]);
+
+        return redirect()->route('editions-edit', $edition->id)
+            ->with('success', 'Gestor asignado correctamente.');
+    }
+
+    public function managerEditions(User $user)
+    {
+        $user_editions = $user->managed_events()->with('event')->get();
+        return view('editions.manager-editions')->with('editions', $user_editions);
+    }
+
     public function attendees(Edition $edition)
     {
         $edition->load(['event', 'attendees']);
 
         return view('editions.attendees', compact('edition'));
+    }
+
+    public function exportAttendees(Edition $edition)
+    {
+        $edition->load(['event', 'attendees']);
+           
     }
 
 }

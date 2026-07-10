@@ -20,4 +20,10 @@ class ClientPortfolioController extends Controller
 
         return view('portfolios.show')->with('portfolio', $portfolio);
     }
+
+    public function list()
+    {
+        $portfolio_list = ClientPortfolio::with('user')->get();
+        return view ('portfolios.list')->with('portfolio_list', $portfolio_list);
+    }
 }

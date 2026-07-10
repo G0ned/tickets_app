@@ -10,11 +10,11 @@
     <div class="max-w-5xl mx-auto space-y-6">
 
         {{-- Tarjeta principal: imagen + info --}}
-        <div class="bg-gray-700 p-8 rounded-xl shadow-xl">
-            <div class="flex gap-8">
+        <div class="bg-gray-700 p-4 sm:p-8 rounded-xl shadow-xl">
+            <div class="flex flex-col sm:flex-row gap-4 sm:gap-8">
 
                 {{-- Imagen --}}
-                <div class="w-48 shrink-0">
+                <div class="w-full sm:w-48 sm:shrink-0">
                     @if($event->poster_path)
                         <img
                             src="{{ Storage::url($event->poster_path) }}"
@@ -29,15 +29,15 @@
                 </div>
 
                 {{-- Info del evento --}}
-                <div class="flex-1 space-y-4">
-                    <h2 class="text-2xl font-bold text-white">{{ $event->name }}</h2>
+                <div class="flex-1 space-y-4 min-w-0">
+                    <h2 class="text-xl sm:text-2xl font-bold text-white break-words">{{ $event->name }}</h2>
 
                     <div>
                         <span class="text-gray-400 text-sm uppercase tracking-wide">Descripción</span>
-                        <p class="text-white mt-1">{{ $event->description }}</p>
+                        <p class="text-white mt-1 break-words">{{ $event->description }}</p>
                     </div>
 
-                    <div class="flex gap-8">
+                    <div class="flex flex-col sm:flex-row gap-4 sm:gap-8">
                         <div>
                             <span class="text-gray-400 text-sm uppercase tracking-wide">Creado por</span>
                             <p class="text-white font-semibold mt-1">{{ $event->createdBy->name }}</p>
@@ -54,7 +54,7 @@
                         </div>
                     </div>
                     <hr class="bg-white my-6">
-                    <div class="grid grid-cols-2 gap-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             <div class="mt-1">
                                 <x-button href="{{route('events-edit', $event->id)}}">
                                     Editar evento
@@ -80,8 +80,8 @@
         </div>
 
         {{-- Tarjeta ediciones --}}
-        <div class="bg-gray-700 p-8 rounded-xl shadow-xl">
-            <div class="flex items-center justify-between mb-6">
+        <div class="bg-gray-700 p-4 sm:p-8 rounded-xl shadow-xl">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
                 <h3 class="text-lg font-bold text-white">Ediciones del Evento</h3>
                 <x-button href="{{ route('editions-create', $event->id) }}">
                     + Nueva Edición
@@ -91,7 +91,51 @@
             @if($event->editions->isEmpty())
                 <p class="text-gray-400 text-center py-8">No hay ediciones creadas aún.</p>
             @else
-                <div class="overflow-x-auto">
+                {{-- Vista de tarjetas apiladas (móvil) --}}
+                <div class="grid grid-cols-1 gap-4 sm:hidden">
+                    @foreach($event->editions as $edition)
+                        <div class="bg-gray-800 rounded-lg p-4 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-400 text-xs uppercase tracking-wide">Edición #{{ $edition->id }}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-400 text-xs uppercase tracking-wide">Fecha</span>
+                                <p class="text-white">{{ $edition->date->format('d-m-Y') }} - {{ $edition->date->format('H:i') }}</p>
+                            </div>
+                            <div>
+                                <span class="text-gray-400 text-xs uppercase tracking-wide">Duración</span>
+                                <p class="text-white">{{ $edition->duration }} min</p>
+                            </div>
+                            <div>
+                                <span class="text-gray-400 text-xs uppercase tracking-wide">Ubicación</span>
+                                <p class="text-white">{{ $edition->location ?? '-' }}</p>
+                            </div>
+                            <div>
+                                <span class="text-gray-400 text-xs uppercase tracking-wide">Aforo</span>
+                                <p class="text-white">{{ $edition->capacity }}</p>
+                            </div>
+                            <div>
+                                <span class="text-gray-400 text-xs uppercase tracking-wide">Nº Registros</span>
+                                <p class="text-white">{{ $edition->attendees->count() }}</p>
+                            </div>
+                            <div class="flex flex-col gap-2 pt-2">
+                                <x-button href="{{route('editions-edit', $edition->id)}}" class="block w-full text-center">Editar</x-button>
+                                @admin()
+                                <x-button href="{{route('edition-attendees', $edition->id)}}" class="block w-full text-center">Ver asistentes</x-button>
+                                @endadmin
+                                <form action="{{route('editions-delete', $edition->id)}}" method="POST"
+                                    onsubmit="return confirm('¿Seguro que quieres eliminar esta edición?. Esta acción no se puede deshacer.')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <x-delete-button type="submit" class="w-full">Eliminar</x-delete-button>
+                                </form>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                {{-- Vista de tabla (tablet y superior) --}}
+                <div class="hidden sm:block overflow-x-auto">
                     <table class="w-full">
                         <thead>
                             <tr class="border-b border-gray-600">
