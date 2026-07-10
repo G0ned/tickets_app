@@ -1,8 +1,8 @@
 <x-layout>
     @section('title', 'Panel de administración')
     <x-slot:heading>Panel de administración</x-slot:heading>
-    <h1 class="mb-6">
-        Welcome to the dashboard {{ $user->name }}
+    <h1 class="mb-6 text-lg">
+        Bienvenido al panel de administración {{ $user->name }}
     </h1>
 
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
