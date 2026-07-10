@@ -74,7 +74,11 @@ jobs:
             sudo docker compose exec -T app php artisan cache:clear || true
             sudo docker compose exec -T app php artisan view:clear || true
             sudo docker compose exec -T app php artisan route:clear || true
-            
+
+            # Creating storage link
+            echo "Creating storage link"
+            sudo docker compose exec -T app php artisan storage:link || true       
+                 
             # Run migrations
             echo "🔄 Running migrations..."
             sudo docker compose exec -T app php artisan migrate --force
