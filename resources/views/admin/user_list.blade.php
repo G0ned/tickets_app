@@ -43,8 +43,8 @@
                                 <td class="px-4 py-3 text-center">{!! $user->is_admin     ? $yes : $no !!}</td>
                                 <td class="px-4 py-3 text-center">{!! $user->is_supervisor  ? $yes : $no !!}</td>
                                 <td class="px-4 py-3 text-center whitespace-nowrap">
-                                    <a href="{{ route('user-edit', $user->id) }}" class="text-center text-white px-4 py-3">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mx-auto hover:bg-teal-400">
+                                    <a href="{{ route('user-edit', $user->id) }}" class="inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-300 hover:text-teal-400 hover:bg-gray-500 transition-colors duration-150">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mx-auto">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                                         </svg>
                                     </a>
@@ -54,7 +54,7 @@
                                           onsubmit="return confirm('¿Seguro que quieres eliminar al usuario &quot;{{ $user->name }} {{ $user->surname }}&quot;? Esta acción no se puede deshacer.')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-center text-white px-4 py-3 hover:text-red-400">
+                                        <button type="submit" class="inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-300">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mx-auto hover:bg-red-700">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M22 10.5h-6m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
                                             </svg>
