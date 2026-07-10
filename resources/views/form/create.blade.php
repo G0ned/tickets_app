@@ -25,11 +25,11 @@
                         @endif
                     </div>
                     <div class="flex-1 space-y-4 min-w-0">
-                        <h2 class="text-xl sm:text-2xl font-bold text-white break-words">{{ $event->name }}</h2>
+                        <h2 class="text-xl sm:text-2xl font-bold text-white wrap-break-words">{{ $event->name }}</h2>
 
                         <div>
                             <span class="text-gray-400 text-sm uppercase tracking-wide">Descripción</span>
-                            <p class="text-white mt-1 break-words">{{ $event->description }}</p>
+                            <p class="text-white mt-1 wrap-break-words">{{ $event->description }}</p>
                         </div>
                         <hr class="border-white my-6">
                     </div>
@@ -42,15 +42,16 @@
                         <label for="editions">
                             <div class="flex items-center">
 
-                                <select id="editions" name="editions" value="{{ old('editions') }}" class="block w-full rounded-md border-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
-                                    <option value="" disabled selected>--- Seleccione la edición a la que dese asistir ---</option>
+                                <select id="editions" name="editions" class="block w-full rounded-md border-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>
+                                    <option value="" disabled {{ old('editions') === null ? 'selected' : '' }}>--- Seleccione la edición a la que dese asistir ---</option>
                                     @foreach($event->editions as $edition)
-                                    <option value="{{$edition->id}}">Fecha: {{$edition->date->format('d-m-Y')}} - Hora {{$edition->date->format('H:i')}}</option>
+                                    <option value="{{$edition->id}}" {{ old('editions') == $edition->id ? 'selected' : '' }}>Fecha: {{$edition->date->format('d-m-Y')}} - Hora {{$edition->date->format('H:i')}}</option>
                                     @endforeach
                                 </select>
 
                             </div>
                         </label>
+                        <x-form-error name="editions" />
 
                     </div>
 
