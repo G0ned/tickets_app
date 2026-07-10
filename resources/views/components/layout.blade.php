@@ -67,7 +67,7 @@
         {{-- Menú desplegable (móvil) --}}
         <div x-show="open" @click.outside="open = false" class="md:hidden bg-teal-900 px-4 pb-4 space-y-1">
           @auth
-            <a href="{{ url('/events') }}" class="block text-white hover:bg-teal-700 px-3 py-2 rounded-md text-base font-medium">Eventos</a>
+            <a href="{{ url('/events/index') }}" class="block text-white hover:bg-teal-700 px-3 py-2 rounded-md text-base font-medium">Eventos</a>
           @endauth
           @admin()
             <a href="{{ url('/checkin') }}" class="block text-white hover:bg-teal-700 px-3 py-2 rounded-md text-base font-medium">Escanear Entradas</a>
@@ -83,7 +83,7 @@
       </nav>
       <main>
       <header class="bg-white shadow-sm flex items-center justify-between">
-        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-7xl px-2 py-6 sm:px-6 lg:px-8">
           <h1 class="text-xl text-center tracking-tight text-gray-900">{{ $heading }}</h1>
         </div>
       </header>
@@ -102,7 +102,7 @@
                 <p>{{ session('error') }}</p>
             </div>
         @endif
-          <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+          <div class="mx-auto max-w-7xl px-2 py-6 sm:px-6 lg:px-8">
             {{ $slot }}
           </div>
       </main>
