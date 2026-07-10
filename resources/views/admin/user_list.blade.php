@@ -1,6 +1,11 @@
 <x-layout>
     @section('title', 'Lista de usuarios')
     <x-slot:heading>Administracion de usuarios</x-slot:heading>
+    @admin()
+        <div class="py-3">
+            <x-button href="{{ route('user-create') }}">+ Usuario</x-button>
+        </div>
+    @endadmin
     @if ($users->isEmpty())
             <div class="bg-gray-700 rounded-lg p-10 text-center">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"

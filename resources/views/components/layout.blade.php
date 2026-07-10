@@ -27,7 +27,7 @@
                     @endauth
                     @admin()
                       <x-nav_link href="{{ url('/checkin') }}" :active="request()->is('checkin')">Escanear Entradas</x-nav_link>
-                      <x-nav_link href="{{ url('/user/create') }}" :active="request()->is('user/create')">Crear Usuario</x-nav_link>
+                      <x-nav_link href="{{ url('/user-list') }}" :active="request()->is('user-list')">Usuarios</x-nav_link>
                       <x-nav_link href="{{ url('/contacts') }}" :active="request()->is('contacts')">Contactos</x-nav_link>
                     @endadmin
                 </div>
