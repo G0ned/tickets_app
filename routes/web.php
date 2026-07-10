@@ -57,6 +57,8 @@ Route::middleware(['admin:admin'])->group(function(){
     Route::get('edition/{edition}/attendee/{attendee}/ticket', [FormController::class, 'downloadTicket'])->name('ticket-download');
     Route::get('/checkin', [CheckInController::class, 'create'])->name('checkin');
     Route::post('/checkin', [CheckInController::class, 'store'])->name('checkin-store');
+    //Portfolios route
+    Route::get('portfolios-list', [ClientPortfolioController::class, 'list'])->name('portfolios-list');
 });
 
 Route::middleware(['auth'])->group(function (){
