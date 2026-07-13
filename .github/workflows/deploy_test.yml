@@ -58,6 +58,10 @@ jobs:
             # Restart app container
             echo "🔁 Restarting app container..."
             sudo docker compose restart app
+
+            # Restart nginx container
+            echo "🔁 Restarting nginx container..."
+            sudo docker compose exec nginx nginx -s reload
             
             echo "=========================================="
             echo "✅ Deployment completed successfully!"
