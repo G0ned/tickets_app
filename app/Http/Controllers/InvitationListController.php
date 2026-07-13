@@ -147,6 +147,94 @@ class InvitationListController extends Controller
     }
 
     /**
+     * Aggregated view for a supervisor: every edition where the authenticated
+     * user holds the is_supervisor pivot flag, with each manager's invitation
+     * lists, committed registrations, and current capacity.
+     */
+    public function supervisedIndex(User $user)
+    {
+        abort_unless(auth()->id() === $user->id, 403);
+
+        $editions = $user->managed_events()
+            ->wherePivot('is_supervisor', true)
+            ->with('event')
+            ->get()
+            ->map(fn (Edition $edition) => [
+                'edition'  => $edition,
+                'managers' => $this->managerSummaries($edition),
+            ]);
+
+        return view('invitation_list.supervised-index', compact('editions'));
+    }
+
+    public function updateManagerCapacity(Request $request, Edition $edition, User $manager)
+    {
+        $this->authorizeSupervisor($edition);
+
+        $pivot = $edition->managers()->where('manager_id', $manager->id)->first()?->pivot;
+        abort_if($pivot === null, 404, 'Este usuario no gestiona esta edición.');
+
+        $lists = $this->managerLists($edition, $manager);
+        $errorBag = "capacity-{$edition->id}-{$manager->id}";
+
+        abort_if(
+            $lists->isNotEmpty() && $lists->every(fn (InvitationList $list) => $list->isSent()),
+            403,
+            'No se puede modificar: todas las listas de este gestor ya han sido enviadas.'
+        );
+
+        $validated = $request->validate([
+            'invitations_capacity' => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        $committed = $lists->flatMap->persons->sum('pivot.allowed_registrations');
+        if ($validated['invitations_capacity'] !== null && $validated['invitations_capacity'] < $committed) {
+            return back()
+                ->withErrors(['invitations_capacity' => "No se puede fijar por debajo de las {$committed} invitaciones ya comprometidas."], $errorBag)
+                ->withInput();
+        }
+
+        $edition->managers()->updateExistingPivot($manager->id, [
+            'invitations_capacity' => $validated['invitations_capacity'],
+        ]);
+
+        return back()->with('success', 'Capacidad de invitaciones actualizada correctamente.');
+    }
+
+    private function authorizeSupervisor(Edition $edition): void
+    {
+        $isSupervisor = $edition->managers()
+            ->where('manager_id', auth()->id())
+            ->wherePivot('is_supervisor', true)
+            ->exists();
+
+        abort_unless($isSupervisor, 403);
+    }
+
+    private function managerLists(Edition $edition, User $manager): \Illuminate\Support\Collection
+    {
+        return InvitationList::where('edition_id', $edition->id)
+            ->whereIn('client_portfolio_id', $manager->portfolios()->select('id'))
+            ->with(['clientPorfolio', 'persons'])
+            ->get();
+    }
+
+    private function managerSummaries(Edition $edition): \Illuminate\Support\Collection
+    {
+        return $edition->managers->map(function (User $manager) use ($edition) {
+            $lists = $this->managerLists($edition, $manager);
+
+            return [
+                'manager'   => $manager,
+                'lists'     => $lists,
+                'committed' => $lists->flatMap->persons->sum('pivot.allowed_registrations'),
+                'locked'    => $lists->isNotEmpty() && $lists->every(fn (InvitationList $list) => $list->isSent()),
+                'capacity'  => $manager->pivot->invitations_capacity,
+            ];
+        });
+    }
+
+    /**
      * Map each selected person id to its assigned number of registrations,
      * defaulting to 1 when not explicitly provided.
      */
