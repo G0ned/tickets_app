@@ -42,6 +42,7 @@ Route::middleware(['admin:admin'])->group(function(){
     Route::delete('/edition/{edition}', [EditionController::class, 'destroy'])->name('editions-delete');
     Route::post('/edition/{edition}/assign-manager', [EditionController::class, 'assignManager'])->name('assign-user');
     Route::get('/edition/{edition}/attendees', [EditionController::class, 'attendees'])->name('edition-attendees');
+    Route::get('/edition/{edition}/export-attendees', [EditionController::class, 'exportAttendees'])->name('export-attendees');
     //User routes
     Route::get('/user/create', [UserController::class, 'create'])->name('user-create');
     Route::post('/user/create', [UserController::class, 'store'])->name('user-store');

@@ -3,8 +3,6 @@
     <x-slot:heading>Asistentes registrados</x-slot:heading>
 
     <div class="max-w-7xl mx-auto space-y-6">
-
-        {{-- Edition context card --}}
         <div class="bg-gray-700 rounded-lg p-5 flex items-center justify-between flex-wrap gap-4">
             <div>
                 <p class="text-white font-semibold text-base">{{ $edition->event->name }}</p>
@@ -26,9 +24,9 @@
             </div>
         </div>
 
-        {{-- Back button --}}
-        <div>
+        <div class="flex items-center justify-between">
             <x-button href="{{ url()->previous() }}">← Volver</x-button>
+            <x-button href="{{ route('export-attendees', ['edition' => $edition->id]) }}">Exportar datos</x-button>
         </div>
 
         {{-- Attendees table --}}
@@ -111,6 +109,5 @@
                 </div>
             </div>
         @endif
-
     </div>
 </x-layout>
