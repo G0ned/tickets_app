@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\ClientPortfolio;
+use App\Models\User;
 
 class ClientPortfolioController extends Controller
 {
-    public function index(Request $request)
+    public function index(User $id)
     {
-        $portfolios = $request->user()->portfolios()->withCount('persons')->get();
+        abort_unless(auth()->id() === $id->id || auth()->user()->isAdmin(), 403);
+
+        $portfolios = $id->portfolios()->withCount('persons')->get();
 
         return view('portfolios.index')->with('portfolios', $portfolios);
     }
