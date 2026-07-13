@@ -32,6 +32,13 @@ class CheckInController extends Controller
 
         $attendee = Person::find($pivotRow->attendee_id);
 
+        if ($attendee === null) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Entrada no encontrada.',
+            ], 404);
+        }
+
         $revokedRights = [];
         if (!$pivotRow->auth_for_ad) {
             $revokedRights[] = 'Publicidad';
