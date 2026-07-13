@@ -32,5 +32,13 @@ class AppServiceProvider extends ServiceProvider
         Blade::directive('endadmin', function(){
             return "<?php endif; ?>";
         });
+
+        Blade::directive('super', function(){
+            return "<?php if(auth()->check() && auth()->user()->is_supervisor): ?>";
+        });
+
+        Blade::directive('endsuper', function(){
+            return "<?php endif; ?>";
+        });
     }
 }
