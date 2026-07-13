@@ -40,11 +40,13 @@ class EventTest extends TestCase
     }
 
     public function test_created_event_is_assigned_to_user(): void
+        //Verificar que cuando se crea un evento, el usuario registrado queda asociado a dicho evento
     { 
         $this->assertTrue($this->event->createdBy->is($this->user));
     }
 
      public function test_user_has_not_created_event(): void
+        //Prueba para verificar que otro usuario no tiene asociado el evento creado
     {
         $other_user = User::create([
             'name' => 'James',
@@ -59,6 +61,7 @@ class EventTest extends TestCase
     }
 
     public function test_event_has_many_editions(): void
+        //Prueba para verificar que las ediciones se asocian correctamente con el evento concreto
     {
 
         $editions = [
@@ -99,6 +102,7 @@ class EventTest extends TestCase
     }
 
     public function test_event_does_not_have_edition(): void
+        //Prueba para verificar que una edicion no esta asociada con otro evento
     {
         $other_event = Event::create([
             'name' => 'DemoName',
@@ -120,5 +124,24 @@ class EventTest extends TestCase
         ]);
 
         $this->assertFalse($this->event->editions->contains($edition));
+    }
+
+    public function test_event_organizer(): void
+    {
+        $new_user = User::create([
+            'name' => 'James',
+            'surname' => 'Burns',
+            'email' => 'jameburn@example.test',
+            'password' => bcrypt('jameburn1234'),
+            'is_admin' => false,
+            'is_supervisor' => false
+        ]);
+
+        $this->event->organizers()->attach($new_user);
+
+        $this->assertDatabaseHas('event_organizer', [
+            'event_id' => $this->event->id,
+            'user_id' => $new_user->id
+        ]);
     }
 }
