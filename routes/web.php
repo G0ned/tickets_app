@@ -20,6 +20,9 @@ Route::post('/', [SessionController::class, 'store'])->name('login');
 //Event sign-up route
 Route::get('/event/{event}/signup-form', [FormController::class, 'create'], )->name('event-signup');
 Route::post('/event/{event}/signup-form', [FormController::class, 'store'])->name('event-signup-store');
+//Invitation registration routes (public: the invited person has no account)
+Route::get('/invitations/{token}', [InvitationRegistrationController::class, 'create'])->name('invitation-registration-create');
+Route::post('/invitations/{token}', [InvitationRegistrationController::class, 'store'])->name('invitation-registration-store');
 //Policies routes
 Route::get('privacy-policy', function(){
     return view('privacy-policy');
@@ -73,13 +76,14 @@ Route::middleware(['auth'])->group(function (){
     Route::get('/portfolio/{portfolio}', [ClientPortfolioController::class, 'show'])->name('portfolios-show');
     Route::get('/user/{user}/editions', [EditionController::class, 'managerEditions'])->name('manager-editions');
     //Invitations route
-    Route::get('/invitations/{token}', [InvitationRegistrationController::class, 'create'])->name('invitation-registration-create');
-    Route::post('/invitations/{token}', [InvitationRegistrationController::class, 'store'])->name('invitation-registration-store');
     Route::get('/edition/{edition}/invitations', [InvitationListController::class, 'create'])->name('edition-invitation-list');
     Route::post('/edition/{edition}/invitations', [InvitationListController::class, 'store'])->name('invitation-list-store');
     Route::get('/user/{id}/invitation-list', [InvitationListController::class, 'index'])->name('invitation-lists-index');
     Route::get('/invitation-list/{list}', [InvitationListController::class, 'show'])->name('invitation-list-show');
     Route::patch('/invitation-list/{list}', [InvitationListController::class, 'update'])->name('invitation-list-update');
     Route::post('/invitation-list/{list}/send', [InvitationListController::class, 'sendInvitations'])->name('invitation-list-send');
+    //Supervised invitations routes
+    Route::get('/invitations-list/{user}', [InvitationListController::class, 'supervisedIndex'])->name('supervised-invitations-list');
+    Route::patch('/edition/{edition}/manager/{manager}/invitations-capacity', [InvitationListController::class, 'updateManagerCapacity'])->name('supervised-manager-capacity-update');
 });
 
