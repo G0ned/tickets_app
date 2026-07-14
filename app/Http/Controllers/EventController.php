@@ -85,7 +85,8 @@ class EventController extends Controller
             'name' => $event_new_data['name'],
             'public' => $event_new_data['public'],
             'description' => $event_new_data['desc'],
-            'poster_path' => $posterPath
+            'poster_path' => $posterPath,
+            'updated_by' => Auth::user()->id
             ]);
             return redirect(route('events-show', $event->id))->with('success', 'Datos del evento actualizados correctamente');
         }
