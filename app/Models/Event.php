@@ -36,4 +36,15 @@ class Event extends Model
     {
         return $this->belongsToMany(User::class, 'event_organizer', 'event_id', 'user_id');
     }
+
+    public function hasActiveEditions(): bool
+    {
+        foreach($this->editions as $edition){
+            if($edition->date > now())
+                {
+                    return true;
+                }
+        }
+        return false;
+    }
 }
