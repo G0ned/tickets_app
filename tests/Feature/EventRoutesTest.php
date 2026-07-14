@@ -117,6 +117,54 @@ class EventRoutesTest extends TestCase
         $this->assertDatabaseHas('events', ['name' => 'New Demo Event Name']);
     }
 
+    
+    public function test_updated_by_is_filled_on_event_editing(): void
+    {
+        $event = Event::create([
+            'name' => 'Demo Event Name',
+            'description' => 'Demo Event Description',
+            'public' => false,
+            'created_by' => $this->user->id,
+        ]);
+        $response = $this->actingAs($this->user)->patch(route('events-update', $event->id), [
+            'name' => 'UpdatedEventName', 
+            'desc' => 'Updated Event description...',
+            'public' => false,
+            'created_by' => $event->created_by
+        ]);
+        $event->refresh();
+
+        $this->assertSame($this->user->id, $event->updated_by);
+    }
+
+    public function test_updated_by_id_does_not_correspond_to_other_user(): void
+    {
+        $other_user = User::create([
+            'name' => 'John',
+            'surname' => 'Doe',
+            'email' => 'johndoe@example.test',
+            'password' => bcrypt('johndoe1234'),
+            'is_admin' => false,
+            'is_supervisor' => false
+        ]);
+
+        $event = Event::create([
+            'name' => 'Demo Event Name',
+            'description' => 'Demo Event Description',
+            'public' => false,
+            'created_by' => $this->user->id,
+        ]);
+        $response = $this->actingAs($this->user)->patch(route('events-update', $event->id), [
+            'name' => 'UpdatedEventName', 
+            'desc' => 'Updated Event description...',
+            'public' => false,
+            'created_by' => $event->created_by
+        ]);
+        $event->refresh();
+
+        $this->assertNotSame($other_user->id, $event->updated_by);
+    }
+
     public function test_event_delete(): void
     {
         //Verificar que la eliminacion de un evento lo marca como eliminado
