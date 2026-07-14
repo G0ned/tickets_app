@@ -144,4 +144,77 @@ class EventTest extends TestCase
             'user_id' => $new_user->id
         ]);
     }
+
+    public function test_event_has_active_editions(): void
+    {
+        $editions = [
+            $edition1 = Edition::create([
+                'event_id' => $this->event->id,
+                'date' => '1990-10-30 00:00:00',
+                'duration' => 1,
+                'location' => 'demoPlace',
+                'capacity' => 999,
+                'status' => false
+
+            ]),
+
+            $edition2 = Edition::create([
+                'event_id' => $this->event->id,
+                'date' => '2010-01-29 00:00:00',
+                'duration' => 1,
+                'location' => 'demoPlace',
+                'capacity' => 999,
+                'status' => false
+
+            ]),
+
+            $edition3 = Edition::create([
+                'event_id' => $this->event->id,
+                'date' => '2026-08-01 08:00:00',
+                'duration' => 1,
+                'location' => 'demoPlace',
+                'capacity' => 999,
+                'status' => false
+
+            ]),
+        ];
+
+        $this->assertTrue($this->event->hasActiveEditions());
+
+    }
+
+    public function test_event_does_not_have_active_editions(): void
+    {
+         $edition1 = Edition::create([
+                'event_id' => $this->event->id,
+                'date' => '1990-10-30 00:00:00',
+                'duration' => 1,
+                'location' => 'demoPlace',
+                'capacity' => 999,
+                'status' => false
+
+            ]);
+
+            $edition2 = Edition::create([
+                'event_id' => $this->event->id,
+                'date' => '2010-01-29 00:00:00',
+                'duration' => 1,
+                'location' => 'demoPlace',
+                'capacity' => 999,
+                'status' => false
+
+            ]);
+
+            $edition3 = Edition::create([
+                'event_id' => $this->event->id,
+                'date' => '2025-08-01 08:00:00',
+                'duration' => 1,
+                'location' => 'demoPlace',
+                'capacity' => 999,
+                'status' => false
+
+            ]);
+
+            $this->assertFalse($this->event->hasActiveEditions());
+    }
 }

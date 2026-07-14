@@ -133,7 +133,7 @@ class EventRoutesTest extends TestCase
         ]);
     }
 
-    public function test_event_with_pending_editions_is_not_deleted(): void
+    public function test_event_with_active_editions_is_not_deleted(): void
     {
         $event = Event::create([
             'name' => 'Demo Event Name',
@@ -169,7 +169,7 @@ class EventRoutesTest extends TestCase
         ]);
     }
 
-    public function test_event_with_celebrated_editions_is_deleted(): void
+    public function test_event_with_no_active_editions_is_deleted(): void
     {
          $event = Event::create([
             'name' => 'Demo Event Name',
