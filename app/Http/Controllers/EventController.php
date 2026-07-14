@@ -96,9 +96,9 @@ class EventController extends Controller
 
     public function destroy(Event $event)
     {
-        if($event->hasActiveEditions(){
+        if($event->hasActiveEditions()){
             return back()->with('error', 'No es posible eliminar un evento con ediciones que no se han celebrado aun');
-        })
+        }
         else{
             $event->delete();
             foreach($event_editions as $edition){
