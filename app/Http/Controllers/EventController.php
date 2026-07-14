@@ -96,12 +96,15 @@ class EventController extends Controller
 
     public function destroy(Event $event)
     {
-        foreach($event->editions as $edition){
-            if($edition->date > now()){
-                return back()->with('error', 'No es posible eliminar un evento con ediciones que no se han celebrado aun');
+        if($event->hasActiveEditions(){
+            return back()->with('error', 'No es posible eliminar un evento con ediciones que no se han celebrado aun');
+        })
+        else{
+            $event->delete();
+            foreach($event_editions as $edition){
+                $edition->delete();
             }
+            return redirect(route('events-index'));
         }
-        $event->delete();
-        return redirect(route('events-index'));
     }
 }
