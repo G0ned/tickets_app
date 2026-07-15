@@ -9,8 +9,11 @@ class PersonController extends Controller
 {
     public function index()
     {
-        $people = Person::with('portfolio')->get();
-        return view('admin.contact_list')->with('people', $people);
+        $people = Person::with('portfolio')
+        ->when(request('type'), fn($query, $type) => $query->where('type', $type))
+        ->when(request('brand'), fn($query, $brand) => $query->where('brand', 'like', "%{$brand}%"))
+        ->get();
+        return view('admin.contact_list')->with('people', $people)->with('selectedType', request('type'))->with('selectedBrand', request('brand'));
     }
 
     public function destroy(Request $request)

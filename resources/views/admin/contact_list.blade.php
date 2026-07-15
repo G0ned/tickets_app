@@ -1,4 +1,11 @@
 <x-layout>
+     @php
+        $type_labels = [
+            'employee' => 'Empleado',
+            'client' => 'Cliente',
+            'outsider' => 'Externo',
+        ];
+    @endphp
     @section('title', 'Lista de contactos')
     <x-slot:heading>Contactos registrados</x-slot:heading>
     @if ($people->isEmpty())
@@ -11,6 +18,21 @@
                 <p class="text-gray-300 text-sm">No hay contactos registrados.</p>
             </div>
     @else
+        <form method="GET" action="{{ route('contacts-index') }}" class="mb-4 flex flex-wrap items-center gap-3">
+            <select name="type" onchange="this.form.submit()"
+                    class="px-3 py-2 bg-gray-600 border border-gray-500 rounded-md shadow-sm text-sm text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                <option value="">Todos los tipos</option>
+                @foreach($type_labels as $value => $label)
+                    <option value="{{ $value }}" @selected($selectedType === $value)>{{ $label }}</option>
+                @endforeach
+            </select>
+            <input type="text" name="brand" value="{{ $selectedBrand }}" placeholder="Buscar por marca..."
+                   class="px-3 py-2 bg-gray-600 border border-gray-500 rounded-md shadow-sm text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+            <button type="submit"
+                    class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Buscar
+            </button>
+        </form>
         <form method="POST"
               action="{{ route('contacts-delete') }}"
               x-data="{ selected: [], ids: [{{ $people->pluck('id')->implode(',') }}] }"
@@ -37,17 +59,11 @@
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">e-mail</th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Telefono</th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Tipo</th>
+                                <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Marca</th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Portfolio</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-600">
-                            @php
-                                $type_labels = [
-                                    'employee' => 'Empleado',
-                                    'client' => 'Cliente',
-                                    'outsider' => 'Externo',
-                                ];
-                            @endphp
                             @foreach ($people as $person)
                                 <tr class="hover:bg-gray-600 transition-colors duration-150">
                                     <td class="px-4 py-3 text-center">
@@ -59,6 +75,9 @@
                                     <td class="px-4 py-3 text-gray-300 text-center whitespace-nowrap">{{ $person->phone }}</td>
                                     <td class="px-4 py-3 text-gray-300 text-center whitespace-nowrap">
                                         {{ $person->type ? $type_labels[$person->type->value] : '-' }}
+                                    </td>
+                                    <td class="px-4 py-3 text-gray-300 text-center whitespace-nowrap">
+                                        {{ $person->brand ?? '-' }}
                                     </td>
                                     <td class="px-4 py-3 text-gray-300 text-center whitespace-nowrap">
                                         {{ $person->portfolio->name ?? '-' }}
