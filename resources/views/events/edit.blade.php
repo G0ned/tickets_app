@@ -61,17 +61,49 @@
                         <x-form-error name="desc" />
                     </div>
 
-                    <div>
-                        <x-form-label></x-form-label>
-                    </div>
-
-                    <div class="col-span-2 max-w-sm mx-auto">
+                    <div class="col-span-2 max-w-sm mx-auto my-2">
                         <x-form-button>
                             Guardar Evento
                         </x-form-button>
                     </div>
                 </div>
             </form>
+
+            <div class="mt-6">
+                <x-form-label>Organizadores</x-form-label>
+                <ul class="divide-y divide-gray-600 rounded-lg overflow-hidden mb-6 border border-gray-500">
+                    @foreach($users as $user)
+                    @if($event->organizers->contains($user))
+                        <li class="flex items-center justify-between bg-gray-600 px-4 py-3">
+                            <span class="text-white font-medium text-sm">{{ $user->name }} {{ $user->surname }}</span>
+                            <div class="flex items-center gap-2">
+                                    <span class="bg-indigo-600 text-white text-xs font-semibold px-2 py-1 rounded-full">Organizador</span>
+                            </div>
+                        </li>
+                    @endif
+                    @endforeach
+                </ul>
+            </div>
+            <div class="bg-gray-600 rounded-xl p-6">
+                <h4 class="text-white font-semibold text-sm uppercase tracking-wide mb-4">Asignar nuevo gestor</h4>
+                <form method="POST" action="{{ route('assign-organizer', $event->id) }}" class="space-y-5">
+                    @csrf
+                    <div class="mb-2">
+                        <x-form-label for="user_id">Usuario</x-form-label>
+                        <select name="user_id" id="user_id" required
+                            class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-500 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="">— Selecciona un usuario —</option>
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }} {{ $user->surname }}</option>
+                            @endforeach
+                        </select>
+                        <x-form-error name="user_id" />
+                    </div>
+                    <div class="col-span-2 max-w-sm mx-auto">
+                        <x-form-button>Asignar organizador</x-form-button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </x-layout>
