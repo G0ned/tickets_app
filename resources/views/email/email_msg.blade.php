@@ -16,7 +16,7 @@
                 <tr>
                     <td style="background:linear-gradient(135deg,#0f172a 0%,#134e4a 100%); padding:36px 48px; text-align:center;">
                         <p style="color:#5eead4; margin:0 0 4px; font-size:11px; letter-spacing:3px; text-transform:uppercase; font-weight:600;">Bienvenido/a</p>
-                        <h1 style="color:#ffffff; margin:0; font-size:30px; font-weight:800; letter-spacing:-0.5px;">eventia</h1>
+                        <h1 style="color:#ffffff; margin:0; font-size:30px; font-weight:800; letter-spacing:-0.5px;">$edition->event->name</h1>
                         <p style="color:#99f6e4; margin:10px 0 0; font-size:14px;">Tu entrada ha sido confirmada</p>
                     </td>
                 </tr>
