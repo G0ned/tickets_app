@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
@@ -58,7 +59,8 @@ class EventController extends Controller
     
      public function edit(Event $event)
     {
-        return view('events.edit')->with('event', $event);
+        $users = User::all();
+        return view('events.edit')->with(['event' => $event, 'users' => $users]);
     }
     
     public function update(Event $event)
@@ -93,6 +95,16 @@ class EventController extends Controller
         catch(\Exception $e){
             return redirect(route('events-show', $event->id))->with('error', 'No se ha sido posible modificar el evento');
         }
+    }
+
+    public function assignOrganizer(Event $event)
+    {
+        $validated = request()->validate([
+            'user_id' => ['required']
+        ]);
+
+        $event->organizers()->attach($validated['user_id']);
+        return redirect(route('events-edit', $event->id))->with('success', "Organizador asigando correctamente");
     }
 
     public function destroy(Event $event)
