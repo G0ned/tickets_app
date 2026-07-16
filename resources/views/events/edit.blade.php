@@ -50,14 +50,11 @@
                     </div>
                     <div>
                         <x-form-label for="desc">Descripción</x-form-label>
-                        <textarea 
+                        <textarea
                         name="desc"
                         id="desc"
                         rows="4"
-                        value=""
-                        class="w-full brounded-lg border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        {{$event->description ?? $service->description}}
-                        </textarea>
+                        class="w-full brounded-lg border border-gray-300 px-4 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">{{ $event->description }}</textarea>
                         <x-form-error name="desc" />
                     </div>
 

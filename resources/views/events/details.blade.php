@@ -2,6 +2,10 @@
     @section('title', 'Mostrar')
     <x-slot:heading>Detalles del Evento</x-slot:heading>
 
+    @php
+        $canEditEvent = auth()->user()->is_admin || $event->organizers->contains('id', auth()->id());
+    @endphp
+
     {{-- Botón volver --}}
     <div class="mb-6">
         <x-button href="{{ route('events-index') }}">Volver a Eventos</x-button>
@@ -64,11 +68,13 @@
                     </div>
                     <hr class="bg-white my-6">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            @if($canEditEvent)
                             <div class="mt-1">
                                 <x-button href="{{route('events-edit', $event->id)}}">
                                     Editar evento
                                 </x-button>
                             </div>
+                            @endif
 
 
                             @admin()
@@ -132,7 +138,9 @@
                                 <p class="text-white">{{ $edition->attendees->count() }}</p>
                             </div>
                             <div class="flex flex-col gap-2 pt-2">
+                                @if($canEditEvent)
                                 <x-button href="{{route('editions-edit', $edition->id)}}" class="block w-full text-center">Editar</x-button>
+                                @endif
                                 @admin()
                                 <x-button href="{{route('edition-attendees', $edition->id)}}" class="block w-full text-center">Ver asistentes</x-button>
                                 @endadmin
@@ -179,6 +187,7 @@
                                     <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->attendees->count() }}</td>
                                     <td class="px-4 py-3">
                                         <div class="flex items-center gap-2">
+                                            @if($canEditEvent)
                                             <a href="{{route('editions-edit', $edition->id)}}"
                                                title="Editar"
                                                class="inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-300 hover:text-teal-400 hover:bg-gray-500 transition-colors duration-150">
@@ -186,6 +195,7 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                                                 </svg>
                                             </a>
+                                            @endif
                                             @admin()
                                             <form action="{{route('editions-delete', $edition->id)}}" method="POST"
                                                 onsubmit="return confirm('¿Seguro que quieres eliminar esta edición?. Esta acción no se puede deshacer.')">

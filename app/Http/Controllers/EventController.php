@@ -59,7 +59,9 @@ class EventController extends Controller
     
      public function edit(Event $event)
     {
-        abort_unless(Auth::user()->is_admin || $event->organizers->contains('id', Auth::id()), 403);
+        if (!(Auth::user()->is_admin || $event->organizers->contains('id', Auth::id()))) {
+            return redirect()->route('events-show', $event->id)->with('error', 'No tienes permisos para esta acción');
+        }
 
         $users = User::all();
         return view('events.edit')->with(['event' => $event, 'users' => $users]);
@@ -67,7 +69,9 @@ class EventController extends Controller
 
     public function update(Event $event)
     {
-        abort_unless(Auth::user()->is_admin || $event->organizers->contains('id', Auth::id()), 403);
+        if (!(Auth::user()->is_admin || $event->organizers->contains('id', Auth::id()))) {
+            return redirect()->route('events-show', $event->id)->with('error', 'No tienes permisos para esta acción');
+        }
 
         $event_new_data = request()->validate([
             'name' => ['required', 'string'],

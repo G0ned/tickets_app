@@ -42,7 +42,9 @@ class EditionController extends Controller
 
     public function edit(Edition $edition)
     {
-        abort_unless(Auth::user()->is_admin || $edition->event->organizers->contains('id', Auth::id()), 403);
+        if (!(Auth::user()->is_admin || $edition->event->organizers->contains('id', Auth::id()))) {
+            return redirect()->route('events-show', $edition->event_id)->with('error', 'No tienes permisos para esta acción');
+        }
 
         $edition->load('managers');
         $isManager = $edition->managers->contains('id', auth()->id());
@@ -53,7 +55,9 @@ class EditionController extends Controller
 
     public function update(Edition $edition)
     {
-        abort_unless(Auth::user()->is_admin || $edition->event->organizers->contains('id', Auth::id()), 403);
+        if (!(Auth::user()->is_admin || $edition->event->organizers->contains('id', Auth::id()))) {
+            return redirect()->route('events-show', $edition->event_id)->with('error', 'No tienes permisos para esta acción');
+        }
 
         $validated = request()->validate([
             'location' => ['required', 'string'],
