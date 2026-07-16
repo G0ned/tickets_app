@@ -59,12 +59,16 @@ class EventController extends Controller
     
      public function edit(Event $event)
     {
+        abort_unless(Auth::user()->is_admin || $event->organizers->contains('id', Auth::id()), 403);
+
         $users = User::all();
         return view('events.edit')->with(['event' => $event, 'users' => $users]);
     }
-    
+
     public function update(Event $event)
     {
+        abort_unless(Auth::user()->is_admin || $event->organizers->contains('id', Auth::id()), 403);
+
         $event_new_data = request()->validate([
             'name' => ['required', 'string'],
             'poster_path' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp|max:2048'],

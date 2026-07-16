@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Models\Edition;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 class EditionController extends Controller
 {
     public function create(Event $event) 
@@ -41,6 +42,8 @@ class EditionController extends Controller
 
     public function edit(Edition $edition)
     {
+        abort_unless(Auth::user()->is_admin || $edition->event->organizers->contains('id', Auth::id()), 403);
+
         $edition->load('managers');
         $isManager = $edition->managers->contains('id', auth()->id());
         $assignableUsers = User::whereNotIn('id', $edition->managers->pluck('id'))->get();
@@ -50,6 +53,8 @@ class EditionController extends Controller
 
     public function update(Edition $edition)
     {
+        abort_unless(Auth::user()->is_admin || $edition->event->organizers->contains('id', Auth::id()), 403);
+
         $validated = request()->validate([
             'location' => ['required', 'string'],
             'date' => ['required', 'date'],

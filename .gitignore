@@ -4,6 +4,8 @@
 .env.backup
 .env.production
 /eventia
+/docs
+/claude
 .phpactor.json
 .phpunit.result.cache
 /.fleet

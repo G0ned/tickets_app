@@ -36,13 +36,10 @@ Route::middleware(['admin:admin'])->group(function(){
     Route::get('/events/create', [EventController::class, 'create'])->name('events-create');
     Route::post('/events/create', [EventController::class, 'store'])->name('events-store');
     Route::post('events/{event}/assign-organizer', [EventController::class, 'assignOrganizer'])->name('assign-organizer');
-    Route::get('/event/{event}/edit', [EventController::class, 'edit'])->name('events-edit');
-    Route::patch('event/{event}/edit', [EventController::class, 'update'])->name('events-update');
     Route::delete('/event/{event}/delete', [EventController::class, 'destroy'])->name('events-delete');
     //Edition routes
     Route::get('/event/{event}/edition', [EditionController::class, 'create'])->name('editions-create');
     Route::post('/event/{event}/edition', [EditionController::class, 'store'])->name('editions-store');
-    Route::patch('/edition/{edition}', [EditionController::class, 'update'])->name('editions-update');
     Route::delete('/edition/{edition}', [EditionController::class, 'destroy'])->name('editions-delete');
     Route::post('/edition/{edition}/assign-manager', [EditionController::class, 'assignManager'])->name('assign-user');
     Route::get('/edition/{edition}/attendees', [EditionController::class, 'attendees'])->name('edition-attendees');
@@ -71,7 +68,10 @@ Route::middleware(['auth'])->group(function (){
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
     Route::get('/events/index', [EventController::class, 'index'])->name('events-index');
     Route::get('/events/show/{event}', [EventController::class, 'show'])->name('events-show');
+    Route::get('/event/{event}/edit', [EventController::class, 'edit'])->name('events-edit');
+    Route::patch('event/{event}/edit', [EventController::class, 'update'])->name('events-update');
     Route::get('/edition/{edition}', [EditionController::class, 'edit'])->name('editions-edit');
+    Route::patch('/edition/{edition}', [EditionController::class, 'update'])->name('editions-update');
     Route::get('/edition/{edition}/guest-list/create', [GuestListController::class, 'create'])->name('guest-list-create');
     Route::get('/user/{id}/portfolio', [ClientPortfolioController::class, 'index'])->name('portfolios-index');
     Route::get('/portfolio/{portfolio}', [ClientPortfolioController::class, 'show'])->name('portfolios-show');

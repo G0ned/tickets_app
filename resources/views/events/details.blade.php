@@ -71,11 +71,13 @@
                             </div>
 
 
+                            @admin()
                             <form action="{{route('events-delete', $event->id)}}" method="POST" class="mt-1" onsubmit="return confirm('¿Seguro que quieres eliminar el evento &quot;{{ $event->name }}&quot;? Esta acción no se puede deshacer.')">
                                 @csrf
                                 @method('DELETE')
                                 <x-delete-button type="submit">Eliminar evento</x-delete-button>
                             </form>
+                            @endadmin
 
                             <div class="mt-1">
                                 <x-button href="{{route('event-signup', $event->id)}}">
@@ -92,9 +94,11 @@
         <div class="bg-gray-700 p-4 sm:p-8 rounded-xl shadow-xl">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
                 <h3 class="text-lg font-bold text-white">Ediciones del Evento</h3>
+                @admin()
                 <x-button href="{{ route('editions-create', $event->id) }}">
                     + Nueva Edición
                 </x-button>
+                @endadmin
             </div>
 
             @if($event->editions->isEmpty())
@@ -132,12 +136,14 @@
                                 @admin()
                                 <x-button href="{{route('edition-attendees', $edition->id)}}" class="block w-full text-center">Ver asistentes</x-button>
                                 @endadmin
+                                @admin()
                                 <form action="{{route('editions-delete', $edition->id)}}" method="POST"
                                     onsubmit="return confirm('¿Seguro que quieres eliminar esta edición?. Esta acción no se puede deshacer.')">
                                     @csrf
                                     @method('DELETE')
                                     <x-delete-button type="submit" class="w-full">Eliminar</x-delete-button>
                                 </form>
+                                @endadmin
                             </div>
                         </div>
                     @endforeach
@@ -180,6 +186,7 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                                                 </svg>
                                             </a>
+                                            @admin()
                                             <form action="{{route('editions-delete', $edition->id)}}" method="POST"
                                                 onsubmit="return confirm('¿Seguro que quieres eliminar esta edición?. Esta acción no se puede deshacer.')">
                                                 @csrf
@@ -192,6 +199,7 @@
                                                     </svg>
                                                 </button>
                                             </form>
+                                            @endadmin
                                         </div>
                                     </td>
                                     @admin()
