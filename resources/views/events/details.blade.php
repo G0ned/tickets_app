@@ -47,13 +47,12 @@
                             <p class="text-white font-semibold mt-1">{{ $event->createdBy->name }}</p>
                         </div>
                         <div>
-                            @foreach($event->organizers as $organizer)
-                            {
-                                <p class="text-white font-semibold mt-1">
-                                    {{ $organizer->name }}
-                                </p>
-                            }
-                            @endforeach
+                            <span class="text-gray-400 text-sm uppercase tracking-wide">Organizadores</span>
+                            @if($event->organizers->isEmpty())
+                                <p class="text-white font-semibold mt-1">Sin organizadores asignados</p>
+                            @else
+                                <p class="text-white font-semibold mt-1">{{ $event->organizers->pluck('name')->implode(', ') }}</p>
+                            @endif
                         </div>
                         <div>
                             <span class="text-gray-400 text-sm uppercase tracking-wide">Tipo de evento</span>
