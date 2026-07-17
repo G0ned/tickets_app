@@ -7,6 +7,22 @@
 
         <div id="reader" class="w-full bg-black rounded-lg overflow-hidden"></div>
 
+        <style>
+            /* html5-qrcode genera estos elementos dinámicamente por JS,
+               por lo que no se les puede aplicar clases de Tailwind directamente. */
+            #reader__dashboard_section_csr,
+            #reader__dashboard_section_csr span,
+            #reader__dashboard_section_csr button,
+            #reader__dashboard_section_swaplink,
+            #reader__dashboard_section_fsr,
+            #reader__dashboard_section_fsr span,
+            #reader__dashboard_section_fsr button,
+            #reader__status_span,
+            #reader__header_message {
+                color: #f9fafb !important;
+            }
+        </style>
+
         <div id="result" class="p-4 rounded-lg text-center hidden">
             <h2 id="status-title" class="text-xl font-bold text-white"></h2>
             <p id="status-msg" class="text-white"></p>
