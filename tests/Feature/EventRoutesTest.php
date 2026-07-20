@@ -201,7 +201,12 @@ class EventRoutesTest extends TestCase
 
     public function test_non_organizer_cannot_assign_doorman(): void
     {
-        //Vegi
+        //Verificar que un usuario que no es ni admin ni organizador del evento no puede asignar porteros
+        $this->user->is_admin = false;
+        $this->user->save();
+
+        $other_user = User::create([
+            'name' => 'Fox',
             'surname' => 'Mulder',
             'email' => 'foxmulder@example.test',
             'password' => bcrypt('foxmulder1234'),
