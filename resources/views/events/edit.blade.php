@@ -83,7 +83,7 @@
             </div>
             @admin()
             <div class="bg-gray-600 rounded-xl p-6">
-                <h4 class="text-white font-semibold text-sm uppercase tracking-wide mb-4">Asignar nuevo gestor</h4>
+                <h4 class="text-white font-semibold text-sm uppercase tracking-wide mb-4">Asignar nuevo organizador</h4>
                 <form method="POST" action="{{ route('assign-organizer', $event->id) }}" class="space-y-5">
                     @csrf
                     <div class="mb-2">
