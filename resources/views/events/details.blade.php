@@ -4,6 +4,7 @@
 
     @php
         $canEditEvent = auth()->user()->is_admin || $event->organizers->contains('id', auth()->id());
+        $canCreateEditions = auth()->user()->isAdmin() || $event->organizers->contains('id', auth()->id());
     @endphp
 
     {{-- Botón volver --}}
@@ -99,11 +100,11 @@
         <div class="bg-gray-700 p-4 sm:p-8 rounded-xl shadow-xl">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
                 <h3 class="text-lg font-bold text-white">Ediciones del Evento</h3>
-                @admin()
+                @if($canCreateEditions)
                 <x-button href="{{ route('editions-create', $event->id) }}">
                     + Nueva Edición
                 </x-button>
-                @endadmin
+                @endif
             </div>
 
             @if($event->editions->isEmpty())
