@@ -35,7 +35,7 @@ Route::middleware(['admin:admin'])->group(function(){
     //Event routes
     Route::get('/events/create', [EventController::class, 'create'])->name('events-create');
     Route::post('/events/create', [EventController::class, 'store'])->name('events-store');
-    Route::post('events/{event}/assign-organizer', [EventController::class, 'assignOrganizer'])->name('assign-organizer');
+    Route::post('events/{event}/assign-organizer', [EventController::class, 'assignO adrganizer'])->name('assign-organizer');
     Route::delete('/event/{event}/delete', [EventController::class, 'destroy'])->name('events-delete');
     //Edition routes
     Route::get('/event/{event}/edition', [EditionController::class, 'create'])->name('editions-create');
@@ -57,10 +57,13 @@ Route::middleware(['admin:admin'])->group(function(){
     Route::delete('/edition/{edition}/attendee/{attendee}', [FormController::class, 'cancel_attendee'])->name('cancel-attendee-edition');
     //Tickets route
     Route::get('edition/{edition}/attendee/{attendee}/ticket', [FormController::class, 'downloadTicket'])->name('ticket-download');
-    Route::get('/checkin', [CheckInController::class, 'create'])->name('checkin');
-    Route::post('/checkin', [CheckInController::class, 'store'])->name('checkin-store');
     //Portfolios route
     Route::get('portfolios-list', [ClientPortfolioController::class, 'list'])->name('portfolios-list');
+});
+
+Route::middleware(['auth', 'doorman'])->group(function () {
+    Route::get('/checkin', [CheckInController::class, 'create'])->name('checkin');
+    Route::post('/checkin', [CheckInController::class, 'store'])->name('checkin-store');
 });
 
 Route::middleware(['auth'])->group(function (){
@@ -70,6 +73,7 @@ Route::middleware(['auth'])->group(function (){
     Route::get('/events/show/{event}', [EventController::class, 'show'])->name('events-show');
     Route::get('/event/{event}/edit', [EventController::class, 'edit'])->name('events-edit');
     Route::patch('event/{event}/edit', [EventController::class, 'update'])->name('events-update');
+    Route::post('/event/{event}/assign-doorman', [EventController::class, 'assignDoorman'])->name('assign-doorman');
     Route::get('/edition/{edition}', [EditionController::class, 'edit'])->name('editions-edit');
     Route::patch('/edition/{edition}', [EditionController::class, 'update'])->name('editions-update');
     Route::get('/edition/{edition}/guest-list/create', [GuestListController::class, 'create'])->name('guest-list-create');
