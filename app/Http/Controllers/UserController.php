@@ -5,13 +5,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Models\User;
+use App\Models\Event;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
     public function create()
     {
-        return view('users.create');
+        $events = Event::orderBy('name')->get();
+        return view('users.create')->with('events', $events);
     }
 
     public function store(Request $request)
@@ -25,9 +27,16 @@ class UserController extends Controller
             'password'  => ['required', 'string', 'min:8', 'confirmed'],
             'is_admin'      => ['nullable', 'boolean'],
             'is_supervisor' => ['nullable', 'boolean'],
+            'is_organizer'  => ['nullable', 'boolean'],
+            'is_doorman'    => ['nullable', 'boolean'],
+            'event_id'      => [
+                Rule::requiredIf(fn () => $request->boolean('is_organizer') || $request->boolean('is_doorman')),
+                'nullable',
+                'exists:events,id',
+            ],
         ]);
 
-        User::create([
+        $user = User::create([
             'name'          => $validated['name'],
             'surname'       => $validated['surname'],
             'email'         => $validated['email'],
@@ -36,6 +45,14 @@ class UserController extends Controller
             'is_admin'      => $request->boolean('is_admin'),
             'is_supervisor' => $request->boolean('is_supervisor'),
         ]);
+
+        if (!empty($validated['event_id']) && ($request->boolean('is_organizer') || $request->boolean('is_doorman'))) {
+            $event = Event::findOrFail($validated['event_id']);
+            $event->staff()->attach($user->id, [
+                'is_organizer' => $request->boolean('is_organizer'),
+                'is_doorman'   => $request->boolean('is_doorman'),
+            ]);
+        }
 
         return redirect()->route('events-index')
             ->with('success', 'Usuario creado correctamente.');
