@@ -120,9 +120,7 @@ class EventController extends Controller
             'user_id' => ['required', 'exists:users,id']
         ]);
 
-        $event->staff()->syncWithoutDetaching([
-            $validated['user_id'] => ['is_organizer' => true],
-        ]);
+        $this->assignEventRole($event, $validated['user_id'], 'is_organizer');
 
         return redirect(route('events-edit', $event->id))->with('success', "Organizador asigando correctamente");
     }
@@ -137,11 +135,40 @@ class EventController extends Controller
             'user_id' => ['required', 'exists:users,id']
         ]);
 
-        $event->staff()->syncWithoutDetaching([
-            $validated['user_id'] => ['is_doorman' => true],
-        ]);
+        $this->assignEventRole($event, $validated['user_id'], 'is_doorman');
 
         return redirect(route('events-edit', $event->id))->with('success', 'Portero asignado correctamente');
+    }
+
+    private function assignEventRole(Event $event, int $userId, string $role): void
+    {
+        $alreadyStaff = $event->staff()->where('user_id', $userId)->exists();
+
+        if ($alreadyStaff) {
+            $event->staff()->updateExistingPivot($userId, [$role => true]);
+        } else {
+            $event->staff()->attach($userId, [
+                'is_organizer' => $role === 'is_organizer',
+                'is_doorman'   => $role === 'is_doorman',
+            ]);
+        }
+    }
+
+    public function removeDoorman(Event $event, User $user)
+    {
+        $pivot = $event->staff()->where('user_id', $user->id)->first()?->pivot;
+
+        if ($pivot === null || !$pivot->is_doorman) {
+            return redirect()->route('events-edit', $event->id)->with('error', 'Este usuario no es portero de este evento.');
+        }
+
+        if ($pivot->is_organizer) {
+            $event->staff()->updateExistingPivot($user->id, ['is_doorman' => false]);
+        } else {
+            $event->staff()->detach($user->id);
+        }
+
+        return redirect()->route('events-edit', $event->id)->with('success', 'Portero eliminado correctamente');
     }
 
     public function destroy(Event $event)

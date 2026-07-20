@@ -196,6 +196,40 @@ class EventRoutesTest extends TestCase
             'event_id' => $event->id,
             'user_id' => $candidate->id,
             'is_doorman' => true,
+            'is_organizer' => false,
+        ]);
+        $event->refresh();
+        $this->assertFalse($event->organizers->contains('id', $candidate->id));
+    }
+
+    public function test_assigning_doorman_to_an_existing_organizer_keeps_organizer_role(): void
+    {
+        //Verificar que asignar el rol de portero a alguien que ya es organizador no le quita ese rol
+        $event = Event::create([
+            'name' => 'Demo Event Name',
+            'description' => 'Demo Event Description',
+            'public' => false,
+            'created_by' => $this->user->id,
+        ]);
+        $candidate = User::create([
+            'name' => 'Dana',
+            'surname' => 'Scully',
+            'email' => 'danascully@example.test',
+            'password' => bcrypt('danascully1234'),
+            'is_admin' => false,
+            'is_supervisor' => false
+        ]);
+        $event->staff()->attach($candidate->id, ['is_organizer' => true, 'is_doorman' => false]);
+
+        $this->actingAs($this->user)->post(route('assign-doorman', $event->id), [
+            'user_id' => $candidate->id,
+        ]);
+
+        $this->assertDatabaseHas('event_organizer', [
+            'event_id' => $event->id,
+            'user_id' => $candidate->id,
+            'is_doorman' => true,
+            'is_organizer' => true,
         ]);
     }
 
@@ -256,6 +290,96 @@ class EventRoutesTest extends TestCase
         $response = $this->actingAs($this->user)->get(route('events-edit', $event->id));
 
         $response->assertRedirect(route('events-show', $event->id));
+    }
+
+    public function test_admin_can_remove_doorman_only_user(): void
+    {
+        //Verificar que un admin puede quitar a un portero que no es organizador; la fila del pivote se elimina entera
+        $event = Event::create([
+            'name' => 'Demo Event Name',
+            'description' => 'Demo Event Description',
+            'public' => false,
+            'created_by' => $this->user->id,
+        ]);
+        $doorman = User::create([
+            'name' => 'Dana',
+            'surname' => 'Scully',
+            'email' => 'danascully@example.test',
+            'password' => bcrypt('danascully1234'),
+            'is_admin' => false,
+            'is_supervisor' => false
+        ]);
+        $event->staff()->attach($doorman->id, ['is_organizer' => false, 'is_doorman' => true]);
+
+        $this->actingAs($this->user)->delete(route('remove-doorman', [$event->id, $doorman->id]));
+
+        $this->assertDatabaseMissing('event_organizer', [
+            'event_id' => $event->id,
+            'user_id' => $doorman->id,
+        ]);
+    }
+
+    public function test_admin_removing_doorman_who_is_also_organizer_keeps_organizer_role(): void
+    {
+        //Verificar que quitar el rol de portero a alguien que también es organizador no le quita el rol de organizador
+        $event = Event::create([
+            'name' => 'Demo Event Name',
+            'description' => 'Demo Event Description',
+            'public' => false,
+            'created_by' => $this->user->id,
+        ]);
+        $staffMember = User::create([
+            'name' => 'Fox',
+            'surname' => 'Mulder',
+            'email' => 'foxmulder@example.test',
+            'password' => bcrypt('foxmulder1234'),
+            'is_admin' => false,
+            'is_supervisor' => false
+        ]);
+        $event->staff()->attach($staffMember->id, ['is_organizer' => true, 'is_doorman' => true]);
+
+        $this->actingAs($this->user)->delete(route('remove-doorman', [$event->id, $staffMember->id]));
+
+        $this->assertDatabaseHas('event_organizer', [
+            'event_id' => $event->id,
+            'user_id' => $staffMember->id,
+            'is_organizer' => true,
+            'is_doorman' => false,
+        ]);
+    }
+
+    public function test_non_admin_cannot_remove_doorman(): void
+    {
+        //Verificar que un organizador (sin ser admin) no puede quitar porteros, solo un admin
+        $this->user->is_admin = false;
+        $this->user->save();
+
+        $event = Event::create([
+            'name' => 'Demo Event Name',
+            'description' => 'Demo Event Description',
+            'public' => false,
+            'created_by' => $this->user->id,
+        ]);
+        $event->staff()->attach($this->user->id, ['is_organizer' => true, 'is_doorman' => false]);
+
+        $doorman = User::create([
+            'name' => 'Dana',
+            'surname' => 'Scully',
+            'email' => 'danascully@example.test',
+            'password' => bcrypt('danascully1234'),
+            'is_admin' => false,
+            'is_supervisor' => false
+        ]);
+        $event->staff()->attach($doorman->id, ['is_organizer' => false, 'is_doorman' => true]);
+
+        $response = $this->actingAs($this->user)->delete(route('remove-doorman', [$event->id, $doorman->id]));
+
+        $response->assertStatus(403);
+        $this->assertDatabaseHas('event_organizer', [
+            'event_id' => $event->id,
+            'user_id' => $doorman->id,
+            'is_doorman' => true,
+        ]);
     }
 
     public function test_event_delete(): void
