@@ -35,7 +35,7 @@ Route::middleware(['admin:admin'])->group(function(){
     //Event routes
     Route::get('/events/create', [EventController::class, 'create'])->name('events-create');
     Route::post('/events/create', [EventController::class, 'store'])->name('events-store');
-    Route::post('events/{event}/assign-organizer', [EventController::class, 'assignO adrganizer'])->name('assign-organizer');
+    Route::post('events/{event}/assign-organizer', [EventController::class, 'assignOrganizer'])->name('assign-organizer');
     Route::delete('/event/{event}/delete', [EventController::class, 'destroy'])->name('events-delete');
     //Edition routes
     Route::get('/event/{event}/edition', [EditionController::class, 'create'])->name('editions-create');
