@@ -59,12 +59,21 @@ class EventController extends Controller
     
      public function edit(Event $event)
     {
-        if (!(Auth::user()->is_admin || $event->organizers->contains('id', Auth::id()))) {
+        $isOrganizer = $event->organizers->contains('id', Auth::id());
+
+        if (!(Auth::user()->is_admin || $isOrganizer)) {
             return redirect()->route('events-show', $event->id)->with('error', 'No tienes permisos para esta acción');
         }
 
+        $event->load('doormen');
         $users = User::all();
-        return view('events.edit')->with(['event' => $event, 'users' => $users]);
+        $canManageDoormen = Auth::user()->is_admin || $isOrganizer;
+
+        return view('events.edit')->with([
+            'event' => $event,
+            'users' => $users,
+            'canManageDoormen' => $canManageDoormen,
+        ]);
     }
 
     public function update(Event $event)
@@ -108,11 +117,31 @@ class EventController extends Controller
     public function assignOrganizer(Event $event)
     {
         $validated = request()->validate([
-            'user_id' => ['required']
+            'user_id' => ['required', 'exists:users,id']
         ]);
 
-        $event->organizers()->attach($validated['user_id']);
+        $event->staff()->syncWithoutDetaching([
+            $validated['user_id'] => ['is_organizer' => true],
+        ]);
+
         return redirect(route('events-edit', $event->id))->with('success', "Organizador asigando correctamente");
+    }
+
+    public function assignDoorman(Event $event)
+    {
+        if (!(Auth::user()->is_admin || $event->organizers->contains('id', Auth::id()))) {
+            return redirect()->route('events-edit', $event->id)->with('error', 'No tienes permisos para esta acción');
+        }
+
+        $validated = request()->validate([
+            'user_id' => ['required', 'exists:users,id']
+        ]);
+
+        $event->staff()->syncWithoutDetaching([
+            $validated['user_id'] => ['is_doorman' => true],
+        ]);
+
+        return redirect(route('events-edit', $event->id))->with('success', 'Portero asignado correctamente');
     }
 
     public function destroy(Event $event)
