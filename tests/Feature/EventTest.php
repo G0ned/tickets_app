@@ -145,6 +145,42 @@ class EventTest extends TestCase
         ]);
     }
 
+    public function test_organizers_relation_excludes_doorman_only_staff(): void
+    {
+        // Arrange
+        $doorman = User::create([
+            'name' => 'Alice',
+            'surname' => 'Doorkeeper',
+            'email' => 'alicedoor@example.test',
+            'password' => bcrypt('alicedoor1234'),
+            'is_admin' => false,
+            'is_supervisor' => false
+        ]);
+        $this->event->staff()->attach($doorman->id, ['is_organizer' => false, 'is_doorman' => true]);
+
+        // Assert
+        $this->assertFalse($this->event->organizers->contains('id', $doorman->id));
+        $this->assertTrue($this->event->doormen->contains('id', $doorman->id));
+    }
+
+    public function test_staff_member_can_be_both_organizer_and_doorman(): void
+    {
+        // Arrange
+        $staffMember = User::create([
+            'name' => 'Carl',
+            'surname' => 'Both',
+            'email' => 'carlboth@example.test',
+            'password' => bcrypt('carlboth1234'),
+            'is_admin' => false,
+            'is_supervisor' => false
+        ]);
+        $this->event->staff()->attach($staffMember->id, ['is_organizer' => true, 'is_doorman' => true]);
+
+        // Assert
+        $this->assertTrue($this->event->organizers->contains('id', $staffMember->id));
+        $this->assertTrue($this->event->doormen->contains('id', $staffMember->id));
+    }
+
     public function test_event_has_active_editions(): void
     {
         $editions = [
