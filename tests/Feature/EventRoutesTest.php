@@ -165,6 +165,94 @@ class EventRoutesTest extends TestCase
         $this->assertNotSame($other_user->id, $event->updated_by);
     }
 
+    public function test_organizer_can_assign_doorman(): void
+    {
+        //Verificar que un organizador (sin ser admin) puede asignar un portero al evento
+        $this->user->is_admin = false;
+        $this->user->save();
+
+        $event = Event::create([
+            'name' => 'Demo Event Name',
+            'description' => 'Demo Event Description',
+            'public' => false,
+            'created_by' => $this->user->id,
+        ]);
+        $event->staff()->attach($this->user->id, ['is_organizer' => true, 'is_doorman' => false]);
+
+        $candidate = User::create([
+            'name' => 'Dana',
+            'surname' => 'Scully',
+            'email' => 'danascully@example.test',
+            'password' => bcrypt('danascully1234'),
+            'is_admin' => false,
+            'is_supervisor' => false
+        ]);
+
+        $this->actingAs($this->user)->post(route('assign-doorman', $event->id), [
+            'user_id' => $candidate->id,
+        ]);
+
+        $this->assertDatabaseHas('event_organizer', [
+            'event_id' => $event->id,
+            'user_id' => $candidate->id,
+            'is_doorman' => true,
+        ]);
+    }
+
+    public function test_non_organizer_cannot_assign_doorman(): void
+    {
+        //Vegi
+            'surname' => 'Mulder',
+            'email' => 'foxmulder@example.test',
+            'password' => bcrypt('foxmulder1234'),
+            'is_admin' => false,
+            'is_supervisor' => false
+        ]);
+        $event = Event::create([
+            'name' => 'Demo Event Name',
+            'description' => 'Demo Event Description',
+            'public' => false,
+            'created_by' => $other_user->id,
+        ]);
+
+        $candidate = User::create([
+            'name' => 'Dana',
+            'surname' => 'Scully',
+            'email' => 'danascully@example.test',
+            'password' => bcrypt('danascully1234'),
+            'is_admin' => false,
+            'is_supervisor' => false
+        ]);
+
+        $this->actingAs($this->user)->post(route('assign-doorman', $event->id), [
+            'user_id' => $candidate->id,
+        ]);
+
+        $this->assertDatabaseMissing('event_organizer', [
+            'event_id' => $event->id,
+            'user_id' => $candidate->id,
+        ]);
+    }
+
+    public function test_doorman_only_assignment_does_not_grant_edit_access(): void
+    {
+        //Verificar que ser portero de un evento no concede permiso para editarlo
+        $this->user->is_admin = false;
+        $this->user->save();
+
+        $event = Event::create([
+            'name' => 'Demo Event Name',
+            'description' => 'Demo Event Description',
+            'public' => false,
+            'created_by' => $this->user->id,
+        ]);
+        $event->staff()->attach($this->user->id, ['is_organizer' => false, 'is_doorman' => true]);
+
+        $response = $this->actingAs($this->user)->get(route('events-edit', $event->id));
+
+        $response->assertRedirect(route('events-show', $event->id));
+    }
+
     public function test_event_delete(): void
     {
         //Verificar que la eliminacion de un evento lo marca como eliminado
