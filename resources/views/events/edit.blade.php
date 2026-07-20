@@ -1,32 +1,32 @@
 <x-layout>
     @section('title', 'Edit event')
     <x-slot:heading>Crear Evento</x-slot:heading>
-    <div class="container px-4 sm:px-5 py-6 sm:py-10 mx-auto">
-        <div class="max-w-3xl mx-auto bg-gray-700 p-4 sm:p-8 rounded-xl shadow-xl">
+    <div class="container px-5 py-10 mx-auto">
+        <div class="max-w-3xl mx-auto bg-gray-700 p-8 rounded-xl shadow-xl">
             <form method="POST" action={{ route('events-update', $event->id) }} enctype="multipart/form-data" class="space-y-6">
                 @csrf
                 @method('PATCH')
                 <div class="flex flex-col gap-6">
-                    <div class="w-full sm:w-48 sm:shrink-0 mx-auto sm:mx-0">
-                        <img src="{{ Storage::url($event->poster_path) }}" class="w-full h-48 object-cover rounded-lg shadow-md">
+                    <div class="w-48 shrink-0 items-center">
+                        <img src="{{ Storage::url($event->poster_path) }}" class="w-full h-48 object-cover rounded-lg shadow-md itens-center justify-between">
                     </div>
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <div class="flex-1 min-w-0">
+                    <div class="flex items-center">
+                        <div class="mx-2">
                             <x-form-label for="name">Nombre</x-form-label>
-                            <x-form-input
-                                type="text"
-                                id="name"
-                                name="name"
-                                placeholder="Nombre"
+                            <x-form-input 
+                                type="text" 
+                                id="name" 
+                                name="name" 
+                                placeholder="Nombre" 
                                 value="{{ $event->name }}"
                                 required />
                             <x-form-error name="name" />
                         </div>
-                        <div class="flex-1 min-w-0">
+                        <div class="mx-4">
                             <x-form-label for="poster">Póster</x-form-label>
-                            <x-form-input
-                                type="file"
-                                id="poster_path"
+                            <x-form-input 
+                                type="file" 
+                                id="poster_path" 
                                 name="poster_path"
                                 accept="image/*"
                                 class="w-full bg-teal-800 text-white border border-gray-300 rounded-lg px-4 py-2
@@ -36,12 +36,12 @@
                                 hover:file:bg-blue-600
                                 cursor-pointer" />
                         </div>
-                        <div class="sm:w-32 sm:shrink-0">
+                        <div class="mx-4">
                             <x-form-label for="date">Público</x-form-label>
-                            <select id="public" name="public" value="{{$event->public}}"
+                            <select id="public" name="public" value="{{$event->public}}" 
                                     class="
-                                        block rounded-lg w-full border-gray-900
-                                        shadow-lg focus:border-blue-500 focus:ring-blue-500
+                                        block rounded-lg w-auto border-gray-900 
+                                        shadow-lg focus:border-blue-500 focus:ring-blue-500 
                                         sm:text-sm required">
                                 <option selected value=0> No </option>
                                 <option value=1> Sí </option>
@@ -58,7 +58,7 @@
                         <x-form-error name="desc" />
                     </div>
 
-                    <div class="w-full max-w-sm mx-auto my-2">
+                    <div class="col-span-2 max-w-sm mx-auto my-2">
                         <x-form-button>
                             Guardar Evento
                         </x-form-button>
@@ -71,8 +71,8 @@
                 <ul class="divide-y divide-gray-600 rounded-lg overflow-hidden mb-6 border border-gray-500">
                     @foreach($users as $user)
                     @if($event->organizers->contains($user))
-                        <li class="flex items-center justify-between flex-wrap gap-2 bg-gray-600 px-4 py-3">
-                            <span class="text-white font-medium text-sm break-words">{{ $user->name }} {{ $user->surname }}</span>
+                        <li class="flex items-center justify-between bg-gray-600 px-4 py-3">
+                            <span class="text-white font-medium text-sm">{{ $user->name }} {{ $user->surname }}</span>
                             <div class="flex items-center gap-2">
                                     <span class="bg-indigo-600 text-white text-xs font-semibold px-2 py-1 rounded-full">Organizador</span>
                             </div>
@@ -106,14 +106,14 @@
 
             <div class="mt-8 border-t border-gray-500 pt-6">
                 <x-form-label>Porteros</x-form-label>
-                <p class="text-gray-400 text-sm mb-3">Los porteros solo tienen acceso al escáner de entradas, no a la gestión del evento.</p>
+                <p class="text-gray-400 text-sm mb-3">Los porteros solo pueden acceder al escáner de entradas de este evento.</p>
                 @if ($event->doormen->isEmpty())
                     <p class="text-gray-400 text-sm mb-6">No hay porteros asignados.</p>
                 @else
                     <ul class="divide-y divide-gray-600 rounded-lg overflow-hidden mb-6 border border-gray-500">
                         @foreach ($event->doormen as $doorman)
-                            <li class="flex items-center justify-between flex-wrap gap-2 bg-gray-600 px-4 py-3">
-                                <span class="text-white font-medium text-sm break-words">{{ $doorman->name }} {{ $doorman->surname }}</span>
+                            <li class="flex items-center justify-between bg-gray-600 px-4 py-3">
+                                <span class="text-white font-medium text-sm">{{ $doorman->name }} {{ $doorman->surname }}</span>
                                 <div class="flex items-center gap-2">
                                     <span class="bg-emerald-600 text-white text-xs font-semibold px-2 py-1 rounded-full">Portero</span>
                                 </div>
