@@ -9,13 +9,21 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 class EditionController extends Controller
 {
-    public function create(Event $event) 
+    public function create(Event $event)
     {
+        if (!(Auth::user()->is_admin || $event->organizers->contains('id', Auth::id()))) {
+            return redirect()->route('events-show', $event->id)->with('error', 'No tienes permisos para esta acción');
+        }
+
         return view('editions.create')->with('event', $event);
     }
 
     public function store(Event $event)
     {
+        if (!(Auth::user()->is_admin || $event->organizers->contains('id', Auth::id()))) {
+            return redirect()->route('events-show', $event->id)->with('error', 'No tienes permisos para esta acción');
+        }
+
         $edition_info = request()->validate([
             'location' => ['required', 'string'],
             'date' => ['required', 'date'],

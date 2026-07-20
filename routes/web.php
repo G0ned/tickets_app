@@ -38,8 +38,6 @@ Route::middleware(['admin:admin'])->group(function(){
     Route::post('events/{event}/assign-organizer', [EventController::class, 'assignOrganizer'])->name('assign-organizer');
     Route::delete('/event/{event}/delete', [EventController::class, 'destroy'])->name('events-delete');
     //Edition routes
-    Route::get('/event/{event}/edition', [EditionController::class, 'create'])->name('editions-create');
-    Route::post('/event/{event}/edition', [EditionController::class, 'store'])->name('editions-store');
     Route::delete('/edition/{edition}', [EditionController::class, 'destroy'])->name('editions-delete');
     Route::post('/edition/{edition}/assign-manager', [EditionController::class, 'assignManager'])->name('assign-user');
     Route::get('/edition/{edition}/attendees', [EditionController::class, 'attendees'])->name('edition-attendees');
@@ -74,6 +72,8 @@ Route::middleware(['auth'])->group(function (){
     Route::get('/event/{event}/edit', [EventController::class, 'edit'])->name('events-edit');
     Route::patch('event/{event}/edit', [EventController::class, 'update'])->name('events-update');
     Route::post('/event/{event}/assign-doorman', [EventController::class, 'assignDoorman'])->name('assign-doorman');
+    Route::get('/event/{event}/edition', [EditionController::class, 'create'])->name('editions-create');
+    Route::post('/event/{event}/edition', [EditionController::class, 'store'])->name('editions-store');
     Route::get('/edition/{edition}', [EditionController::class, 'edit'])->name('editions-edit');
     Route::patch('/edition/{edition}', [EditionController::class, 'update'])->name('editions-update');
     Route::get('/edition/{edition}/guest-list/create', [GuestListController::class, 'create'])->name('guest-list-create');

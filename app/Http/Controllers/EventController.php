@@ -151,9 +151,6 @@ class EventController extends Controller
         }
         else{
             $event->delete();
-            foreach($event_editions as $edition){
-                $edition->delete();
-            }
             return redirect(route('events-index'));
         }
     }

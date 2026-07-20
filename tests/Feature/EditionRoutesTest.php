@@ -64,6 +64,7 @@ class EditionRoutesTest extends TestCase
 
     public function test_edition_creation_as_not_admin(): void
     {
+        //Un usuario autenticado que no es admin ni organizador del evento es redirigido, no puede crear ediciones
         $not_admin = User::create([
             'name' => 'John',
             'surname' => 'Doe',
@@ -73,16 +74,27 @@ class EditionRoutesTest extends TestCase
             'is_supervisor' => false
         ]);
 
-        $response = $this->actingAs($not_admin)->get(route('editions-create', $this->event->id), [
-            'event_id' => $this->event->id,
-            'date' => '9999-12-29',
-            'time' => '00:00',
-            'duration' => 1,
-            'location' => 'demoPlace',
-            'capacity' => 999,
-            'status' => false
+        $response = $this->actingAs($not_admin)->get(route('editions-create', $this->event->id));
+
+        $response->assertRedirect(route('events-show', $this->event->id));
+    }
+
+    public function test_edition_creation_as_organizer(): void
+    {
+        //Verificar que un organizador del evento (sin ser admin) puede crear ediciones para ese evento
+        $organizer = User::create([
+            'name' => 'Jane',
+            'surname' => 'Smith',
+            'email' => 'janesmith@example.test',
+            'password' => bcrypt('janesmith1234'),
+            'is_admin' => false,
+            'is_supervisor' => false
         ]);
-        $response->assertStatus(403);
+        $this->event->staff()->attach($organizer->id, ['is_organizer' => true, 'is_doorman' => false]);
+
+        $response = $this->actingAs($organizer)->get(route('editions-create', $this->event->id));
+
+        $response->assertStatus(200);
     }
 
     public function test_edition_creation_no_event(): void

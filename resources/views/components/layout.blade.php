@@ -67,7 +67,7 @@
         </div>
 
         {{-- Menú desplegable (móvil) --}}
-        <div x-show="open" @click.outside=dd"open = false" class="md:hidden bg-teal-900 px-4 pb-4 space-y-1">
+        <div x-show="open" @click.outside="open = false" class="md:hidden bg-teal-900 px-4 pb-4 space-y-1">
           @auth
             <a href="{{ url('/events/index') }}" class="block text-white hover:bg-teal-700 px-3 py-2 rounded-md text-base font-medium">Eventos</a>
           @endauth
