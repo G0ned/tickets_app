@@ -25,8 +25,10 @@
                     @auth
                       <x-nav_link href="{{ url('/events/index') }}" :active="request()->is('events')">Eventos</x-nav_link>
                     @endauth
-                    @admin()
+                    @if (auth()->check() && (auth()->user()->is_admin || auth()->user()->isDoorman()))
                       <x-nav_link href="{{ url('/checkin') }}" :active="request()->is('checkin')">Escanear Entradas</x-nav_link>
+                    @endif
+                    @admin()
                       <x-nav_link href="{{ url('/user-list') }}" :active="request()->is('user-list')">Usuarios</x-nav_link>
                       <x-nav_link href="{{ url('/contacts') }}" :active="request()->is('contacts')">Contactos</x-nav_link>
                     @endadmin
@@ -65,12 +67,14 @@
         </div>
 
         {{-- Menú desplegable (móvil) --}}
-        <div x-show="open" @click.outside="open = false" class="md:hidden bg-teal-900 px-4 pb-4 space-y-1">
+        <div x-show="open" @click.outside=dd"open = false" class="md:hidden bg-teal-900 px-4 pb-4 space-y-1">
           @auth
             <a href="{{ url('/events/index') }}" class="block text-white hover:bg-teal-700 px-3 py-2 rounded-md text-base font-medium">Eventos</a>
           @endauth
-          @admin()
+          @if (auth()->check() && (auth()->user()->is_admin || auth()->user()->isDoorman()))
             <a href="{{ url('/checkin') }}" class="block text-white hover:bg-teal-700 px-3 py-2 rounded-md text-base font-medium">Escanear Entradas</a>
+          @endif
+          @admin()
             <a href="{{ url('/dashboard') }}" class="block text-white hover:bg-teal-700 px-3 py-2 rounded-md text-base font-medium">Dashboard</a>
           @endadmin
           @auth
