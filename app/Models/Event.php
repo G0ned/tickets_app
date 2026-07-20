@@ -34,7 +34,22 @@ class Event extends Model
 
     public function organizers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'event_organizer', 'event_id', 'user_id');
+        return $this->belongsToMany(User::class, 'event_organizer', 'event_id', 'user_id')
+            ->wherePivot('is_organizer', true)
+            ->withPivot('is_organizer', 'is_doorman');
+    }
+
+    public function doormen(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'event_organizer', 'event_id', 'user_id')
+            ->wherePivot('is_doorman', true)
+            ->withPivot('is_organizer', 'is_doorman');
+    }
+
+    public function staff(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'event_organizer', 'event_id', 'user_id')
+            ->withPivot('is_organizer', 'is_doorman');
     }
 
     public function hasActiveEditions(): bool
