@@ -64,6 +64,11 @@ class User extends Authenticatable
             ->withPivot('is_organizer', 'is_doorman');
     }
 
+    public function isOrganizer(): bool
+    {
+        return $this->organized_events()->exists();
+    }
+
     public function doorman_events(): BelongsToMany
     {
         return $this->belongsToMany(Event::class, 'event_organizer', 'user_id', 'event_id')
