@@ -6,27 +6,83 @@
 
         {{-- List info card --}}
         <div class="bg-gray-700 rounded-lg p-5">
-            <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Portfolio</p>
+            <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Cartera</p>
             <p class="text-white font-semibold">{{ $list->clientPorfolio->name }}</p>
             <p class="text-gray-400 text-sm mt-1">
-                {{ $portfolioPersons->count() }} personas en el portfolio
+                {{ $portfolioPersons->count() }} personas en la cartera
                 &middot;
                 <span class="text-teal-400 font-medium">{{ count($currentPersonIds) }} en esta lista</span>
             </p>
+            @if ($list->invitationsCapacity() !== null)
+                <p class="mt-2 inline-flex items-center gap-1.5 text-sm text-yellow-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="size-4 shrink-0">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                    </svg>
+                    Capacidad de invitaciones asignada: <strong>{{ $list->invitationsCapacity() }}</strong>
+                </p>
+            @endif
+            @if ($list->isSent())
+                <p class="mt-2 inline-flex items-center gap-1.5 text-sm text-teal-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="size-4 shrink-0">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                    Invitaciones enviadas el <strong>{{ $list->sent_at->format('d/m/Y H:i') }}</strong>
+                </p>
+            @endif
         </div>
 
+        @if ($list->isSent())
+            {{-- Once sent, the list and its per-person register distribution are frozen. --}}
+            <div class="bg-gray-700 rounded-lg overflow-hidden">
+                <div class="px-5 py-3 bg-gray-600 border-b border-gray-500">
+                    <span class="text-sm text-gray-300 font-medium">Personas invitadas</span>
+                </div>
+                <ul class="divide-y divide-gray-600">
+                    @foreach ($list->persons as $person)
+                        <li class="flex items-center gap-4 px-5 py-3">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-white text-sm font-medium">
+                                    {{ $person->name }} {{ $person->surname }}
+                                </p>
+                                <p class="text-gray-400 text-xs truncate">
+                                    {{ $person->email }} &middot; {{ $person->phone }}
+                                </p>
+                            </div>
+                            <span class="text-xs text-gray-400 shrink-0">
+                                {{ $person->pivot->registrations_used }} / {{ $person->pivot->allowed_registrations }} registros usados
+                            </span>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        @else
         {{--
             Alpine component: identical logic to the create view, but `selected` is
             pre-populated with the IDs already on the list.
             On submit the controller calls sync(), which diffs the old and new sets
             automatically — no need to track additions and removals separately here.
         --}}
-        <div x-data="{
+        <div x-data='{
             selected: @json($currentPersonIds),
+            registrations: @json($currentRegistrations),
+            capacity: {{ $list->invitationsCapacity() ?? 'null' }},
+            get totalRegistrations() {
+                return this.selected.reduce((sum, id) => sum + (parseInt(this.registrations[id]) || 0), 0);
+            },
+            get overCapacity() { return this.capacity !== null && this.totalRegistrations > this.capacity; },
+            get canSubmit()    { return !this.overCapacity; },
 
             togglePerson(id) {
                 const idx = this.selected.indexOf(id);
-                idx === -1 ? this.selected.push(id) : this.selected.splice(idx, 1);
+                if (idx === -1) {
+                    this.selected.push(id);
+                    if (this.registrations[id] === undefined) this.registrations[id] = 1;
+                } else {
+                    this.selected.splice(idx, 1);
+                }
             },
             isSelected(id) { return this.selected.includes(id); },
 
@@ -35,13 +91,16 @@
                 if (allChecked) {
                     this.selected = this.selected.filter(id => !personIds.includes(id));
                 } else {
-                    personIds.forEach(id => { if (!this.selected.includes(id)) this.selected.push(id); });
+                    personIds.forEach(id => {
+                        if (!this.selected.includes(id)) this.selected.push(id);
+                        if (this.registrations[id] === undefined) this.registrations[id] = 1;
+                    });
                 }
             },
             allSelected(personIds) {
                 return personIds.length > 0 && personIds.every(id => this.selected.includes(id));
             }
-        }">
+        }'>
             <form method="POST" action="{{ route('invitation-list-update', $list->id) }}" class="space-y-6">
                 @csrf
                 @method('PATCH')
@@ -84,13 +143,17 @@
                     @else
                         <ul class="divide-y divide-gray-600">
                             @foreach ($portfolioPersons as $person)
-                                <li class="hover:bg-gray-600 transition-colors">
+                                <li class="hover:bg-gray-600 transition-colors flex items-center gap-4 px-5 py-3">
                                     {{--
-                                        The label makes the whole row clickable.
+                                        The label makes the checkbox + person info clickable.
                                         :checked / @change are used instead of x-model to keep
                                         the selected array as integers, avoiding type mismatches.
+                                        The registrations input below is a SIBLING of this label
+                                        (not nested inside it) — a nested <label> would be invalid
+                                        HTML and some browsers forward its clicks to the checkbox,
+                                        silently deselecting the person while editing their count.
                                     --}}
-                                    <label class="flex items-center gap-4 px-5 py-3 cursor-pointer w-full select-none">
+                                    <label class="flex items-center gap-4 flex-1 min-w-0 cursor-pointer select-none">
                                         <input type="checkbox"
                                             name="persons[]"
                                             value="{{ $person->id }}"
@@ -106,14 +169,19 @@
                                                 {{ $person->email }} &middot; {{ $person->phone }}
                                             </p>
                                         </div>
-
-                                        {{-- Shows only when this person is currently selected --}}
-                                        <span x-show="isSelected({{ $person->id }})"
-                                              x-cloak
-                                              class="text-xs font-semibold text-teal-400 shrink-0">
-                                            En lista
-                                        </span>
                                     </label>
+
+                                    {{-- Shows only when this person is currently selected --}}
+                                    <div x-show="isSelected({{ $person->id }})" x-cloak
+                                         class="flex items-center gap-1.5 shrink-0">
+                                        <span class="text-xs text-gray-400 whitespace-nowrap">Registros</span>
+                                        <input type="number"
+                                            name="registrations[{{ $person->id }}]"
+                                            x-model.number="registrations[{{ $person->id }}]"
+                                            :disabled="!isSelected({{ $person->id }})"
+                                            min="0"
+                                            class="w-16 bg-gray-800 border border-gray-500 rounded px-2 py-1 text-white text-sm text-center">
+                                    </div>
                                 </li>
                             @endforeach
                         </ul>
@@ -126,6 +194,19 @@
                         <p class="text-gray-300">
                             <span class="text-white font-semibold" x-text="selected.length"></span>
                             <span x-text="selected.length === 1 ? ' persona en la lista' : ' personas en la lista'"></span>
+                            @if ($list->invitationsCapacity() !== null)
+                                <span class="mx-1 text-gray-500">&middot;</span>
+                                <span class="text-gray-400">
+                                    <span x-text="totalRegistrations"></span> registros asignados
+                                </span>
+                                <span class="mx-1 text-gray-500">&middot;</span>
+                                <span :class="overCapacity ? 'text-red-400 font-semibold' : 'text-gray-400'">
+                                    <span x-text="capacity - totalRegistrations"></span> restantes
+                                </span>
+                            @endif
+                        </p>
+                        <p x-show="overCapacity" x-cloak class="text-red-400 text-xs">
+                            Has superado tu límite de invitaciones para esta edición.
                         </p>
 
                         @error('persons')
@@ -134,13 +215,25 @@
                     </div>
 
                     <button type="submit"
-                        class="bg-teal-700 hover:bg-teal-600 text-white font-semibold px-6 py-2.5 rounded-lg transition-colors duration-150 shrink-0">
+                        :disabled="!canSubmit"
+                        :class="canSubmit
+                            ? 'bg-teal-700 hover:bg-teal-600 cursor-pointer'
+                            : 'bg-gray-500 cursor-not-allowed opacity-60'"
+                        class="text-white font-semibold px-6 py-2.5 rounded-lg transition-colors duration-150 shrink-0">
                         Guardar cambios
                     </button>
                 </div>
-
             </form>
         </div>
+
+        <form method="POST" action="{{ route('invitation-list-send', $list->id) }}">
+            @csrf
+            <button type="submit"
+                    class="w-full bg-teal-700 hover:bg-teal-600 text-white font-semibold px-6 py-2.5 rounded-lg transition-colors duration-150">
+                Enviar invitaciones
+            </button>
+        </form>
+        @endif
 
     </div>
 </x-layout>

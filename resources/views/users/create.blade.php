@@ -109,6 +109,51 @@
                     </label>
                 </div>
 
+                {{-- ── Event roles ──────────────────────────────────────────────────── --}}
+                <div class="border-t border-gray-600 pt-5 space-y-3">
+                    <p class="text-sm font-medium text-gray-300">Asignar a un evento (opcional)</p>
+
+                    <div>
+                        <x-form-label for="event_id">Evento</x-form-label>
+                        <select name="event_id" id="event_id"
+                            class="mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-500 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="">— Selecciona un evento —</option>
+                            @foreach ($events as $event)
+                                <option value="{{ $event->id }}" {{ old('event_id') == $event->id ? 'selected' : '' }}>{{ $event->name }}</option>
+                            @endforeach
+                        </select>
+                        <x-form-error name="event_id" />
+                    </div>
+
+                    <label class="flex items-center gap-3 cursor-pointer select-none
+                                  bg-gray-600 hover:bg-gray-500 px-4 py-3 rounded-lg
+                                  border border-gray-500 transition-colors duration-150">
+                        <input type="checkbox"
+                               name="is_organizer"
+                               value="1"
+                               {{ old('is_organizer') ? 'checked' : '' }}
+                               class="w-4 h-4 accent-indigo-500">
+                        <div>
+                            <p class="text-white text-sm font-semibold">Organizador</p>
+                            <p class="text-gray-400 text-xs">Puede editar el evento seleccionado y asignar porteros.</p>
+                        </div>
+                    </label>
+
+                    <label class="flex items-center gap-3 cursor-pointer select-none
+                                  bg-gray-600 hover:bg-gray-500 px-4 py-3 rounded-lg
+                                  border border-gray-500 transition-colors duration-150">
+                        <input type="checkbox"
+                               name="is_doorman"
+                               value="1"
+                               {{ old('is_doorman') ? 'checked' : '' }}
+                               class="w-4 h-4 accent-emerald-500">
+                        <div>
+                            <p class="text-white text-sm font-semibold">Portero</p>
+                            <p class="text-gray-400 text-xs">Solo tiene acceso al escáner de entradas del evento seleccionado.</p>
+                        </div>
+                    </label>
+                </div>
+
                 {{-- ── Submit ───────────────────────────────────────────────────────── --}}
                 <div class="pt-2">
                     <x-form-button>Crear usuario</x-form-button>

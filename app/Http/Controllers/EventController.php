@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
@@ -58,11 +59,29 @@ class EventController extends Controller
     
      public function edit(Event $event)
     {
-        return view('events.edit')->with('event', $event);
+        $isOrganizer = $event->organizers->contains('id', Auth::id());
+
+        if (!(Auth::user()->is_admin || $isOrganizer)) {
+            return redirect()->route('events-show', $event->id)->with('error', 'No tienes permisos para esta acción');
+        }
+
+        $event->load('doormen');
+        $users = User::all();
+        $canManageDoormen = Auth::user()->is_admin || $isOrganizer;
+
+        return view('events.edit')->with([
+            'event' => $event,
+            'users' => $users,
+            'canManageDoormen' => $canManageDoormen,
+        ]);
     }
-    
+
     public function update(Event $event)
     {
+        if (!(Auth::user()->is_admin || $event->organizers->contains('id', Auth::id()))) {
+            return redirect()->route('events-show', $event->id)->with('error', 'No tienes permisos para esta acción');
+        }
+
         $event_new_data = request()->validate([
             'name' => ['required', 'string'],
             'poster_path' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp|max:2048'],
@@ -85,18 +104,81 @@ class EventController extends Controller
             'name' => $event_new_data['name'],
             'public' => $event_new_data['public'],
             'description' => $event_new_data['desc'],
-            'poster_path' => $posterPath
+            'poster_path' => $posterPath,
+            'updated_by' => Auth::user()->id
             ]);
-            return redirect(route('events-show', $event->id));
+            return redirect(route('events-show', $event->id))->with('success', 'Datos del evento actualizados correctamente');
         }
         catch(\Exception $e){
-            dd($e->getMessage());
+            return redirect(route('events-show', $event->id))->with('error', 'No se ha sido posible modificar el evento');
         }
+    }
+
+    public function assignOrganizer(Event $event)
+    {
+        $validated = request()->validate([
+            'user_id' => ['required', 'exists:users,id']
+        ]);
+
+        $this->assignEventRole($event, $validated['user_id'], 'is_organizer');
+
+        return redirect(route('events-edit', $event->id))->with('success', "Organizador asigando correctamente");
+    }
+
+    public function assignDoorman(Event $event)
+    {
+        if (!(Auth::user()->is_admin || $event->organizers->contains('id', Auth::id()))) {
+            return redirect()->route('events-edit', $event->id)->with('error', 'No tienes permisos para esta acción');
+        }
+
+        $validated = request()->validate([
+            'user_id' => ['required', 'exists:users,id']
+        ]);
+
+        $this->assignEventRole($event, $validated['user_id'], 'is_doorman');
+
+        return redirect(route('events-edit', $event->id))->with('success', 'Portero asignado correctamente');
+    }
+
+    private function assignEventRole(Event $event, int $userId, string $role): void
+    {
+        $alreadyStaff = $event->staff()->where('user_id', $userId)->exists();
+
+        if ($alreadyStaff) {
+            $event->staff()->updateExistingPivot($userId, [$role => true]);
+        } else {
+            $event->staff()->attach($userId, [
+                'is_organizer' => $role === 'is_organizer',
+                'is_doorman'   => $role === 'is_doorman',
+            ]);
+        }
+    }
+
+    public function removeDoorman(Event $event, User $user)
+    {
+        $pivot = $event->staff()->where('user_id', $user->id)->first()?->pivot;
+
+        if ($pivot === null || !$pivot->is_doorman) {
+            return redirect()->route('events-edit', $event->id)->with('error', 'Este usuario no es portero de este evento.');
+        }
+
+        if ($pivot->is_organizer) {
+            $event->staff()->updateExistingPivot($user->id, ['is_doorman' => false]);
+        } else {
+            $event->staff()->detach($user->id);
+        }
+
+        return redirect()->route('events-edit', $event->id)->with('success', 'Portero eliminado correctamente');
     }
 
     public function destroy(Event $event)
     {
-        $event->delete();
-        return redirect(route('events-index'));
+        if($event->hasActiveEditions()){
+            return back()->with('error', 'No es posible eliminar un evento con ediciones que no se han celebrado aun');
+        }
+        else{
+            $event->delete();
+            return redirect(route('events-index'));
+        }
     }
 }

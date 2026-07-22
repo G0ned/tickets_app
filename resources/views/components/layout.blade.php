@@ -25,9 +25,12 @@
                     @auth
                       <x-nav_link href="{{ url('/events/index') }}" :active="request()->is('events')">Eventos</x-nav_link>
                     @endauth
-                    @admin()
+                    @if (auth()->check() && (auth()->user()->is_admin || auth()->user()->isDoorman()))
                       <x-nav_link href="{{ url('/checkin') }}" :active="request()->is('checkin')">Escanear Entradas</x-nav_link>
-                      <x-nav_link href="{{ url('/user/create') }}" :active="request()->is('user/create')">Crear Usuario</x-nav_link>
+                    @endif
+                    @admin()
+                      <x-nav_link href="{{ url('/user-list') }}" :active="request()->is('user-list')">Usuarios</x-nav_link>
+                      <x-nav_link href="{{ url('/contacts') }}" :active="request()->is('contacts')">Contactos</x-nav_link>
                     @endadmin
                 </div>
               </div>
@@ -66,10 +69,12 @@
         {{-- Menú desplegable (móvil) --}}
         <div x-show="open" @click.outside="open = false" class="md:hidden bg-teal-900 px-4 pb-4 space-y-1">
           @auth
-            <a href="{{ url('/events') }}" class="block text-white hover:bg-teal-700 px-3 py-2 rounded-md text-base font-medium">Eventos</a>
+            <a href="{{ url('/events/index') }}" class="block text-white hover:bg-teal-700 px-3 py-2 rounded-md text-base font-medium">Eventos</a>
           @endauth
-          @admin()
+          @if (auth()->check() && (auth()->user()->is_admin || auth()->user()->isDoorman()))
             <a href="{{ url('/checkin') }}" class="block text-white hover:bg-teal-700 px-3 py-2 rounded-md text-base font-medium">Escanear Entradas</a>
+          @endif
+          @admin()
             <a href="{{ url('/dashboard') }}" class="block text-white hover:bg-teal-700 px-3 py-2 rounded-md text-base font-medium">Dashboard</a>
           @endadmin
           @auth
@@ -82,7 +87,7 @@
       </nav>
       <main>
       <header class="bg-white shadow-sm flex items-center justify-between">
-        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-7xl px-2 py-6 sm:px-6 lg:px-8">
           <h1 class="text-xl text-center tracking-tight text-gray-900">{{ $heading }}</h1>
         </div>
       </header>
@@ -101,7 +106,7 @@
                 <p>{{ session('error') }}</p>
             </div>
         @endif
-          <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+          <div class="mx-auto max-w-7xl px-2 py-6 sm:px-6 lg:px-8">
             {{ $slot }}
           </div>
       </main>

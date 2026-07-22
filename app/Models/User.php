@@ -59,7 +59,21 @@ class User extends Authenticatable
 
     public function organized_events(): BelongsToMany
     {
-        return $this->belongsToMany(Event::class, 'event_organizer', 'user_id', 'event_id')->withPivot('assigned_by', 'assigned_at');
+        return $this->belongsToMany(Event::class, 'event_organizer', 'user_id', 'event_id')
+            ->wherePivot('is_organizer', true)
+            ->withPivot('is_organizer', 'is_doorman');
+    }
+
+    public function doorman_events(): BelongsToMany
+    {
+        return $this->belongsToMany(Event::class, 'event_organizer', 'user_id', 'event_id')
+            ->wherePivot('is_doorman', true)
+            ->withPivot('is_organizer', 'is_doorman');
+    }
+
+    public function isDoorman(): bool
+    {
+        return $this->doorman_events()->exists();
     }
 
     public function managed_events(): BelongsToMany

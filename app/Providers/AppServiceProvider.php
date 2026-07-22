@@ -6,8 +6,6 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
 use App\Models\Event;
 use App\Observers\EventObserver;
-use App\Listeners\EditionCapacityControlListener;
-use App\Events\AttendeeEditionSignUpEvent;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,6 +30,14 @@ class AppServiceProvider extends ServiceProvider
         });
         
         Blade::directive('endadmin', function(){
+            return "<?php endif; ?>";
+        });
+
+        Blade::directive('super', function(){
+            return "<?php if(auth()->check() && auth()->user()->is_supervisor): ?>";
+        });
+
+        Blade::directive('endsuper', function(){
             return "<?php endif; ?>";
         });
     }

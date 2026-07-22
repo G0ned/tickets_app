@@ -6,15 +6,24 @@ use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Models\Edition;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 class EditionController extends Controller
 {
-    public function create(Event $event) 
+    public function create(Event $event)
     {
+        if (!(Auth::user()->is_admin || $event->organizers->contains('id', Auth::id()))) {
+            return redirect()->route('events-show', $event->id)->with('error', 'No tienes permisos para esta acción');
+        }
+
         return view('editions.create')->with('event', $event);
     }
 
     public function store(Event $event)
     {
+        if (!(Auth::user()->is_admin || $event->organizers->contains('id', Auth::id()))) {
+            return redirect()->route('events-show', $event->id)->with('error', 'No tienes permisos para esta acción');
+        }
+
         $edition_info = request()->validate([
             'location' => ['required', 'string'],
             'date' => ['required', 'date'],
@@ -41,6 +50,10 @@ class EditionController extends Controller
 
     public function edit(Edition $edition)
     {
+        if (!(Auth::user()->is_admin || $edition->event->organizers->contains('id', Auth::id()))) {
+            return redirect()->route('events-show', $edition->event_id)->with('error', 'No tienes permisos para esta acción');
+        }
+
         $edition->load('managers');
         $isManager = $edition->managers->contains('id', auth()->id());
         $assignableUsers = User::whereNotIn('id', $edition->managers->pluck('id'))->get();
@@ -48,33 +61,12 @@ class EditionController extends Controller
         return view('editions.edit', compact('edition', 'isManager', 'assignableUsers'));
     }
 
-    public function assignManager(Request $request, Edition $edition)
-    {
-        $validated = $request->validate([
-            'user_id'              => ['required', 'exists:users,id'],
-            'is_supervisor'        => ['boolean'],
-            'is_doorman'           => ['boolean'],
-            'invitations_capacity' => ['nullable', 'integer', 'min:0'],
-        ]);
-
-        $edition->managers()->attach($validated['user_id'], [
-            'is_supervisor'        => $validated['is_supervisor'] ?? false,
-            'is_doorman'           => $validated['is_doorman'] ?? false,
-            'invitations_capacity' => $validated['invitations_capacity'] ?? null,
-        ]);
-
-        return redirect()->route('editions-edit', $edition->id)
-            ->with('success', 'Gestor asignado correctamente.');
-    }
-
-    public function managerEditions(User $user)
-    {
-        $user_editions = $user->managed_events()->with('event')->get();
-        return view('editions.manager-editions')->with('editions', $user_editions);
-    }
-
     public function update(Edition $edition)
     {
+        if (!(Auth::user()->is_admin || $edition->event->organizers->contains('id', Auth::id()))) {
+            return redirect()->route('events-show', $edition->event_id)->with('error', 'No tienes permisos para esta acción');
+        }
+
         $validated = request()->validate([
             'location' => ['required', 'string'],
             'date' => ['required', 'date'],
@@ -107,13 +99,53 @@ class EditionController extends Controller
         return redirect(route('events-index'));
     }
 
+    public function assignManager(Request $request, Edition $edition)
+    {
+        $validated = $request->validate([
+            'user_id'              => ['required', 'exists:users,id'],
+            'is_supervisor'        => ['boolean'],
+            'is_doorman'           => ['boolean'],
+            'invitations_capacity' => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        $edition->managers()->attach($validated['user_id'], [
+            'is_supervisor'        => $validated['is_supervisor'] ?? false,
+            'is_doorman'           => $validated['is_doorman'] ?? false,
+            'invitations_capacity' => $validated['invitations_capacity'] ?? null,
+        ]);
+
+        return redirect()->route('editions-edit', $edition->id)
+            ->with('success', 'Gestor asignado correctamente.');
+    }
+
+    public function managerEditions(User $user)
+    {
+        $user_editions = $user->managed_events()->with('event')->get();
+        return view('editions.manager-editions')->with('editions', $user_editions);
+    }
+
     public function attendees(Edition $edition)
     {
-        // Eager-load the event (for context in the view) and all attendees
-        // including every pivot column defined in the relationship.
         $edition->load(['event', 'attendees']);
 
         return view('editions.attendees', compact('edition'));
     }
 
+    public function exportAttendees(Edition $edition)
+    {
+        $edition->load(['event', 'attendees']);
+        return response()->streamDownload(
+            function() use ($edition)
+            {
+                $handle = fopen('php://output', 'w');
+                fputcsv($handle, ['Evento', 'ID edicion', 'Nombre', 'Apellidos', 'Identificación', 'e-mail', 'Teléfono',
+                'Derechos para publicidad', 'Derechos para comunicaciones', 'Derechos de imagen', 'Politica de privacidad', 'Asistió', 'Hora de entrada']);
+                    foreach($edition->attendees as $attendee){
+                        fputcsv($handle, [$edition->event->name, $edition->id, $attendee->name, $attendee->surname, $attendee->passport, 
+                        $attendee->email, $attendee->phone, $attendee->pivot->auth_for_ad ? 'Si' : 'No', $attendee->pivot->auth_for_comms ? 'Si' : 'No', 
+                        $attendee->pivot->auth_image_rights ? 'Si' : 'No', $attendee->pivot->privacy_policy ? 'Si' : 'No', $attendee->pivot->attendance ? 'Si' : 'No', $attendee->pivot->checked_in_at ? \Carbon\Carbon::parse($attendee->pivot->checked_in_at)->format('d/m/Y H:i'):'-']);   
+                    } 
+                fclose($handle);
+            }, "asistentes-edicion-{$edition->id}.csv", ['Content-Type' => 'text/csv']);
+    }
 }
