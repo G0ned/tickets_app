@@ -16,7 +16,7 @@
                 <p class="text-gray-300 text-sm">No hay usuarios registrados.</p>
             </div>
     @else
-        <div class="bg-gray-700 rounded-xl shadow-xl overflow-hidden">
+        <div class="bg-gray-700 rounded-xl shadow-xl overflow-hidden mb-4">
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
@@ -58,8 +58,8 @@
                                           onsubmit="return confirm('¿Seguro que quieres eliminar al usuario &quot;{{ $user->name }} {{ $user->surname }}&quot;? Esta acción no se puede deshacer.')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-300">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mx-auto hover:bg-red-700">
+                                        <button type="submit" class="inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-300 hover:text-red-400 hover:bg-gray-500 transition-colors duration-150">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mx-auto">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M22 10.5h-6m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
                                             </svg>
                                         </button>
@@ -72,4 +72,52 @@
             </div>
         </div>
     @endif
+    <span class="text-sm text-gray-400 uppercase font-bold">Leyenda de roles</span>
+    <div class="bg-gray-700 rounded-xl shadow-xl overflow-hidden my-2"> 
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b border-gray-600 bg-gray-600">
+                    <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">
+                        Rol
+                    </th>
+                    <th>
+
+                    </th>
+                </tr>
+                <tr class="border-b border-gray-600">
+                    <td class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">
+                        Administrador
+                    </td>
+                    <td class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">
+                        Acceso completo: crear eventos, gestionar usuarios y ediciones.
+                    </td>
+                </tr>
+                <tr class="border-b border-gray-600">
+                    <td class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">
+                        Organizador
+                    </td>
+                    <td class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">
+                        Puede editar el evento seleccionado y asignar porteros.
+                    </td>
+                </tr>
+                <tr class="border-b border-gray-600">
+                    <td class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">
+                        Portero
+                    </td>
+                    <td class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">
+                        Solo tiene acceso al escáner de entradas del evento seleccionado.
+                    </td>
+                </tr>
+                <tr class="border-b border-gray-600">
+                    <td class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">
+                        Supervisor
+                    </td>
+                    <td class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">
+                        Puede supervisar ediciones y gestionar listas de invitados.
+                    </td>
+                </tr>
+                
+            </thead>
+        </table>
+    </div>
 </x-layout>
