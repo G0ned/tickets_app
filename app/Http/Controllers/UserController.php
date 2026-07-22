@@ -54,7 +54,7 @@ class UserController extends Controller
             ]);
         }
 
-        return redirect()->route('events-index')
+        return redirect()->route('user-create')
             ->with('success', 'Usuario creado correctamente.');
     }
 
