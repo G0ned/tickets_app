@@ -5,7 +5,9 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
 use App\Models\Event;
+use App\Models\User;
 use App\Observers\EventObserver;
+use App\Observers\UserObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +26,8 @@ class AppServiceProvider extends ServiceProvider
     {
         //Registro del observer de Eventos.
         Event::observe(EventObserver::class);
+
+        User::observe(UserObserver::class);
 
         Blade::directive('admin', function() {
             return "<?php if(auth()->check() && auth()->user()->is_admin): ?> ";
