@@ -25,6 +25,8 @@
                             <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Apellidos</th>
                             <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">e-mail</th>
                             <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Admin</th>
+                            <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Organizador</th>
+                            <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Portero</th>
                             <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Supervisor</th>
                             <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Editar</th>
                             <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Eliminar</th>
@@ -41,6 +43,8 @@
                                     $no  = '<span class="inline-flex items-center justify-center w-6 h-6 bg-red-700  rounded-full text-white text-xs font-bold">✗</span>';
                                     @endphp
                                 <td class="px-4 py-3 text-center">{!! $user->is_admin     ? $yes : $no !!}</td>
+                                <td class="px-4 py-3 text-center">{!! $user->isOrganizer()    ? $yes : $no !!}</td>
+                                <td class="px-4 py-3 text-center">{!! $user->isDoorman()    ? $yes : $no !!}</td>
                                 <td class="px-4 py-3 text-center">{!! $user->is_supervisor  ? $yes : $no !!}</td>
                                 <td class="px-4 py-3 text-center whitespace-nowrap">
                                     <a href="{{ route('user-edit', $user->id) }}" class="inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-300 hover:text-teal-400 hover:bg-gray-500 transition-colors duration-150">
