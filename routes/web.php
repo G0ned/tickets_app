@@ -65,7 +65,7 @@ Route::middleware(['auth', 'doorman'])->group(function () {
     Route::post('/checkin', [CheckInController::class, 'store'])->name('checkin-store');
 });
 
-Route::middleware(['auth'])->group(function (){
+Route::middleware(['auth', 'doorman.restrict'])->group(function (){
     Route::get('/dashboard', [AuthController::class, 'create'])->name('dashboard');
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
     Route::get('/events/index', [EventController::class, 'index'])->name('events-index');
