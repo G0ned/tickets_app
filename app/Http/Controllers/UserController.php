@@ -54,7 +54,7 @@ class UserController extends Controller
             ]);
         }
 
-        return redirect()->route('user-create')
+        return redirect()->route('user-list')
             ->with('success', 'Usuario creado correctamente.');
     }
 
@@ -100,11 +100,7 @@ class UserController extends Controller
             return back()->with('error', 'No puedes eliminar tu propia cuenta.');
         }
 
-        try {
-            $user->delete();
-            return redirect()->route('user-list')->with('success', 'Usuario eliminado correctamente');
-        } catch (\Illuminate\Database\QueryException $e) {
-            return back()->with('error', 'No se ha podido eliminar el usuario porque tiene eventos o portfolios asociados.');
-        }
+        $user->delete();
+        return redirect()->route('user-list')->with('success', 'Usuario eliminado correctamente');
     }
 }
