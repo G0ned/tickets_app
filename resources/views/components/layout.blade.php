@@ -23,7 +23,9 @@
               <div class="hidden md:block"> 
                 <div class="ml-4 flex items-baseline space-x-4">
                     @auth
-                      <x-nav_link href="{{ url('/events/index') }}" :active="request()->is('events')">Eventos</x-nav_link>
+                      @if (!(auth()->user()->isDoorman() && !auth()->user()->is_admin))
+                        <x-nav_link href="{{ url('/events/index') }}" :active="request()->is('events')">Eventos</x-nav_link>
+                      @endif
                     @endauth
                     @if (auth()->check() && (auth()->user()->is_admin || auth()->user()->isDoorman()))
                       <x-nav_link href="{{ url('/checkin') }}" :active="request()->is('checkin')">Escanear Entradas</x-nav_link>
@@ -39,11 +41,13 @@
             {{-- Links derecha (escritorio) --}}
             <div class="hidden md:flex items-center space-x-2">
               @auth
-                <x-nav_link href="{{ url('/dashboard') }}" :active="request()->is('dashboard')">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                  </svg>
-                </x-nav_link>
+                @if (!(auth()->user()->isDoorman() && !auth()->user()->is_admin))
+                  <x-nav_link href="{{ url('/dashboard') }}" :active="request()->is('dashboard')">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    </svg>
+                  </x-nav_link>
+                @endif
                 <form method="POST" action="/logout" class="inline">
                   @csrf
                   <button type="submit" class="text-white hover:bg-teal-700 px-3 py-2 rounded-md text-sm font-medium">Logout</button>
@@ -69,7 +73,9 @@
         {{-- Menú desplegable (móvil) --}}
         <div x-show="open" @click.outside="open = false" class="md:hidden bg-teal-900 px-4 pb-4 space-y-1">
           @auth
-            <a href="{{ url('/events/index') }}" class="block text-white hover:bg-teal-700 px-3 py-2 rounded-md text-base font-medium">Eventos</a>
+            @if (!(auth()->user()->isDoorman() && !auth()->user()->is_admin))
+              <a href="{{ url('/events/index') }}" class="block text-white hover:bg-teal-700 px-3 py-2 rounded-md text-base font-medium">Eventos</a>
+            @endif
           @endauth
           @if (auth()->check() && (auth()->user()->is_admin || auth()->user()->isDoorman()))
             <a href="{{ url('/checkin') }}" class="block text-white hover:bg-teal-700 px-3 py-2 rounded-md text-base font-medium">Escanear Entradas</a>
@@ -112,8 +118,8 @@
       </main>
     </div>
 
-<footer class="bg-gray-800 text-gray-300 w-full py-8 mt-auto">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<footer class="bg-gray-800 text-gray-300 w-full h-min">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div class="flex flex-col items-start">
                 <img src="{{ asset('img/logo.png') }}" alt="Logo Eurocos" class="h-12 w-auto mb-4">
