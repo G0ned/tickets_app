@@ -21,6 +21,10 @@ class SessionController extends Controller
         ]);
         if(Auth::attempt($credentials)){
             request()->session()->regenerate();
+            $user = Auth::user();
+            if ($user->isDoorman() && !$user->is_admin) {
+                return redirect()->route('checkin');
+            }
             return redirect(route('dashboard'));
         }
         else{
