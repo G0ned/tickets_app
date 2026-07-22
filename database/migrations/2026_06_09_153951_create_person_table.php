@@ -16,11 +16,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('surname');
-            $table->string('passport')->unique();
             $table->string('email')->unique();
             $table->string('phone')->unique();
-            $table->string('brand')->nullable();
-            $table->enum('type', array_column(Type::cases(), 'value'))->nullable();
 
             $table->foreignId('client_portfolio_id')->nullable()->constrained('client_portfolio')->nullOnDelete();
             $table->timestamps();
