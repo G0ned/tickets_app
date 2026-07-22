@@ -13,7 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => App\Http\Middleware\CheckUserRole::class,
-            'doorman' => App\Http\Middleware\CheckDoorman::class
+            'doorman' => App\Http\Middleware\CheckDoorman::class,
+            'doorman.restrict' => App\Http\Middleware\RestrictDoorman::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
