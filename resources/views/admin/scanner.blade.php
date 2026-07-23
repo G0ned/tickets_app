@@ -34,8 +34,28 @@
     <script>
         const html5QrcodeScanner = new Html5QrcodeScanner('reader', { fps: 10, qrbox: 250 });
 
+        let isProcessing = false;
+
+        function safePause() {
+            try {
+                html5QrcodeScanner.pause(true);
+            } catch (e) {
+                /* already paused (state race in html5-qrcode) */
+            }
+        }
+
+        function safeResume() {
+            try {
+                html5QrcodeScanner.resume();
+            } catch (e) {
+                /* already scanning (state race in html5-qrcode) */
+            }
+        }
+
         const onScanSuccess = (decodedText) => {
-            html5QrcodeScanner.pause(true);
+            if (isProcessing) return;
+            isProcessing = true;
+            safePause();
 
             fetch('{{ route('checkin-store') }}', {
                 method: 'POST',
@@ -48,11 +68,17 @@
                 .then(response => response.json())
                 .then(data => {
                     showResult(data.status, data.message, data.not_accepted_rights);
-                    setTimeout(() => html5QrcodeScanner.resume(), 2000);
+                    setTimeout(() => {
+                        isProcessing = false;
+                        safeResume();
+                    }, 2000);
                 })
                 .catch(() => {
                     showResult('error', 'No se pudo contactar con el servidor.', []);
-                    setTimeout(() => html5QrcodeScanner.resume(), 2000);
+                    setTimeout(() => {
+                        isProcessing = false;
+                        safeResume();
+                    }, 2000);
                 });
         };
 

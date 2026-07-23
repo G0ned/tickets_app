@@ -41,6 +41,7 @@ class Edition extends Model
     }
 
     protected $casts = [
-        'date' => 'datetime'
+        'date'     => 'datetime',
+        'duration' => 'float',
     ];
 }
