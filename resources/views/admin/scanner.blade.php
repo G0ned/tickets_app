@@ -70,7 +70,14 @@
             } else if (status === 'warning') {
                 resultDiv.classList.add('bg-yellow-600');
                 title.innerText = 'ENTRADA YA ESCANEADA';
-            } else {
+            } else if (status === 'early'){
+                resultDiv.classList.add('bg-yellow-600');
+                title.innerText = 'AVISO';
+            } else if (status === 'late'){
+                resultDiv.classList.add('bg-red-600');
+                title.innerText = 'EDICIÓN PASADA';
+            }
+            else {
                 resultDiv.classList.add('bg-red-600');
                 title.innerText = 'INCORRECTO';
             }

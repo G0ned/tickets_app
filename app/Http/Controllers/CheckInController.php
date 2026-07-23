@@ -40,13 +40,13 @@ class CheckInController extends Controller
         }
         if(now()->addHour() < $edition->date){
             return response()->json([
-                'status' => 'warning',
+                'status' => 'early',
                 'message' => 'Las entradas podrán presentarse una hora antes de la celebración del evento como máximo'
             ], 404);
         }
         elseif(now() > $edition->date->copy()->addHours($edition->duration)){
             return response()->json([
-                'status' => 'error',
+                'status' => 'late',
                 'message' => 'El evento ya se ha celebrado.'
             ], 404);
         }
