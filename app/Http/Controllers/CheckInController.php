@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Person;
+use App\Models\Edition;
 
 class CheckInController extends Controller
 {
@@ -27,6 +28,26 @@ class CheckInController extends Controller
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Entrada no encontrada.',
+            ], 404);
+        }
+
+        $edition  = Edition::find($pivotRow->edition_id);
+        if($edition === null){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'La edición no existe...'
+            ], 404);
+        }
+        if(now()->addHour() < $edition->date){
+            return response()->json([
+                'status' => 'warning',
+                'message' => 'Las entradas podrán presentarse una hora antes de la celebración del evento como máximo'
+            ], 404);
+        }
+        elseif(now() > $edition->date->copy()->addHours($edition->duration)){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'El evento ya se ha celebrado.'
             ], 404);
         }
 
