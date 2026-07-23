@@ -38,7 +38,7 @@ class CheckInController extends Controller
                 'message' => 'La edición no existe...'
             ], 404);
         }
-        if(now()->addHour() < $edition->date){
+        if(now()->addHour() > $edition->date){
             return response()->json([
                 'status' => 'early',
                 'message' => 'Las entradas podrán presentarse una hora antes de la celebración del evento como máximo'
