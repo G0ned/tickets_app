@@ -13,10 +13,10 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class AttendeeRegistrationService
 {
     /**
-     * Registers a person as an attendee of the given edition: checks capacity,
-     * deduplicates by passport, generates the QR ticket and dispatches the
-     * sign-up event (ticket email, capacity decrement).
-     *
+     * Registra a una persona como asistente de la edición seleccionada,
+     * comprueba la capacidad, identificaciones duplicadas (DNI), genera el QR
+     * y dispara el evento para enviar el email correspondiente y actualizar el aforo de 
+     * la edición.
      * @param array{identification: string, firstname: string, surname: string, email: string, phone: string, img_rights_ads: mixed, img_rights_web: mixed, img_rights_rss: mixed, privacy_policy: mixed} $validated
      * @return array{error: string}|array{attendee: Person}
      */
@@ -62,15 +62,6 @@ class AttendeeRegistrationService
             return ['attendee' => $attendee];
         });
     }
-
-    /**
-     * Composes the raw QR png with a header showing the event name, edition
-     * number and date/time, so the ticket is identifiable without scanning it.
-     *
-     * Uses Imagick rather than GD: the project's GD build has no FreeType
-     * support (imagettftext/imagettfbbox are unavailable), while Imagick's
-     * ImageMagick delegate renders TTF text natively.
-     */
     private function buildTicketImage(string $qrPng, Edition $edition): string
     {
         $qr = new \Imagick();
