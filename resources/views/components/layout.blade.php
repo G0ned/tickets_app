@@ -1,3 +1,4 @@
+@props(['showContact' => false])
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -118,12 +119,13 @@
       </main>
     </div>
 
-<footer class="bg-gray-800 text-gray-300 w-full h-min">
+<footer class="bg-gray-800 text-gray-300 w-full min-h-10 mb-auto">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div class="flex flex-col items-start">
                 <img src="{{ asset('img/logo.png') }}" alt="Logo Eurocos" class="h-12 w-auto mb-4">
             </div>
+            @if($showContact)
             <div class="flex flex-col md:items-end space-y-2">
                 <h3 class="text-white font-semibold uppercase tracking-wider text-sm mb-2">Contacto</h3>
                 <a href="mailto:correoempresarial@mail.test" class="flex items-center hover:text-white transition-colors duration-200">
@@ -140,12 +142,13 @@
                 </div>
 
                 <div class="flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="" stroke-width="1.5" stroke="currentColor" class="w-6 h-7 mr-2 text-teal-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-7 mr-2 text-teal-400">
                     <path strike-linecap="round" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>
                   </svg>
                 <span class="ml-1">Carretera General Las Arenas, nº3 Polígono Industrial Piedra Redonda, Puerto de la Cruz</span>
                 </div>
             </div>
+            @endif
 
         </div>
         <div class="border-t border-gray-700 mt-8 pt-8 text-sm text-center">
