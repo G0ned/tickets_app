@@ -1,4 +1,4 @@
-<x-layout>
+<x-layout :show-contact="true">
     @section('title', 'Registro por invitación')
     <x-slot:title>Registro por invitación</x-slot:title>
     <div>

@@ -1,4 +1,4 @@
-<x-layout>
+<x-layout :show-contact="true">
     @section('title', 'Enlace no disponible')
     <x-slot:heading>Registro por invitación</x-slot:heading>
 
