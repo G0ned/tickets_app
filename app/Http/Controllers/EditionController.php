@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Models\Edition;
 use App\Models\User;
+use App\Exports\AttendeesExport;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 class EditionController extends Controller
 {
     public function create(Event $event)
@@ -131,9 +133,14 @@ class EditionController extends Controller
         return view('editions.attendees', compact('edition'));
     }
 
-    public function exportAttendees(Edition $edition)
+    public function exportAttendees(Edition $edition, Request $request)
     {
         $edition->load(['event', 'attendees']);
+
+        if ($request->query('format') === 'xlsx') {
+            return Excel::download(new AttendeesExport($edition), "asistentes-edicion-{$edition->id}.xlsx");
+        }
+
         return response()->streamDownload(
             function() use ($edition)
             {
