@@ -26,7 +26,10 @@
 
         <div class="flex items-center justify-between">
             <x-button href="{{ url()->previous() }}">← Volver</x-button>
-            <x-button href="{{ route('export-attendees', ['edition' => $edition->id]) }}">Exportar datos</x-button>
+            <div class="flex items-center gap-2">
+                <x-button href="{{ route('export-attendees', ['edition' => $edition->id, 'format' => 'csv']) }}">Exportar CSV</x-button>
+                <x-button href="{{ route('export-attendees', ['edition' => $edition->id, 'format' => 'xlsx']) }}">Exportar Excel</x-button>
+            </div>
         </div>
 
         {{-- Attendees table --}}
