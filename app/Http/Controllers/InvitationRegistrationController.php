@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\InvitationList;
+use App\Models\VerificationCode;
 use App\Rules\ValidateId;
 use App\Services\AttendeeRegistrationService;
 use Illuminate\Http\Request;
@@ -38,19 +39,46 @@ class InvitationRegistrationController extends Controller
         }
 
         $validated = $request->validate([
-            'identification' => ['required', 'string', 'max:9', new ValidateId($request->input('id_type'))],
-            'firstname'      => ['required', 'string', 'max:255'],
-            'surname'        => ['required', 'string', 'max:255'],
-            'email'          => ['required', 'email'],
-            'phone'          => ['required', 'string', 'max:20'],
-            'zip_code'       => ['required', 'digits:5'],
-            'img_rights_ads' => ['required', 'boolean'],
-            'img_rights_web' => ['required', 'boolean'],
-            'img_rights_rss' => ['required', 'boolean'],
-            'privacy_policy' => ['required', 'in:1'],
+            'identification'    => ['required', 'string', 'max:9', new ValidateId($request->input('id_type'))],
+            'firstname'         => ['required', 'string', 'max:255'],
+            'surname'           => ['required', 'string', 'max:255'],
+            'email'             => ['required', 'email'],
+            'phone'             => ['required', 'string', 'max:20'],
+            'zip_code'          => ['required', 'digits:5'],
+            'img_rights_ads'    => ['required', 'boolean'],
+            'img_rights_web'    => ['required', 'boolean'],
+            'img_rights_rss'    => ['required', 'boolean'],
+            'privacy_policy'    => ['required', 'in:1'],
+            'verification_code' => ['required', 'string'],
         ]);
 
-        $result = $this->registrar->register($invitation->list->edition, $validated);
+        $result = DB::transaction(function () use ($validated, $invitation) {
+            $code = VerificationCode::where('code', $validated['verification_code'])
+                ->lockForUpdate()
+                ->first();
+
+            if ($code === null) {
+                return ['error' => 'El código de verificación no existe.'];
+            }
+
+            if ((int) $code->edition_id !== (int) $invitation->list->edition_id) {
+                return ['error' => 'El código de verificación no corresponde a esta edición.'];
+            }
+
+            if ($code->isUsed()) {
+                return ['error' => 'Este código de verificación ya ha sido utilizado.'];
+            }
+
+            $registration = $this->registrar->register($invitation->list->edition, $validated);
+
+            if (isset($registration['error'])) {
+                return $registration;
+            }
+
+            $code->update(['used_at' => now()]);
+
+            return $registration;
+        });
 
         if (isset($result['error'])) {
             return back()->withErrors(['error' => $result['error']]);

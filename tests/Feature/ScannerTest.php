@@ -18,6 +18,7 @@ class ScannerTest extends TestCase
     protected User $portero;
     protected Event $event;
     protected Edition $edition;
+    protected Person $attendee_1;
 
     protected function setUp(): void
     {
@@ -53,17 +54,71 @@ class ScannerTest extends TestCase
 
         $this->edition = Edition::create([
             'event_id' => $this->event->id,
-            'date' => '2026-08-01 09:00:00',
+            'date' => now()->addHour(),
             'location' => 'DemoPlace',
             'duration' => 2,
             'capacity' => 50,
             'status' => false
         ]);
 
+        $this->future_edition = Edition::create([
+            'event_id' => $this->event->id,
+            'date' => now()->addHours(2),
+            'location' => 'DemoPlace',
+            'duration' => 2,
+            'capacity' => 50,
+            'status' => false
+        ]);
+
+        $this->past_edition = Edition::create([
+            'event_id' => $this->event->id,
+            'date' => '2000-01-01 10:00:00',
+            'location' => 'DemoPlace',
+            'duration' => 2,
+            'capacity' => 50,
+            'status' => false
+            ]);
+        
+        $this->attendee_1 = Person::create([
+            'name' => 'Attendee',
+            'surname' => 'Attends',
+            'email' => 'attendee@mail.test',
+            'phone' => '632598741',
+            'passport' => '12345678Z',
+            'type' => "client",
+            'brand' => null,
+            'client_portfolio_id' => null
+        ]);
+
         $this->event->doormen()->attach($this->portero->id, [
             'is_doorman' => true,
             'is_organizer' => false
         ]);
+
+        $this->edition->attendees()->attach($this->attendee_1, [
+            'token' => 'test-token-1',
+            'auth_for_ad' => false,
+            'auth_for_comms' => false,
+            'auth_image_rights' => true,
+            'privacy_policy' => true,
+        ]);
+
+        $this->future_edition->attendees()->attach($this->attendee_1,[
+            'token' => 'test-future-edition-token',
+            'auth_for_ad' => false,
+            'auth_for_comms' => false,
+            'auth_image_rights' => true,
+            'privacy_policy' => true,
+        ]);
+
+        $this->past_edition->attendees()->attach($this->attendee_1,[
+            'token' => 'test-past-edition-token',
+            'auth_for_ad' => false,
+            'auth_for_comms' => false,
+            'auth_image_rights' => true,
+            'privacy_policy' => true,
+        ]);
+
     }
 
     public function test_scanner_access_admin(): void
@@ -91,5 +146,47 @@ class ScannerTest extends TestCase
 
         $response = $this->actingAs($other_user)->get(route('checkin'));
         $response->assertStatus(403);
+    }
+
+    public function test_scanner_future_event(): void
+    {
+        $response = $this->actingAs($this->user)->postJson(route('checkin-store'), [
+            'token' => 'test-future-edition-token'
+        ]);
+        $response->assertStatus(404)->assertJson(['status' => 'early']);
+    }
+
+    public function test_scanner_past_event(): void
+    {
+        $response = $this->actingAs($this->user)->postJson(route('checkin-store'), [
+            'token' => 'test-past-edition-token'
+        ]);
+        $response->assertStatus(404)->assertJson(['status' => 'late']);
+    }
+
+    public function test_scanner_valid_event_date(): void
+    {
+        $response = $this->actingAs($this->portero)->postJson(route('checkin-store'), [
+            'token' => 'test-token-1'
+        ]);
+        $response->assertStatus(200)->assertJson(['status' => 'success']);
+    }
+    
+    public function test_scanner_invalid_ticket(): void
+    {
+        $response = $this->actingAs($this->portero)->postJson(route('checkin-store'), [
+            'token' => 'test-token-2'
+        ]);
+        $response->assertStatus(404)->assertJson(['status' => 'error']);
+    }
+
+    public function test_scanner_ticket_already_scanned(): void
+    {
+        $this->actingAs($this->portero)->postJson(route('checkin-store'),
+        ['token' => 'test-token-1']);
+        $response =  $this->actingAs($this->portero)->postJson(route('checkin-store'),
+        ['token' => 'test-token-1']);
+        $response->assertStatus(200)->assertJson(['status' => 'warning']);
+        
     }
 }

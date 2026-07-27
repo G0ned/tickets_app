@@ -7,6 +7,7 @@ use App\Mail\InvitationMail;
 use App\Models\Edition;
 use App\Models\User;
 use App\Models\InvitationList;
+use App\Models\VerificationCode;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -134,8 +135,16 @@ class InvitationListController extends Controller
                     ->where('person_id', $person->id)
                     ->update(['token' => $token]);
 
+                $verificationCodes = collect(range(1, $person->pivot->allowed_registrations))
+                    ->map(fn () => VerificationCode::create([
+                        'invitation_list_id' => $list->id,
+                        'person_id'          => $person->id,
+                        'edition_id'         => $list->edition_id,
+                        'code'               => VerificationCode::generateUnique(),
+                    ])->code);
+
                 Mail::to($person->email)->send(
-                    new InvitationMail($list->edition, $person, $token, $person->pivot->allowed_registrations)
+                    new InvitationMail($list->edition, $person, $token, $person->pivot->allowed_registrations, $verificationCodes)
                 );
             }
 

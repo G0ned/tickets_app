@@ -41,6 +41,17 @@
         </div>
                 <form method="POST" action="{{ route('invitation-registration-store', $token) }}" class="space-y-8 rounded-sm shadow-lg">
                     @csrf
+                    <div class="px-2 sm:px-4">
+                        <label for="verification_code" class="text-white">Código de verificación</label>
+                        <x-form-input
+                            type="text"
+                            id="verification_code"
+                            name="verification_code"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                            placeholder="Código recibido por email"
+                            value="{{ old('verification_code') }}"
+                            required/>
+                    </div>
                     @include('form._attendee-fields', ['submitLabel' => 'Completar inscripción'])
                 </form>
             </div>

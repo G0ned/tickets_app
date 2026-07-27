@@ -289,7 +289,10 @@ class EventRoutesTest extends TestCase
 
         $response = $this->actingAs($this->user)->get(route('events-edit', $event->id));
 
-        $response->assertRedirect(route('events-show', $event->id));
+        // RestrictDoorman intercepts before EventController::edit() runs, since
+        // User::isDoorman() is a global check — a non-admin doorman is redirected
+        // to the scanner rather than reaching the controller's own organizer check.
+        $response->assertRedirect(route('checkin'));
     }
 
     public function test_admin_can_remove_doorman_only_user(): void

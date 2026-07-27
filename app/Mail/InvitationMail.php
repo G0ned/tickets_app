@@ -9,6 +9,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection;
 
 class InvitationMail extends Mailable
 {
@@ -19,6 +20,7 @@ class InvitationMail extends Mailable
         public Person $person,
         public string $token,
         public int $allowedRegistrations,
+        public Collection $verificationCodes,
     ) {
     }
 

@@ -109,6 +109,33 @@
                 </tr>
 
                 <tr>
+                    <td style="padding:24px 48px 0;">
+                        <table width="100%" cellpadding="0" cellspacing="0"
+                               style="border:1px solid #e2e8f0; border-radius:10px; overflow:hidden;">
+                            <tr>
+                                <td style="background:#0f172a; padding:14px 20px;">
+                                    <p style="color:#5eead4; font-size:11px; letter-spacing:2px; text-transform:uppercase; font-weight:600; margin:0;">
+                                        {{ $verificationCodes->count() > 1 ? 'Códigos de verificación' : 'Código de verificación' }}
+                                    </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding:20px;">
+                                    <p style="color:#64748b; font-size:13px; margin:0 0 12px;">
+                                        Necesitarás uno de estos códigos para completar cada inscripción.
+                                    </p>
+                                    @foreach($verificationCodes as $code)
+                                        <p style="color:#0f172a; font-size:18px; font-weight:700; letter-spacing:2px; font-family:'Courier New',monospace; margin:0 0 8px;">
+                                            {{ $code }}
+                                        </p>
+                                    @endforeach
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <tr>
                     <td style="padding:32px 48px; text-align:center;">
                         <a href="{{ route('invitation-registration-create', $token) }}"
                            style="display:inline-block; background:linear-gradient(135deg,#0f172a 0%,#134e4a 100%); color:#5eead4; text-decoration:none; font-weight:700; font-size:15px; padding:16px 32px; border-radius:10px;">

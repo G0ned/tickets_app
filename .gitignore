@@ -6,6 +6,7 @@
 /eventia
 /docs
 /claude
+.claude
 .phpactor.json
 .phpunit.result.cache
 /.fleet
