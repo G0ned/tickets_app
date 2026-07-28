@@ -102,6 +102,12 @@ class RegistrationTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_form_sign_up_non_existent_token(): void
+    {
+        $response = $this->get(route('invitation-registration-create', ['token' => 'non-existent-token']));
+        $response->assertStatus(404);
+    }
+
     public function test_form_sign_up(): void
     {
         $response = $this->post(route('invitation-registration-store', ['token' => 'test-token-1']), [
@@ -142,6 +148,83 @@ class RegistrationTest extends TestCase
         $this->assertDatabaseMissing('attendee_edition', [
             'edition_id' => $this->edition->id,
             'attendee_id' => $this->person->id,
+        ]);
+    }
+
+    public function test_form_sign_up_not_allowed_if_not_privacy_policy(): void
+    {
+        $response = $this->post(route('invitation-registration-store', ['token' => 'test-token-1']),[
+            'firstname' => 'Attendee',
+            'surname' => 'Attends',
+            'email' => 'attendee@mail.test',
+            'phone' => '632598741',
+            'id_type' => 'NIF',
+            'identification' => '12345678Z',
+            'zip_code' => '00000',
+            'img_rights_ads' => false,
+            'img_rights_web' => true,
+            'img_rights_rss' => true,
+            'privacy_policy' => false,
+            'verification_code' => 'ExampCde'
+        ]);
+
+        $response->assertRedirect();
+        $this->assertArrayHasKey('privacy_policy', session('errors')['default']['messages']??[]);
+        $this->assertDatabaseMissing('attendee_edition', [
+            'edition_id' => $this->edition->id,
+            'attendee_id' => $this->person->id
+        ]);
+    }
+
+    public function test_sign_up_not_allowed_when_no_capacity(): void
+    {
+        $this->edition->capacity = 0;
+        $this->edition->save();
+        $response = $this->post(route('invitation-registration-store', ['token' => 'test-token-1']),[
+            'firstname' => 'Attendee',
+            'surname' => 'Attends',
+            'email' => 'attendee@mail.test',
+            'phone' => '632598741',
+            'id_type' => 'NIF',
+            'identification' => '12345678Z',
+            'zip_code' => '00000',
+            'img_rights_ads' => false,
+            'img_rights_web' => true,
+            'img_rights_rss' => true,
+            'privacy_policy' => true,
+            'verification_code' => 'ExampCde'
+        ]);
+        $response->assertRedirect();
+        $this->assertArrayHasKey('error', session('errors')['default']['messages']??[]);
+        $this->assertDatabaseMissing('attendee_edition', [
+            'edition_id' => $this->edition->id,
+            'attendee_id' => $this->person->id
+        ]);
+    }
+
+    public function test_sign_up_not_allowed_expired_verification_code(): void
+    {
+        $this->ver_code->used_at = now();
+        $this->ver_code->save();
+        $response = $this->post(route('invitation-registration-store', ['token' => 'test-token-1']),[
+            'firstname' => 'Attendee',
+            'surname' => 'Attends',
+            'email' => 'attendee@mail.test',
+            'phone' => '632598741',
+            'id_type' => 'NIF',
+            'identification' => '12345678Z',
+            'zip_code' => '00000',
+            'img_rights_ads' => false,
+            'img_rights_web' => true,
+            'img_rights_rss' => true,
+            'privacy_policy' => true,
+            'verification_code' => 'ExampCde'
+        ]);
+        $response->assertRedirect();
+        $this->assertArrayHasKey('error', session('errors')['default']['messages']??[]);
+        $this->assertDatabaseMissing('attendee_edition', [
+            'edition_id' => $this->edition->id,
+            'attendee_id' => $this->person->id
         ]);
     }
 }
