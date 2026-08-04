@@ -67,14 +67,6 @@
                 </div>
             </form>
 
-            @if ($isManager)
-                <div class="mt-6 border-t border-gray-600 pt-6">
-                    <x-button href="{{ route('guest-list-create', $edition->id) }}">
-                        Crear lista de invitados
-                    </x-button>
-                </div>
-            @endif
-
             @admin()
             <div class="mt-8 border-t border-gray-500 pt-6">
                 <h3 class="text-white font-bold text-lg mb-4">Gestores de esta edición</h3>

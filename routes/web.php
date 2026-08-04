@@ -6,7 +6,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EditionController;
 use App\Http\Controllers\ClientPortfolioController;
-use App\Http\Controllers\GuestListController;
 use App\Http\Controllers\InvitationListController;
 use App\Http\Controllers\InvitationRegistrationController;
 use App\Http\Controllers\FormController;
@@ -77,7 +76,6 @@ Route::middleware(['auth', 'doorman.restrict'])->group(function (){
     Route::post('/event/{event}/edition', [EditionController::class, 'store'])->name('editions-store');
     Route::get('/edition/{edition}', [EditionController::class, 'edit'])->name('editions-edit');
     Route::patch('/edition/{edition}', [EditionController::class, 'update'])->name('editions-update');
-    Route::get('/edition/{edition}/guest-list/create', [GuestListController::class, 'create'])->name('guest-list-create');
     Route::get('/user/{id}/portfolio', [ClientPortfolioController::class, 'index'])->name('portfolios-index');
     Route::get('/portfolio/{portfolio}', [ClientPortfolioController::class, 'show'])->name('portfolios-show');
     Route::get('/user/{user}/editions', [EditionController::class, 'managerEditions'])->name('manager-editions');

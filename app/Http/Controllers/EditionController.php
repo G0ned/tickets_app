@@ -57,10 +57,9 @@ class EditionController extends Controller
         }
 
         $edition->load('managers');
-        $isManager = $edition->managers->contains('id', auth()->id());
         $assignableUsers = User::whereNotIn('id', $edition->managers->pluck('id'))->get();
 
-        return view('editions.edit', compact('edition', 'isManager', 'assignableUsers'));
+        return view('editions.edit', compact('edition', 'assignableUsers'));
     }
 
     public function update(Edition $edition)

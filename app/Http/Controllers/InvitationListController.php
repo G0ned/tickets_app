@@ -61,7 +61,7 @@ class InvitationListController extends Controller
         ]);
         $list->persons()->attach($this->pivotAttributes($registrations));
 
-        return redirect()->route('manager-editions', $user->id)
+        return redirect()->route('invitation-list-show', $list->id)
             ->with('success', 'Lista de invitaciones creada correctamente.');
     }
 
