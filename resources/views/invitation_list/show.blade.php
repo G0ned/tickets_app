@@ -4,6 +4,32 @@
 
     <div class="max-w-3xl mx-auto space-y-6">
 
+        {{-- Summary table --}}
+        <div class="bg-gray-700 rounded-xl shadow-xl overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-600 bg-gray-600">
+                            <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Nombre</th>
+                            <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Evento</th>
+                            <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Edición</th>
+                            <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Personas invitadas</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-600">
+                        <tr class="hover:bg-gray-600 transition-colors duration-150">
+                            <td class="px-4 py-3 text-white whitespace-nowrap font-medium">{{ $list->name }}</td>
+                            <td class="px-4 py-3 text-gray-300 whitespace-nowrap">{{ $list->edition?->event?->name ?? '—' }}</td>
+                            <td class="px-4 py-3 text-gray-300 whitespace-nowrap">
+                                {{ $list->edition ? $list->edition->date->format('d/m/Y H:i') : '—' }}
+                            </td>
+                            <td class="px-4 py-3 text-center text-teal-400 font-semibold whitespace-nowrap">{{ count($currentPersonIds) }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         {{-- List info card --}}
         <div class="bg-gray-700 rounded-lg p-5">
             <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Cartera</p>

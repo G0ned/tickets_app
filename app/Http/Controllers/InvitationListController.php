@@ -77,7 +77,7 @@ class InvitationListController extends Controller
 
     public function show(InvitationList $list)
     {
-        $list->load(['persons', 'clientPorfolio.persons']);
+        $list->load(['persons', 'clientPorfolio.persons', 'edition.event']);
         $currentPersonIds = $list->persons->pluck('id')->all();
         $currentRegistrations = $list->persons->pluck('pivot.allowed_registrations', 'id')->all();
         $portfolioPersons = $list->clientPorfolio->persons;
