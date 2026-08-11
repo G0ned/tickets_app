@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Mail\InvitationMail;
 use App\Models\Edition;
 use App\Models\User;
+use App\Models\Person;
 use App\Models\InvitationList;
 use App\Models\VerificationCode;
 use Illuminate\Support\Facades\DB;
@@ -85,10 +86,6 @@ class InvitationListController extends Controller
         return view('invitation_list.show', compact('list', 'portfolioPersons', 'currentPersonIds', 'currentRegistrations'));
     }
 
-    public function edit()
-    {
-        //TODO
-    }
 
     public function update(Request $request, InvitationList $list)
     {
@@ -153,6 +150,36 @@ class InvitationListController extends Controller
         });
 
         return back()->with('success', 'Invitaciones enviadas correctamente.');
+    }
+
+    public function resendVerificationCode(InvitationList $list, Person $person)
+    {
+        abort_unless($list->isSent(), 403, 'Esta lista todavía no ha sido enviada.');
+
+        $list->load('edition.event');
+        abort_if($list->edition === null, 422, 'La lista no tiene una edición asociada.');
+
+        $pivot = DB::table('invitation_list_person')
+            ->where('invitation_list_id', $list->id)
+            ->where('person_id', $person->id)
+            ->first();
+
+        abort_if($pivot === null, 404, 'Esta persona no pertenece a esta lista.');
+
+        $codes = VerificationCode::where('invitation_list_id', $list->id)
+            ->where('person_id', $person->id)
+            ->whereNull('used_at')
+            ->pluck('code');
+
+        if ($codes->isEmpty()) {
+            return back()->with('error', 'No quedan códigos de verificación sin usar para reenviar a esta persona.');
+        }
+
+        Mail::to($person->email)->send(
+            new InvitationMail($list->edition, $person, $pivot->token, $pivot->allowed_registrations, $codes)
+        );
+
+        return back()->with('success', 'Código de verificación reenviado a ' . $person->email . '.');
     }
 
     /**
