@@ -16,7 +16,7 @@
                 <tr>
                     <td style="background:linear-gradient(135deg,#0f172a 0%,#134e4a 100%); padding:36px 48px; text-align:center;">
                         <p style="color:#5eead4; margin:0 0 4px; font-size:11px; letter-spacing:3px; text-transform:uppercase; font-weight:600;">Bienvenido/a</p>
-                        <h1 style="color:#ffffff; margin:0; font-size:30px; font-weight:800; letter-spacing:-0.5px;">$edition->event->name</h1>
+                        <h1 style="color:#ffffff; margin:0; font-size:30px; font-weight:800; letter-spacing:-0.5px;">{{ $edition->event->name }}</h1>
                         <p style="color:#99f6e4; margin:10px 0 0; font-size:14px;">Tu entrada ha sido confirmada</p>
                     </td>
                 </tr>
@@ -116,6 +116,25 @@
                                     <p style="color:#94a3b8; font-size:12px; margin:20px 0 0; line-height:1.6;">
                                         Presenta este código en la entrada.<br>Es personal e intransferible.
                                     </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding:0 48px 32px;">
+                        <table width="100%" cellpadding="0" cellspacing="0"
+                               style="border:1px solid #fecaca; border-radius:10px; background:#fef2f2;">
+                            <tr>
+                                <td style="padding:20px; text-align:center;">
+                                    <p style="color:#7f1d1d; font-size:13px; line-height:1.6; margin:0 0 12px;">
+                                        ¿No vas a poder asistir? Puedes cancelar tu inscripción en cualquier momento.
+                                    </p>
+                                    <a href="{{ route('attendee-cancel-create', $token) }}"
+                                       style="display:inline-block; background:#dc2626; color:#ffffff; text-decoration:none; font-weight:700; font-size:13px; padding:10px 20px; border-radius:8px;">
+                                        Cancelar mi inscripción
+                                    </a>
                                 </td>
                             </tr>
                         </table>

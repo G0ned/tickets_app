@@ -13,8 +13,12 @@ class AttendeeEditionCancelAssistance
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public function __construct(public Edition $edition, public Person $person)
-    {
+    public function __construct(
+        public Edition $edition,
+        public Person $person,
+        public ?int $verificationCodeId = null,
+        public ?string $ticketToken = null,
+    ) {
         //
     }
 
