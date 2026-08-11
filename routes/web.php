@@ -12,6 +12,7 @@ use App\Http\Controllers\FormController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\PersonController;
+use App\Http\Controllers\AttendeeCancellationController;
 //Home route
 Route::get('/', [SessionController::class, 'create'])->name('home');
 //Login route
@@ -22,6 +23,9 @@ Route::post('/event/{event}/signup-form', [FormController::class, 'store'])->nam
 //Invitation registration routes (public: the invited person has no account)
 Route::get('/invitations/{token}', [InvitationRegistrationController::class, 'create'])->name('invitation-registration-create');
 Route::post('/invitations/{token}', [InvitationRegistrationController::class, 'store'])->name('invitation-registration-store');
+//Attendee self-cancellation routes (public: reached via the link embedded in the ticket email, no account)
+Route::get('/attendee/cancel/{token}', [AttendeeCancellationController::class, 'create'])->name('attendee-cancel-create');
+Route::post('/attendee/cancel/{token}', [AttendeeCancellationController::class, 'store'])->name('attendee-cancel-store');
 //Policies routes
 Route::get('privacy-policy', function(){
     return view('privacy-policy');
@@ -86,6 +90,7 @@ Route::middleware(['auth', 'doorman.restrict'])->group(function (){
     Route::get('/invitation-list/{list}', [InvitationListController::class, 'show'])->name('invitation-list-show');
     Route::patch('/invitation-list/{list}', [InvitationListController::class, 'update'])->name('invitation-list-update');
     Route::post('/invitation-list/{list}/send', [InvitationListController::class, 'sendInvitations'])->name('invitation-list-send');
+    Route::post('/invitation-list/{list}/person/{person}/resend-code', [InvitationListController::class, 'resendVerificationCode'])->name('invitation-list-resend-code');
     //Supervised invitations routes
     Route::get('/invitations-list/{user}', [InvitationListController::class, 'supervisedIndex'])->name('supervised-invitations-list');
     Route::patch('/edition/{edition}/manager/{manager}/invitations-capacity', [InvitationListController::class, 'updateManagerCapacity'])->name('supervised-manager-capacity-update');
