@@ -36,7 +36,7 @@ class Edition extends Model
     public function attendees(): BelongsToMany
     {
         return $this->belongsToMany(Person::class, 'attendee_edition', 'edition_id', 'attendee_id')->withPivot(
-            'token', 'auth_for_ad', 'auth_for_comms', 'auth_image_rights', 'privacy_policy', 'attendance', 'checked_in_at'
+            'token', 'auth_for_ad', 'auth_for_comms', 'auth_image_rights', 'privacy_policy', 'attendance', 'checked_in_at', 'verification_code_id'
         );
     }
 
