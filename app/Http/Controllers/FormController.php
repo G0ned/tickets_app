@@ -89,8 +89,10 @@ class FormController extends Controller
 
     public function cancel_attendee(Request $request, Edition $edition, Person $attendee)
     {
+        $pivot = $edition->attendees()->find($attendee->id)?->pivot;
+
         $edition->attendees()->detach($attendee->id);
-        cancel_assistance::dispatch($edition, $attendee);
+        cancel_assistance::dispatch($edition, $attendee, $pivot?->verification_code_id, $pivot?->token);
 
         return redirect()->route('edition-attendees', ['edition' => $edition->id]);
     }
