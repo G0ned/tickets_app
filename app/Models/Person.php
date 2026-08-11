@@ -40,7 +40,7 @@ class Person extends Model
     public function edition(): BelongsToMany
     {
         return $this->belongsToMany(Edition::class, 'attendee_edition', 'attendee_id', 'edition_id')->withPivot(
-            'auth_for_ad', 'auth_for_comms', 'auth_image_rights', 'privacy_policy', 'attendance', 'checked_in_at'
+            'auth_for_ad', 'auth_for_comms', 'auth_image_rights', 'privacy_policy', 'attendance', 'checked_in_at', 'verification_code_id'
         );
     }
 }
