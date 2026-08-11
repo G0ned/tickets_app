@@ -152,6 +152,6 @@ class EditionController extends Controller
                         $attendee->pivot->auth_image_rights ? 'Si' : 'No', $attendee->pivot->privacy_policy ? 'Si' : 'No', $attendee->pivot->attendance ? 'Si' : 'No', $attendee->pivot->checked_in_at ? \Carbon\Carbon::parse($attendee->pivot->checked_in_at)->format('d/m/Y H:i'):'-']);   
                     } 
                 fclose($handle);
-            }, "asistentes-edicion-{$edition->id}.csv", ['Content-Type' => 'text/csv']);
+            }, "asistentes-{$edition->event->name}-edicion-{$edition->id}.csv", ['Content-Type' => 'text/csv']);
     }
 }
