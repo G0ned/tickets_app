@@ -77,6 +77,11 @@ class InvitationRegistrationController extends Controller
 
             $code->update(['used_at' => now()]);
 
+            DB::table('attendee_edition')
+                ->where('edition_id', $invitation->list->edition_id)
+                ->where('attendee_id', $registration['attendee']->id)
+                ->update(['verification_code_id' => $code->id]);
+
             return $registration;
         });
 
