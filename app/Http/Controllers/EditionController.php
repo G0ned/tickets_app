@@ -56,7 +56,7 @@ class EditionController extends Controller
             return redirect()->route('events-show', $edition->event_id)->with('error', 'No tienes permisos para esta acción');
         }
 
-        $edition->load('managers');
+        $edition->load(['managers', 'reminders']);
         $assignableUsers = User::whereNotIn('id', $edition->managers->pluck('id'))->get();
 
         return view('editions.edit', compact('edition', 'assignableUsers'));

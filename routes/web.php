@@ -13,6 +13,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\AttendeeCancellationController;
+use App\Http\Controllers\EditionReminderController;
 //Home route
 Route::get('/', [SessionController::class, 'create'])->name('home');
 //Login route
@@ -80,6 +81,8 @@ Route::middleware(['auth', 'doorman.restrict'])->group(function (){
     Route::post('/event/{event}/edition', [EditionController::class, 'store'])->name('editions-store');
     Route::get('/edition/{edition}', [EditionController::class, 'edit'])->name('editions-edit');
     Route::patch('/edition/{edition}', [EditionController::class, 'update'])->name('editions-update');
+    Route::post('/edition/{edition}/reminders', [EditionReminderController::class, 'store'])->name('edition-reminders-store');
+    Route::delete('/edition/{edition}/reminders/{reminder}', [EditionReminderController::class, 'destroy'])->name('edition-reminders-delete');
     Route::get('/user/{id}/portfolio', [ClientPortfolioController::class, 'index'])->name('portfolios-index');
     Route::get('/portfolio/{portfolio}', [ClientPortfolioController::class, 'show'])->name('portfolios-show');
     Route::get('/user/{user}/editions', [EditionController::class, 'managerEditions'])->name('manager-editions');

@@ -40,6 +40,11 @@ class Edition extends Model
         );
     }
 
+    public function reminders(): HasMany
+    {
+        return $this->hasMany(EditionReminder::class);
+    }
+
     protected $casts = [
         'date'     => 'datetime',
         'duration' => 'float',

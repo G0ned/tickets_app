@@ -144,6 +144,75 @@
                 @endif
             </div>
             @endadmin
+
+            {{--
+                Not wrapped in @admin: @admin only checks is_admin, but this page
+                itself is already gated to admin-or-organizer in the controller
+                (see EditionController::edit()), so anyone who can reach this view
+                is already allowed to manage reminders too.
+            --}}
+            <div class="mt-8 border-t border-gray-500 pt-6">
+                <h3 class="text-white font-bold text-lg mb-4">Recordatorios de la edición</h3>
+
+                @if ($edition->reminders->isEmpty())
+                    <p class="text-gray-400 text-sm mb-6">No hay recordatorios programados.</p>
+                @else
+                    <ul class="divide-y divide-gray-600 rounded-lg overflow-hidden mb-6 border border-gray-500">
+                        @foreach ($edition->reminders->sortBy('days_before') as $reminder)
+                            <li class="flex items-center justify-between bg-gray-600 px-4 py-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="bg-indigo-600 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                                        {{ $reminder->days_before }} {{ $reminder->days_before == 1 ? 'día' : 'días' }} antes
+                                    </span>
+                                    @if ($reminder->isSent())
+                                        <span class="bg-emerald-600 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                                            Enviado el {{ $reminder->sent_at->format('d/m/Y H:i') }}
+                                        </span>
+                                    @else
+                                        <span class="bg-gray-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                                            Pendiente
+                                        </span>
+                                    @endif
+                                </div>
+                                <form method="POST"
+                                      action="{{ route('edition-reminders-delete', ['edition' => $edition->id, 'reminder' => $reminder->id]) }}"
+                                      onsubmit="return confirm('¿Seguro que quieres eliminar este recordatorio?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                            title="Eliminar recordatorio"
+                                            class="inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-300 hover:text-red-400 hover:bg-gray-500 transition-colors duration-150">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+
+                <div class="bg-gray-600 rounded-xl p-6">
+                    <h4 class="text-white font-semibold text-sm uppercase tracking-wide mb-4">Programar nuevo recordatorio</h4>
+                    <form method="POST" action="{{ route('edition-reminders-store', $edition->id) }}" class="space-y-5">
+                        @csrf
+                        <div>
+                            <x-form-label for="days_before">Días de antelación</x-form-label>
+                            <x-form-input
+                                type="number"
+                                id="days_before"
+                                name="days_before"
+                                min="1"
+                                max="365"
+                                placeholder="Por ejemplo, 7"
+                                value="{{ old('days_before') }}"
+                                required />
+                            <x-form-error name="days_before" />
+                        </div>
+                        <x-form-button>Programar recordatorio</x-form-button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </x-layout>
