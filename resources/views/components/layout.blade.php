@@ -119,42 +119,38 @@
       </main>
     </div>
 
-<footer class="bg-gray-800 text-gray-300 w-full min-h-10 mb-auto">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div class="flex flex-col items-start">
-                <img src="{{ asset('img/logo.png') }}" alt="Logo Eurocos" class="h-12 w-auto mb-4">
-            </div>
+<footer class="bg-gray-800 text-gray-300 w-full">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-2">
+            <img src="{{ asset('img/logo.png') }}" alt="Logo Eurocos" class="h-8 w-auto shrink-0">
+
             @if($showContact)
-            <div class="flex flex-col md:items-end space-y-2">
-                <h3 class="text-white font-semibold uppercase tracking-wider text-sm mb-2">Contacto</h3>
+            <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs">
                 <a href="mailto:correoempresarial@mail.test" class="flex items-center hover:text-white transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2 text-teal-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1 text-teal-400 shrink-0">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
                     </svg>
                     <span>ec@eurocos.es</span>
                 </a>
-                <div class="flex items-center">
-                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2 text-teal-400">
+                <span class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1 text-teal-400 shrink-0">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
                     </svg>
                     <span>+34 922 32 80 49</span>
-                </div>
-
-                <div class="flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-7 mr-2 text-teal-400">
-                    <path strike-linecap="round" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>
-                  </svg>
-                <span class="ml-1">Carretera General Las Arenas, nº3 Polígono Industrial Piedra Redonda, Puerto de la Cruz</span>
-                </div>
+                </span>
+                <span class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1 text-teal-400 shrink-0">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" />
+                    </svg>
+                    <span>Carretera General Las Arenas, nº3, Puerto de la Cruz</span>
+                </span>
             </div>
             @endif
-
-        </div>
-        <div class="border-t border-gray-700 mt-8 pt-8 text-sm text-center">
-            &copy; {{ date('Y') }} Eurocos.
         </div>
         
+        <div class="border-t border-gray-700 mt-2 pt-2 text-xs text-center">
+            &copy; {{ date('Y') }} Eurocos.
+        </div>
     </div>
 </footer>
   </body>
