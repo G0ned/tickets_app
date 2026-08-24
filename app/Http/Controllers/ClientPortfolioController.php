@@ -20,10 +20,12 @@ class ClientPortfolioController extends Controller
 
     public function create(User $id)
     {
+        $managers = User::whereHas('managed_events')->orderBy('name')->get();
         $availablePersons = Person::with('portfolio')->orderBy('name')->get();
 
         return view('portfolios.create', [
             'owner'            => $id,
+            'managers'         => $managers,
             'availablePersons' => $availablePersons,
         ]);
     }
@@ -31,14 +33,22 @@ class ClientPortfolioController extends Controller
     public function store(Request $request, User $id)
     {
         $validated = $request->validate([
+            'user_id'      => ['required', 'integer', 'exists:users,id'],
             'name'         => ['required', 'string', 'max:255'],
             'person_ids'   => ['array'],
             'person_ids.*' => ['integer', 'exists:person,id'],
         ]);
 
+        $owner = User::findOrFail($validated['user_id']);
+        if (!$owner->managed_events()->exists()) {
+            return back()
+                ->withErrors(['user_id' => 'El usuario seleccionado no es gestor de ninguna edición.'])
+                ->withInput();
+        }
+
         $portfolio = ClientPortfolio::create([
             'name'    => $validated['name'],
-            'user_id' => $id->id,
+            'user_id' => $owner->id,
         ]);
 
         if (!empty($validated['person_ids'])) {

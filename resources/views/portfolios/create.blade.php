@@ -20,6 +20,27 @@
               }">
             @csrf
 
+            {{-- ── Gestor propietario ──────────────────────────────────────────── --}}
+            <div class="bg-gray-700 rounded-lg p-5">
+                <x-form-label for="user_id">Gestor propietario</x-form-label>
+                @if ($managers->isEmpty())
+                    <p class="text-gray-400 text-sm mt-1">
+                        No hay ningún usuario con el rol de gestor todavía. Asigna primero un gestor a una edición.
+                    </p>
+                @else
+                    <select id="user_id" name="user_id" required
+                        class="mt-1 block w-full px-3 py-2 bg-gray-800 text-white border border-gray-500 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="">— Selecciona un gestor —</option>
+                        @foreach ($managers as $manager)
+                            <option value="{{ $manager->id }}" {{ (int) old('user_id', $owner->id) === $manager->id ? 'selected' : '' }}>
+                                {{ $manager->name }} {{ $manager->surname }}
+                            </option>
+                        @endforeach
+                    </select>
+                @endif
+                <x-form-error name="user_id" />
+            </div>
+
             {{-- ── Nombre de la cartera ────────────────────────────────────────── --}}
             <div class="bg-gray-700 rounded-lg p-5">
                 <x-form-label for="name">Nombre de la cartera</x-form-label>
@@ -88,7 +109,7 @@
             <x-form-error name="person_ids" />
 
             <div class="max-w-sm mx-auto">
-                <x-form-button>Crear cartera</x-form-button>
+                <x-form-button :disabled="$managers->isEmpty()">Crear cartera</x-form-button>
             </div>
         </form>
     </div>
