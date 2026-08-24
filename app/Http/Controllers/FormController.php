@@ -91,8 +91,23 @@ class FormController extends Controller
     {
         $pivot = $edition->attendees()->find($attendee->id)?->pivot;
 
+        if ($pivot === null) {
+            return redirect()->route('edition-attendees', ['edition' => $edition->id])
+                ->with('error', 'El asistente ya no está inscrito en esta edición.');
+        }
+
+        if ($pivot->attendance) {
+            return redirect()->route('edition-attendees', ['edition' => $edition->id])
+                ->with('error', 'No es posible cancelar la inscripción: la entrada ya ha sido escaneada.');
+        }
+
+        if ($edition->hasEnded()) {
+            return redirect()->route('edition-attendees', ['edition' => $edition->id])
+                ->with('error', 'No es posible cancelar la inscripción: el evento ya se ha celebrado.');
+        }
+
         $edition->attendees()->detach($attendee->id);
-        cancel_assistance::dispatch($edition, $attendee, $pivot?->verification_code_id, $pivot?->token);
+        cancel_assistance::dispatch($edition, $attendee, $pivot->verification_code_id, $pivot->token);
 
         return redirect()->route('edition-attendees', ['edition' => $edition->id]);
     }

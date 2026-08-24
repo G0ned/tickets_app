@@ -45,6 +45,11 @@ class Edition extends Model
         return $this->hasMany(EditionReminder::class);
     }
 
+    public function hasEnded(): bool
+    {
+        return now() > $this->date->copy()->addHours($this->duration);
+    }
+
     protected $casts = [
         'date'     => 'datetime',
         'duration' => 'float',

@@ -142,7 +142,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1 text-teal-400 shrink-0">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" />
                     </svg>
-                    <span>Carretera General Las Arenas, nº3, Puerto de la Cruz</span>
+                    <span>Ctra. gral. Las Arenas, nº3, Puerto de la Cruz</span>
                 </span>
             </div>
             @endif

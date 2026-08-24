@@ -32,6 +32,13 @@ class AttendeeCancellationController extends Controller
         }
 
         $edition = Edition::with('event')->findOrFail($row->edition_id);
+
+        if ($edition->hasEnded()) {
+            return view('attendee.cancel-unavailable', [
+                'reason' => 'El evento ya se ha celebrado, por lo que no es posible cancelar la inscripción.',
+            ]);
+        }
+
         $attendee = Person::findOrFail($row->attendee_id);
 
         return view('attendee.cancel-confirm', [
@@ -58,6 +65,13 @@ class AttendeeCancellationController extends Controller
         }
 
         $edition = Edition::with('event')->findOrFail($row->edition_id);
+
+        if ($edition->hasEnded()) {
+            return view('attendee.cancel-unavailable', [
+                'reason' => 'El evento ya se ha celebrado, por lo que no es posible cancelar la inscripción.',
+            ]);
+        }
+
         $attendee = Person::findOrFail($row->attendee_id);
 
         $edition->attendees()->detach($attendee->id);
