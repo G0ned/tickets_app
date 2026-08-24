@@ -62,6 +62,8 @@ Route::middleware(['admin:admin'])->group(function(){
     Route::get('edition/{edition}/attendee/{attendee}/ticket', [FormController::class, 'downloadTicket'])->name('ticket-download');
     //Portfolios route
     Route::get('portfolios-list', [ClientPortfolioController::class, 'list'])->name('portfolios-list');
+    Route::get('/user/{id}/portfolio/create', [ClientPortfolioController::class, 'create'])->name('portfolios-create');
+    Route::post('/user/{id}/portfolio', [ClientPortfolioController::class, 'store'])->name('portfolios-store');
 });
 
 Route::middleware(['auth', 'doorman'])->group(function () {
@@ -84,8 +86,6 @@ Route::middleware(['auth', 'doorman.restrict'])->group(function (){
     Route::post('/edition/{edition}/reminders', [EditionReminderController::class, 'store'])->name('edition-reminders-store');
     Route::delete('/edition/{edition}/reminders/{reminder}', [EditionReminderController::class, 'destroy'])->name('edition-reminders-delete');
     Route::get('/user/{id}/portfolio', [ClientPortfolioController::class, 'index'])->name('portfolios-index');
-    Route::get('/user/{id}/portfolio/create', [ClientPortfolioController::class, 'create'])->name('portfolios-create');
-    Route::post('/user/{id}/portfolio', [ClientPortfolioController::class, 'store'])->name('portfolios-store');
     Route::get('/portfolio/{portfolio}', [ClientPortfolioController::class, 'show'])->name('portfolios-show');
     Route::get('/user/{user}/editions', [EditionController::class, 'managerEditions'])->name('manager-editions');
     //Invitations route

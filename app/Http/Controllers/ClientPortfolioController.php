@@ -20,8 +20,6 @@ class ClientPortfolioController extends Controller
 
     public function create(User $id)
     {
-        abort_unless(auth()->id() === $id->id || auth()->user()->isAdmin(), 403);
-
         $availablePersons = Person::with('portfolio')->orderBy('name')->get();
 
         return view('portfolios.create', [
@@ -32,8 +30,6 @@ class ClientPortfolioController extends Controller
 
     public function store(Request $request, User $id)
     {
-        abort_unless(auth()->id() === $id->id || auth()->user()->isAdmin(), 403);
-
         $validated = $request->validate([
             'name'         => ['required', 'string', 'max:255'],
             'person_ids'   => ['array'],

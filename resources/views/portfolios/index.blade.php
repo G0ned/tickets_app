@@ -2,9 +2,11 @@
     @section('title', 'Mis Portfolios')
     <x-slot:heading>Mis Portfolios</x-slot:heading>
 
+    @admin()
     <div class="mb-6">
         <x-button href="{{ route('portfolios-create', $owner->id) }}">+ Nueva cartera</x-button>
     </div>
+    @endadmin
 
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         @foreach ($portfolios as $portfolio)
