@@ -137,7 +137,7 @@ class EditionController extends Controller
         $edition->load(['event', 'attendees']);
 
         if ($request->query('format') === 'xlsx') {
-            return Excel::download(new AttendeesExport($edition), "asistentes-edicion-{$edition->id}.xlsx");
+            return Excel::download(new AttendeesExport($edition), "{$edition->event->name}-asistentes-edicion-{$edition->id}.xlsx");
         }
 
         return response()->streamDownload(
