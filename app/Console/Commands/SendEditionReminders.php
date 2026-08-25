@@ -19,10 +19,16 @@ class SendEditionReminders extends Command
      */
     public function handle(): void
     {
-        $dueReminders = EditionReminder::whereNull('sent_at')
-            ->with(['edition.event', 'edition.attendees'])
-            ->get()
-            ->filter(fn (EditionReminder $reminder) => $reminder->isDue());
+        try {
+            $dueReminders = EditionReminder::whereNull('sent_at')
+                ->with(['edition.event', 'edition.attendees'])
+                ->get()
+                ->filter(fn (EditionReminder $reminder) => $reminder->isDue());
+        } catch (Throwable $e) {
+            EditionReminder::whereNull('sent_at')->update(['last_error' => 'Fallo al cargar recordatorios: ' . $e->getMessage()]);
+            $this->error('Fallo al cargar los recordatorios: ' . $e->getMessage());
+            return;
+        }
 
         $sentCount = 0;
         $failedCount = 0;
