@@ -59,7 +59,7 @@ jobs:
             echo "🔁 Restarting app container..."
             sudo docker compose restart app
 
-            #Restart scheduler
+            # Restart scheduler
             echo "🔁 Restarting scheduler container..."
             sudo docker compose restart scheduler
 
