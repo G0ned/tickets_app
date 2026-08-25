@@ -8,6 +8,7 @@ use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 #[Signature('app:send-edition-reminders')]
 #[Description('Sends due edition reminder emails to attendees who consented to communications')]
@@ -24,28 +25,35 @@ class SendEditionReminders extends Command
             ->filter(fn (EditionReminder $reminder) => $reminder->isDue());
 
         $sentCount = 0;
+        $failedCount = 0;
 
         foreach ($dueReminders as $reminder) {
-            $edition = $reminder->edition;
+            try {
+                $edition = $reminder->edition;
 
-            foreach ($edition->attendees as $attendee) {
-                if (!$attendee->pivot->auth_for_comms) {
-                    continue;
+                foreach ($edition->attendees as $attendee) {
+                    if (!$attendee->pivot->auth_for_comms) {
+                        continue;
+                    }
+
+                    Mail::to($attendee->email)->queue(
+                        new EditionReminderMail($edition, $attendee, $reminder->days_before)
+                    );
+                    $sentCount++;
                 }
 
-                Mail::to($attendee->email)->queue(
-                    new EditionReminderMail($edition, $attendee, $reminder->days_before)
-                );
-                $sentCount++;
+                $reminder->update(['sent_at' => now(), 'last_error' => null]);
+            } catch (Throwable $e) {
+                $failedCount++;
+                $reminder->update(['last_error' => $e->getMessage()]);
             }
-
-            $reminder->update(['sent_at' => now()]);
         }
 
         $this->info(sprintf(
-            '%d recordatorio(s) procesado(s), %d correo(s) encolado(s).',
+            '%d recordatorio(s) procesado(s), %d correo(s) encolado(s), %d fallido(s).',
             $dueReminders->count(),
-            $sentCount
+            $sentCount,
+            $failedCount
         ));
     }
 }

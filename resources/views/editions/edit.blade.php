@@ -159,19 +159,28 @@
                 @else
                     <ul class="divide-y divide-gray-600 rounded-lg overflow-hidden mb-6 border border-gray-500">
                         @foreach ($edition->reminders->sortBy('days_before') as $reminder)
-                            <li class="flex items-center justify-between bg-gray-600 px-4 py-3">
-                                <div class="flex items-center gap-2">
-                                    <span class="bg-indigo-600 text-white text-xs font-semibold px-2 py-1 rounded-full">
-                                        {{ $reminder->days_before }} {{ $reminder->days_before == 1 ? 'día' : 'días' }} antes
-                                    </span>
-                                    @if ($reminder->isSent())
-                                        <span class="bg-emerald-600 text-white text-xs font-semibold px-2 py-1 rounded-full">
-                                            Enviado el {{ $reminder->sent_at->format('d/m/Y H:i') }}
+                            <li class="flex items-center justify-between gap-2 bg-gray-600 px-4 py-3">
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="bg-indigo-600 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                                            {{ $reminder->days_before }} {{ $reminder->days_before == 1 ? 'día' : 'días' }} antes
                                         </span>
-                                    @else
-                                        <span class="bg-gray-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
-                                            Pendiente
-                                        </span>
+                                        @if ($reminder->isSent())
+                                            <span class="bg-emerald-600 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                                                Enviado el {{ $reminder->sent_at->format('d/m/Y H:i') }}
+                                            </span>
+                                        @elseif ($reminder->last_error)
+                                            <span class="bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                                                Error en el último intento
+                                            </span>
+                                        @else
+                                            <span class="bg-gray-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                                                Pendiente
+                                            </span>
+                                        @endif
+                                    </div>
+                                    @if (!$reminder->isSent() && $reminder->last_error)
+                                        <p class="text-red-400 text-xs mt-1 break-words">{{ $reminder->last_error }}</p>
                                     @endif
                                 </div>
                                 <form method="POST"

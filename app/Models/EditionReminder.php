@@ -12,6 +12,7 @@ class EditionReminder extends Model
         'days_before',
         'created_by',
         'sent_at',
+        'last_error',
     ];
 
     protected $casts = [
