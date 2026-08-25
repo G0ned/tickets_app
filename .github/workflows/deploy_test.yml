@@ -59,6 +59,10 @@ jobs:
             echo "🔁 Restarting app container..."
             sudo docker compose restart app
 
+            #Restart scheduler
+            echo "🔁 Restarting scheduler container..."
+            sudo docker compose restart scheduler
+
             # Restart nginx container
             echo "🔁 Restarting nginx container..."
             sudo docker compose exec nginx nginx -s reload
