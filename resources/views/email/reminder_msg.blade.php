@@ -107,6 +107,25 @@
                 </tr>
 
                 <tr>
+                    <td style="padding:32px 48px 0;">
+                        <table width="100%" cellpadding="0" cellspacing="0"
+                               style="background:linear-gradient(135deg,#0f172a 0%,#134e4a 100%); border-radius:12px;">
+                            <tr>
+                                <td style="padding:32px; text-align:center;">
+                                    <p style="color:#5eead4; font-size:11px; text-transform:uppercase; letter-spacing:3px; font-weight:600; margin:0 0 20px;">Código de acceso</p>
+                                    <img src="{{ $message->embed(\Illuminate\Support\Facades\Storage::disk('public')->path('tickets/' . $token . '.png')) }}"
+                                         alt="Código QR de acceso"
+                                         style="width:180px; height:180px; display:inline-block; background:#ffffff; padding:14px; border-radius:10px;">
+                                    <p style="color:#94a3b8; font-size:12px; margin:20px 0 0; line-height:1.6;">
+                                        Presenta este código en la entrada.<br>Es personal e intransferible.
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <tr>
                     <td style="padding:0 48px 32px;">
                         <p style="color:#94a3b8; font-size:12px; line-height:1.7; margin:32px 0 0;">
                             Recibes este recordatorio porque autorizaste el envío de comunicaciones al inscribirte.

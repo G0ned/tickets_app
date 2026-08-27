@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Event;
+use App\Models\Edition;
 
 class EditionRoutesTest extends TestCase
 {
@@ -42,15 +43,15 @@ class EditionRoutesTest extends TestCase
     }
 
     public function test_edition_creation_post(): void
-    {   
+    {
         $edition = [
-            'event_id' => $this->event->id,
-            'date' => '9999-12-29',
-            'time' => '00:00',
-            'duration' => 1,
             'location' => 'demoPlace',
+            'duration' => 1,
             'capacity' => 999,
-            'status' => false];
+            'occurrences' => [
+                ['date' => '9999-12-29', 'time' => '00:00'],
+            ],
+        ];
 
         $response = $this->actingAs($this->user)->post(route('editions-store', $this->event->id), $edition);
 
@@ -59,6 +60,32 @@ class EditionRoutesTest extends TestCase
             'date' => '9999-12-29 00:00:00',
             'location' => 'demoPlace',
             'capacity' => 999,
+        ]);
+    }
+
+    public function test_edition_creation_post_with_multiple_occurrences(): void
+    {
+        //Verificar que se pueden crear varias ediciones a la vez, compartiendo ubicacion/duracion/aforo y variando solo fecha/hora
+        $edition = [
+            'location' => 'demoPlace',
+            'duration' => 1,
+            'capacity' => 999,
+            'occurrences' => [
+                ['date' => '9999-12-29', 'time' => '00:00'],
+                ['date' => '9999-12-30', 'time' => '00:00'],
+            ],
+        ];
+
+        $response = $this->actingAs($this->user)->post(route('editions-store', $this->event->id), $edition);
+
+        $response->assertStatus(302);
+        $this->assertDatabaseHas('editions', [
+            'date' => '9999-12-29 00:00:00',
+            'location' => 'demoPlace',
+        ]);
+        $this->assertDatabaseHas('editions', [
+            'date' => '9999-12-30 00:00:00',
+            'location' => 'demoPlace',
         ]);
     }
 
@@ -100,14 +127,32 @@ class EditionRoutesTest extends TestCase
     public function test_edition_creation_no_event(): void
     {
         $response = $this->actingAs($this->user)->post(route('editions-create', 999), [
+            'location' => 'demoPlace',
+            'duration' => 1,
+            'capacity' => 999,
+            'occurrences' => [
+                ['date' => '9999-12-29', 'time' => '00:00'],
+            ],
+        ]);
+        $response->assertStatus(404);
+    }
+
+    public function test_edition_deletion_soft_deletes(): void
+    {
+        //Verificar que eliminar una edicion la marca como eliminada (softDelete), no la elimina fisicamente
+        $edition = Edition::create([
             'event_id' => $this->event->id,
-            'date' => '9999-12-29',
-            'time' => '00:00',
+            'date' => '2000-01-01 10:00:00',
             'duration' => 1,
             'location' => 'demoPlace',
             'capacity' => 999,
             'status' => false
         ]);
-        $response->assertStatus(404);
+
+        $this->actingAs($this->user)->delete(route('editions-delete', $edition->id));
+
+        $this->assertSoftDeleted('editions', [
+            'id' => $edition->id
+        ]);
     }
 }

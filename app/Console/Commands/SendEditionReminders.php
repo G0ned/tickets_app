@@ -43,7 +43,7 @@ class SendEditionReminders extends Command
                     }
 
                     Mail::to($attendee->email)->queue(
-                        new EditionReminderMail($edition, $attendee, $reminder->days_before)
+                        new EditionReminderMail($edition, $attendee, $reminder->days_before, $attendee->pivot->token)
                     );
                     $sentCount++;
                 }

@@ -60,7 +60,13 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        return view('users.edit')->with('user', $user);
+        $events = Event::orderBy('name')->get();
+        $user->load('organized_events');
+
+        return view('users.edit')->with([
+            'user'   => $user,
+            'events' => $events,
+        ]);
     }
 
     public function update(User $user)
@@ -86,6 +92,18 @@ class UserController extends Controller
         } catch(\Exception $e){
             return back()->with('error', 'Error al modificar los datos del usuario');
         }
+    }
+
+    public function assignOrganizer(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'event_id' => ['required', 'exists:events,id'],
+        ]);
+
+        $event = Event::findOrFail($validated['event_id']);
+        $event->assignStaffRole($user->id, 'is_organizer');
+
+        return redirect()->route('user-edit', $user->id)->with('success', 'Organizador asignado correctamente.');
     }
 
     public function index()

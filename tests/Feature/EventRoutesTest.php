@@ -471,4 +471,42 @@ class EventRoutesTest extends TestCase
             'id' => $event->id
         ]);
     }
+
+    public function test_event_deletion_soft_deletes_its_editions_too(): void
+    {
+        //Verificar que al eliminar un evento, sus ediciones tambien quedan marcadas como eliminadas (softDelete), no eliminadas fisicamente
+        $event = Event::create([
+            'name' => 'Demo Event Name',
+            'description' => 'Demo Event Description',
+            'public' => false,
+            'created_by' => $this->user->id,
+        ]);
+
+        $edition1 = Edition::create([
+            'event_id' => $event->id,
+            'date' => '2000-01-01 10:00:00',
+            'duration' => 1,
+            'location' => 'demoPlace',
+            'capacity' => 999,
+            'status' => false
+        ]);
+
+        $edition2 = Edition::create([
+            'event_id' => $event->id,
+            'date' => '2000-02-01 10:00:00',
+            'duration' => 1,
+            'location' => 'demoPlace',
+            'capacity' => 999,
+            'status' => false
+        ]);
+
+        $this->actingAs($this->user)->delete(route('events-delete', $event->id));
+
+        $this->assertSoftDeleted('editions', [
+            'id' => $edition1->id
+        ]);
+        $this->assertSoftDeleted('editions', [
+            'id' => $edition2->id
+        ]);
+    }
 }

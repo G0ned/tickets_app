@@ -8,6 +8,8 @@ use App\Models\Edition;
 use App\Models\User;
 use App\Exports\AttendeesExport;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 class EditionController extends Controller
 {
@@ -26,28 +28,66 @@ class EditionController extends Controller
             return redirect()->route('events-show', $event->id)->with('error', 'No tienes permisos para esta acción');
         }
 
-        $edition_info = request()->validate([
-            'location' => ['required', 'string'],
-            'date' => ['required', 'date'],
-            'time' => ['required', 'date_format:H:i'],
-            'duration' => ['required', 'numeric', 'min:0', 'decimal:0,2'],
-            'capacity' => ['required', 'numeric', 'min:0'],
+        $validated = request()->validate([
+            'location'           => ['required', 'string'],
+            'duration'           => ['required', 'numeric', 'min:0', 'decimal:0,2'],
+            'capacity'           => ['required', 'numeric', 'min:0'],
+            'occurrences'        => ['required', 'array', 'min:1'],
+            'occurrences.*.date' => ['required', 'date'],
+            'occurrences.*.time' => ['required', 'date_format:H:i'],
         ]);
-        $edition_info['status'] = false;
-        try{
-            $new_edition = Edition::create([
-                'event_id' => $event->id,
-                'location' => $edition_info['location'],
-                'date' => $edition_info['date'] . " " . $edition_info['time'],
-                'duration' => $edition_info['duration'],
-                'capacity' => $edition_info['capacity'],
-                'status' => $edition_info['status']
-            ]);
-            return redirect(route('events-index'));
+
+        // Combine each occurrence into a single datetime string, rejecting
+        // duplicate date+time pairs within the same submission before ever
+        // touching the database.
+        $datetimes = [];
+        foreach ($validated['occurrences'] as $index => $occurrence) {
+            $datetime = $occurrence['date'] . ' ' . $occurrence['time'];
+
+            if (in_array($datetime, $datetimes, true)) {
+                return back()
+                    ->withErrors(["occurrences.$index.date" => 'Esta fecha y hora está repetida en el formulario.'])
+                    ->withInput();
+            }
+
+            $datetimes[] = $datetime;
         }
-        catch(\Exception $e){
-            return back()->withErrors('Error:' . $e->getMessage());
+
+        // Same (date, location) already exists from before this submission?
+        $conflicting = Edition::where('location', $validated['location'])
+            ->whereIn('date', $datetimes)
+            ->pluck('date');
+
+        if ($conflicting->isNotEmpty()) {
+            $formatted = $conflicting->map(fn ($d) => Carbon::parse($d)->format('d/m/Y H:i'))->join(', ');
+
+            return back()
+                ->withErrors(['occurrences' => "Ya existe una edición en {$validated['location']} para: {$formatted}."])
+                ->withInput();
         }
+
+        try {
+            DB::transaction(function () use ($event, $validated, $datetimes) {
+                foreach ($datetimes as $datetime) {
+                    Edition::create([
+                        'event_id' => $event->id,
+                        'location' => $validated['location'],
+                        'date'     => $datetime,
+                        'duration' => $validated['duration'],
+                        'capacity' => $validated['capacity'],
+                        'status'   => false,
+                    ]);
+                }
+            });
+        } catch (\Exception $e) {
+            return back()->withErrors('Error:' . $e->getMessage())->withInput();
+        }
+
+        $count = count($datetimes);
+
+        return redirect(route('events-index'))->with('success', $count === 1
+            ? 'Edición creada correctamente.'
+            : "{$count} ediciones creadas correctamente.");
     }
 
     public function edit(Edition $edition)

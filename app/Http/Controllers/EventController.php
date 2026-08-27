@@ -120,9 +120,26 @@ class EventController extends Controller
             'user_id' => ['required', 'exists:users,id']
         ]);
 
-        $this->assignEventRole($event, $validated['user_id'], 'is_organizer');
+        $event->assignStaffRole($validated['user_id'], 'is_organizer');
 
         return redirect(route('events-edit', $event->id))->with('success', "Organizador asigando correctamente");
+    }
+
+    public function removeOrganizer(Event $event, User $user)
+    {
+        $pivot = $event->staff()->where('user_id', $user->id)->first()?->pivot;
+
+        if ($pivot === null || !$pivot->is_organizer) {
+            return redirect()->route('events-edit', $event->id)->with('error', 'Este usuario no es organizador de este evento.');
+        }
+
+        if ($pivot->is_doorman) {
+            $event->staff()->updateExistingPivot($user->id, ['is_organizer' => false]);
+        } else {
+            $event->staff()->detach($user->id);
+        }
+
+        return redirect()->route('events-edit', $event->id)->with('success', 'Organizador eliminado correctamente');
     }
 
     public function assignDoorman(Event $event)
@@ -135,23 +152,9 @@ class EventController extends Controller
             'user_id' => ['required', 'exists:users,id']
         ]);
 
-        $this->assignEventRole($event, $validated['user_id'], 'is_doorman');
+        $event->assignStaffRole($validated['user_id'], 'is_doorman');
 
         return redirect(route('events-edit', $event->id))->with('success', 'Portero asignado correctamente');
-    }
-
-    private function assignEventRole(Event $event, int $userId, string $role): void
-    {
-        $alreadyStaff = $event->staff()->where('user_id', $userId)->exists();
-
-        if ($alreadyStaff) {
-            $event->staff()->updateExistingPivot($userId, [$role => true]);
-        } else {
-            $event->staff()->attach($userId, [
-                'is_organizer' => $role === 'is_organizer',
-                'is_doorman'   => $role === 'is_doorman',
-            ]);
-        }
     }
 
     public function removeDoorman(Event $event, User $user)

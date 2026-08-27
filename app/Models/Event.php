@@ -52,6 +52,20 @@ class Event extends Model
             ->withPivot('is_organizer', 'is_doorman');
     }
 
+    public function assignStaffRole(int $userId, string $role): void
+    {
+        $alreadyStaff = $this->staff()->where('user_id', $userId)->exists();
+
+        if ($alreadyStaff) {
+            $this->staff()->updateExistingPivot($userId, [$role => true]);
+        } else {
+            $this->staff()->attach($userId, [
+                'is_organizer' => $role === 'is_organizer',
+                'is_doorman'   => $role === 'is_doorman',
+            ]);
+        }
+    }
+
     public function hasActiveEditions(): bool
     {
         foreach($this->editions as $edition){

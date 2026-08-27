@@ -13,7 +13,7 @@ class RestrictDoorman
 
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && Auth::user()->isDoorman() && !Auth::user()->is_admin) {
+        if (Auth::check() && Auth::user()->isDoorman() && !Auth::user()->is_admin && !Auth::user()->isOrganizer()) {
             if (!in_array($request->route()?->getName(), $this->allowedRoutes)) {
                 return redirect()->route('checkin');
             }

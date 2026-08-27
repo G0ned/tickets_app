@@ -18,6 +18,7 @@ class EditionReminderMail extends Mailable
         public Edition $edition,
         public Person $attendee,
         public int $daysBefore,
+        public string $token,
     ) {
     }
 

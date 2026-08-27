@@ -40,6 +40,7 @@ Route::middleware(['admin:admin'])->group(function(){
     Route::get('/events/create', [EventController::class, 'create'])->name('events-create');
     Route::post('/events/create', [EventController::class, 'store'])->name('events-store');
     Route::post('events/{event}/assign-organizer', [EventController::class, 'assignOrganizer'])->name('assign-organizer');
+    Route::delete('/event/{event}/organizer/{user}', [EventController::class, 'removeOrganizer'])->name('remove-organizer');
     Route::delete('/event/{event}/doorman/{user}', [EventController::class, 'removeDoorman'])->name('remove-doorman');
     Route::delete('/event/{event}/delete', [EventController::class, 'destroy'])->name('events-delete');
     //Edition routes
@@ -52,6 +53,7 @@ Route::middleware(['admin:admin'])->group(function(){
     Route::post('/user/create', [UserController::class, 'store'])->name('user-store');
     Route::get('/user/edit/{user}', [UserController::class, 'edit'])->name('user-edit');
     Route::patch('/user/edit/{user}', [UserController::class, 'update'])->name('user-update');
+    Route::post('/user/{user}/assign-organizer', [UserController::class, 'assignOrganizer'])->name('user-assign-organizer');
     Route::get('/user-list', [UserController::class, 'index'])->name('user-list');
     Route::delete('/user/{user}/delete', [UserController::class, 'destroy'])->name('user-delete');
     Route::get('/contacts', [PersonController::class, 'index'])->name('contacts-index');
