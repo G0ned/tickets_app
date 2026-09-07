@@ -10,6 +10,7 @@ use App\Rules\ValidateId;
 use App\Services\AttendeeRegistrationService;
 use App\Events\AttendeeEditionCancelAssistance as cancel_assistance;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class FormController extends Controller
 {
@@ -80,7 +81,8 @@ class FormController extends Controller
 
     public function downloadTicket(Edition $edition, Person $attendee)
     {
-        $token = $edition->attendees()->find($attendee->id)->pivot->token;
+        $token = $edition->attendees()->find($attendee->id)?->pivot->token;
+        abort_unless($token !== null, 404);
         $path = 'tickets/' . $token . '.png';
         abort_unless(Storage::disk('public')->exists($path), 404);
         return Storage::disk('public')->download($path, 'ticket-' . $attendee->surname . '-' . $attendee->name . '-' . $edition->id . '.png');
@@ -106,7 +108,10 @@ class FormController extends Controller
                 ->with('error', 'No es posible cancelar la inscripción: el evento ya se ha celebrado.');
         }
 
-        $edition->attendees()->detach($attendee->id);
+        DB::table('attendee_edition')
+            ->where('edition_id', $edition->id)
+            ->where('attendee_id', $attendee->id)
+            ->update(['cancelled_at' => now()]);
         cancel_assistance::dispatch($edition, $attendee, $pivot->verification_code_id, $pivot->token);
 
         return redirect()->route('edition-attendees', ['edition' => $edition->id]);
