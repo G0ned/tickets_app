@@ -21,13 +21,13 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="border-b border-gray-600 bg-gray-600">
-                            <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Nombre</th>
-                            <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Apellidos</th>
-                            <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">e-mail</th>
-                            <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Admin</th>
+                            <x-sortable-th column="name" :sort="$sort" :direction="$direction">Nombre</x-sortable-th>
+                            <x-sortable-th column="surname" :sort="$sort" :direction="$direction">Apellidos</x-sortable-th>
+                            <x-sortable-th column="email" :sort="$sort" :direction="$direction" align="center">e-mail</x-sortable-th>
+                            <x-sortable-th column="is_admin" :sort="$sort" :direction="$direction" align="center">Admin</x-sortable-th>
                             <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Organizador</th>
                             <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Portero</th>
-                            <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Supervisor</th>
+                            <x-sortable-th column="is_supervisor" :sort="$sort" :direction="$direction" align="center">Supervisor</x-sortable-th>
                             <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Editar</th>
                             <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Eliminar</th>
                         </tr>
