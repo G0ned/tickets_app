@@ -18,7 +18,8 @@ class Edition extends Model
         'duration',
         'location',
         'capacity',
-        'status'
+        'status',
+        'registration_deadline',
     ];
 
     public function event():BelongsTo
@@ -57,8 +58,14 @@ class Edition extends Model
         return now() > $this->date->copy()->addHours($this->duration);
     }
 
+    public function registrationClosed(): bool
+    {
+        return $this->registration_deadline !== null && now() > $this->registration_deadline;
+    }
+
     protected $casts = [
-        'date'     => 'datetime',
-        'duration' => 'float',
+        'date'                   => 'datetime',
+        'duration'               => 'float',
+        'registration_deadline'  => 'datetime',
     ];
 }

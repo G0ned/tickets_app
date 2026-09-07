@@ -59,6 +59,33 @@
                     </div>
                 </div>
 
+                <div class="border-t border-gray-500 pt-6">
+                    <x-form-label>Plazo límite de inscripción (opcional)</x-form-label>
+                    <p class="text-gray-400 text-xs mb-3">
+                        A partir de esta fecha y hora, ya no se admitirán nuevas inscripciones a esta edición. Déjalo en blanco para no limitar el plazo.
+                    </p>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="mx-1">
+                            <x-form-label for="registration_deadline_date">Fecha límite</x-form-label>
+                            <x-form-input
+                                type="date"
+                                id="registration_deadline_date"
+                                name="registration_deadline_date"
+                                value="{{ old('registration_deadline_date', $edition->registration_deadline?->format('Y-m-d')) }}" />
+                            <x-form-error name="registration_deadline_date" />
+                        </div>
+                        <div class="mx-1">
+                            <x-form-label for="registration_deadline_time">Hora límite</x-form-label>
+                            <x-form-input
+                                type="time"
+                                id="registration_deadline_time"
+                                name="registration_deadline_time"
+                                value="{{ old('registration_deadline_time', $edition->registration_deadline?->format('H:i')) }}" />
+                            <x-form-error name="registration_deadline_time" />
+                        </div>
+                    </div>
+                </div>
+
                     <div class="col-span-2 max-w-sm mx-auto">
                         <x-form-button>
                             Guardar Evento

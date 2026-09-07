@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\InvitationList;
+use App\Models\Person;
 use App\Models\VerificationCode;
 use App\Rules\ValidateId;
 use App\Services\AttendeeRegistrationService;
@@ -23,9 +24,18 @@ class InvitationRegistrationController extends Controller
             return view('invitation.unavailable');
         }
 
+        $edition = $invitation->list->edition;
+
+        if ($edition->registrationClosed()) {
+            return view('form.registration-closed', [
+                'deadline' => $edition->registration_deadline,
+                'manager'  => Person::find($invitation->personId)?->portfolio?->user,
+            ]);
+        }
+
         return view('invitation.register', [
-            'edition' => $invitation->list->edition,
-            'event'   => $invitation->list->edition->event,
+            'edition' => $edition,
+            'event'   => $edition->event,
             'token'   => $token,
         ]);
     }
@@ -36,6 +46,15 @@ class InvitationRegistrationController extends Controller
 
         if ($invitation === null) {
             return view('invitation.unavailable');
+        }
+
+        $edition = $invitation->list->edition;
+
+        if ($edition->registrationClosed()) {
+            return view('form.registration-closed', [
+                'deadline' => $edition->registration_deadline,
+                'manager'  => Person::find($invitation->personId)?->portfolio?->user,
+            ]);
         }
 
         $validated = $request->validate([

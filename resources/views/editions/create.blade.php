@@ -5,8 +5,8 @@
         <div class="max-w-3xl mx-auto bg-gray-700 p-8 rounded-xl shadow-xl">
             <form method="POST" action={{ route('editions-store', ['event' => $event]) }} class="space-y-6"
                   x-data="{
-                      occurrences: {{ Illuminate\Support\Js::from(old('occurrences', [['date' => '', 'time' => '']])) }},
-                      addOccurrence() { this.occurrences.push({ date: '', time: '' }); },
+                      occurrences: {{ Illuminate\Support\Js::from(old('occurrences', [['date' => '', 'time' => '', 'registration_deadline_date' => '', 'registration_deadline_time' => '']])) }},
+                      addOccurrence() { this.occurrences.push({ date: '', time: '', registration_deadline_date: '', registration_deadline_time: '' }); },
                       removeOccurrence(index) { if (this.occurrences.length > 1) this.occurrences.splice(index, 1); }
                   }">
                 @csrf
@@ -55,7 +55,6 @@
                     </div>
                 </div>
 
-                {{-- ── Fechas y horas ──────────────────────────────────────────────── --}}
                 <div>
                     <x-form-label>Fechas</x-form-label>
                     <p class="text-gray-400 text-xs mb-3">
@@ -64,24 +63,47 @@
 
                     <div class="space-y-3">
                         <template x-for="(occurrence, index) in occurrences" :key="index">
-                            <div class="flex items-end gap-3 bg-gray-600 rounded-lg p-4">
-                                <div class="flex-1">
-                                    <label class="block text-sm font-medium text-gray-300 mb-1">Fecha</label>
-                                    <input type="date" x-model="occurrence.date" :name="`occurrences[${index}][date]`" required
-                                        class="block w-full px-3 py-2 bg-gray-700 text-white border border-gray-500 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            <div class="bg-gray-600 rounded-lg p-4 space-y-4">
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <p class="text-xs font-semibold text-teal-400 uppercase tracking-wide">Fecha de celebración</p>
+                                        <button type="button" @click="removeOccurrence(index)" x-show="occurrences.length > 1"
+                                            title="Quitar esta fecha"
+                                            class="shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-full text-gray-300 hover:text-red-400 hover:bg-gray-500 transition-colors duration-150">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="flex items-end gap-3">
+                                        <div class="flex-1">
+                                            <label class="block text-sm font-medium text-gray-300 mb-1">Fecha</label>
+                                            <input type="date" x-model="occurrence.date" :name="`occurrences[${index}][date]`" required
+                                                class="block w-full px-3 py-2 bg-gray-700 text-white border border-gray-500 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                                        </div>
+                                        <div class="flex-1">
+                                            <label class="block text-sm font-medium text-gray-300 mb-1">Hora</label>
+                                            <input type="time" x-model="occurrence.time" :name="`occurrences[${index}][time]`" required
+                                                class="block w-full px-3 py-2 bg-gray-700 text-white border border-gray-500 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="flex-1">
-                                    <label class="block text-sm font-medium text-gray-300 mb-1">Hora</label>
-                                    <input type="time" x-model="occurrence.time" :name="`occurrences[${index}][time]`" required
-                                        class="block w-full px-3 py-2 bg-gray-700 text-white border border-gray-500 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+
+                                <div class="bg-gray-700/60 border border-amber-700/40 rounded-lg p-3">
+                                    <p class="text-xs font-semibold text-amber-400 uppercase tracking-wide mb-2">Plazo límite de inscripción (opcional)</p>
+                                    <div class="flex items-end gap-3">
+                                        <div class="flex-1">
+                                            <label class="block text-xs font-medium text-gray-400 mb-1">Fecha límite</label>
+                                            <input type="date" x-model="occurrence.registration_deadline_date" :name="`occurrences[${index}][registration_deadline_date]`"
+                                                class="block w-full px-3 py-2 bg-gray-700 text-white border border-gray-500 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                                        </div>
+                                        <div class="flex-1">
+                                            <label class="block text-xs font-medium text-gray-400 mb-1">Hora límite</label>
+                                            <input type="time" x-model="occurrence.registration_deadline_time" :name="`occurrences[${index}][registration_deadline_time]`"
+                                                class="block w-full px-3 py-2 bg-gray-700 text-white border border-gray-500 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                                        </div>
+                                    </div>
                                 </div>
-                                <button type="button" @click="removeOccurrence(index)" x-show="occurrences.length > 1"
-                                    title="Quitar esta fecha"
-                                    class="shrink-0 inline-flex items-center justify-center w-9 h-9 rounded-full text-gray-300 hover:text-red-400 hover:bg-gray-500 transition-colors duration-150">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                                    </svg>
-                                </button>
                             </div>
                         </template>
                     </div>

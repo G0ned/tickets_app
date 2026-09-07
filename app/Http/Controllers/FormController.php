@@ -70,6 +70,15 @@ class FormController extends Controller
 
         $edition = Edition::findOrFail($validated['editions']);
 
+        if ($edition->registrationClosed()) {
+            $existingPerson = Person::where('passport', $validated['identification'])->first();
+
+            return view('form.registration-closed', [
+                'deadline' => $edition->registration_deadline,
+                'manager'  => $existingPerson?->portfolio?->user,
+            ]);
+        }
+
         $result = $this->registrar->register($edition, $validated);
 
         if (isset($result['error'])) {

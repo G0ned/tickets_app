@@ -29,18 +29,24 @@ class EditionController extends Controller
         }
 
         $validated = request()->validate([
-            'location'           => ['required', 'string'],
-            'duration'           => ['required', 'numeric', 'min:0', 'decimal:0,2'],
-            'capacity'           => ['required', 'numeric', 'min:0'],
-            'occurrences'        => ['required', 'array', 'min:1'],
-            'occurrences.*.date' => ['required', 'date'],
-            'occurrences.*.time' => ['required', 'date_format:H:i'],
+            'location'                                  => ['required', 'string'],
+            'duration'                                   => ['required', 'numeric', 'min:0', 'decimal:0,2'],
+            'capacity'                                   => ['required', 'numeric', 'min:0'],
+            'occurrences'                                => ['required', 'array', 'min:1'],
+            'occurrences.*.date'                         => ['required', 'date'],
+            'occurrences.*.time'                         => ['required', 'date_format:H:i'],
+            'occurrences.*.registration_deadline_date'   => ['nullable', 'date'],
+            'occurrences.*.registration_deadline_time'   => ['nullable', 'date_format:H:i'],
         ]);
 
-        // Combine each occurrence into a single datetime string, rejecting
-        // duplicate date+time pairs within the same submission before ever
-        // touching the database.
+        // Combine each occurrence into a single datetime string (plus its own
+        // optional registration deadline - each occurrence can have a
+        // different one, since sharing a single deadline across dates spread
+        // over weeks/months wouldn't make sense). Rejects duplicate date+time
+        // pairs, and half-filled deadlines, within the same submission
+        // before ever touching the database.
         $datetimes = [];
+        $occurrences = [];
         foreach ($validated['occurrences'] as $index => $occurrence) {
             $datetime = $occurrence['date'] . ' ' . $occurrence['time'];
 
@@ -50,7 +56,22 @@ class EditionController extends Controller
                     ->withInput();
             }
 
+            $hasDeadlineDate = !empty($occurrence['registration_deadline_date']);
+            $hasDeadlineTime = !empty($occurrence['registration_deadline_time']);
+
+            if ($hasDeadlineDate !== $hasDeadlineTime) {
+                return back()
+                    ->withErrors(["occurrences.$index.registration_deadline_date" => 'Si defines un plazo límite de inscripción, indica tanto la fecha como la hora.'])
+                    ->withInput();
+            }
+
             $datetimes[] = $datetime;
+            $occurrences[] = [
+                'date'                  => $datetime,
+                'registration_deadline' => $hasDeadlineDate
+                    ? $occurrence['registration_deadline_date'] . ' ' . $occurrence['registration_deadline_time']
+                    : null,
+            ];
         }
 
         // Same (date, location) already exists from before this submission?
@@ -67,15 +88,16 @@ class EditionController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($event, $validated, $datetimes) {
-                foreach ($datetimes as $datetime) {
+            DB::transaction(function () use ($event, $validated, $occurrences) {
+                foreach ($occurrences as $occurrence) {
                     Edition::create([
-                        'event_id' => $event->id,
-                        'location' => $validated['location'],
-                        'date'     => $datetime,
-                        'duration' => $validated['duration'],
-                        'capacity' => $validated['capacity'],
-                        'status'   => false,
+                        'event_id'               => $event->id,
+                        'location'               => $validated['location'],
+                        'date'                   => $occurrence['date'],
+                        'duration'               => $validated['duration'],
+                        'capacity'               => $validated['capacity'],
+                        'status'                 => false,
+                        'registration_deadline'  => $occurrence['registration_deadline'],
                     ]);
                 }
             });
@@ -113,9 +135,14 @@ class EditionController extends Controller
             'date' => ['required', 'date'],
             'time' => ['required', 'date_format:H:i'],
             'duration' => ['required', 'numeric', 'min:0', 'decimal:0,2'],
-            'capacity' => ['required', 'numeric', 'min:0'], 
-
+            'capacity' => ['required', 'numeric', 'min:0'],
+            'registration_deadline_date' => ['nullable', 'date', 'required_with:registration_deadline_time'],
+            'registration_deadline_time' => ['nullable', 'date_format:H:i', 'required_with:registration_deadline_date'],
         ]);
+
+        $registrationDeadline = !empty($validated['registration_deadline_date'])
+            ? $validated['registration_deadline_date'] . ' ' . $validated['registration_deadline_time']
+            : null;
 
         try
         {
@@ -124,6 +151,7 @@ class EditionController extends Controller
                 'date' => $validated['date'] . " " . $validated['time'],
                 'duration' => $validated['duration'],
                 'capacity' => $validated['capacity'],
+                'registration_deadline' => $registrationDeadline,
             ]);
             return redirect(route('events-index'));
         }

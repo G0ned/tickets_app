@@ -45,7 +45,9 @@
                                 <select id="editions" name="editions" class="block w-full rounded-md border-gray-700 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>
                                     <option value="" disabled {{ old('editions') === null ? 'selected' : '' }}>--- Seleccione la edición a la que dese asistir ---</option>
                                     @foreach($event->editions as $edition)
-                                    <option value="{{$edition->id}}" {{ old('editions') == $edition->id ? 'selected' : '' }}>Fecha: {{$edition->date->format('d-m-Y')}} - Hora {{$edition->date->format('H:i')}}</option>
+                                    <option value="{{$edition->id}}" {{ old('editions') == $edition->id ? 'selected' : '' }} {{ $edition->registrationClosed() ? 'disabled' : '' }}>
+                                        Fecha: {{$edition->date->format('d-m-Y')}} - Hora {{$edition->date->format('H:i')}}{{ $edition->registrationClosed() ? ' (plazo cerrado)' : '' }}
+                                    </option>
                                     @endforeach
                                 </select>
 

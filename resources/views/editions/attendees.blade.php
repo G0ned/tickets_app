@@ -32,7 +32,6 @@
             </div>
         </div>
 
-        {{-- Attendees table --}}
         @if($edition->attendees->isEmpty())
             <div class="bg-gray-700 rounded-lg p-10 text-center">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
