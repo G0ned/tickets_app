@@ -4,10 +4,9 @@
 
     <div class="max-w-4xl mx-auto space-y-6">
         <div>
-            <x-button href="{{ route('contacts-index') }}">← Volver</x-button>
+            <x-button href="{{ url()->previous() }}">← Volver</x-button>
         </div>
 
-        {{-- ── Cabecera: avatar + nombre + cartera/gestor ─────────────────────── --}}
         <div class="bg-gray-700 rounded-xl shadow-xl p-5 sm:p-6">
             <div class="flex items-center gap-4">
                 <div class="shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-linear-to-br from-teal-500 to-indigo-600 flex items-center justify-center">
