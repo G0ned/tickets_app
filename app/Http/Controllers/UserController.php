@@ -6,7 +6,11 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Models\User;
 use App\Models\Event;
+use App\Mail\WelcomeSetPasswordMail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -23,8 +27,6 @@ class UserController extends Controller
             'surname'   => ['required', 'string', 'max:255'],
             // unique:users,email ensures no duplicate accounts
             'email'     => ['required', 'email', 'unique:users,email'],
-            // confirmed checks that a matching password_confirmation field was submitted
-            'password'  => ['required', 'string', 'min:8', 'confirmed'],
             'is_admin'      => ['nullable', 'boolean'],
             'is_supervisor' => ['nullable', 'boolean'],
             'is_organizer'  => ['nullable', 'boolean'],
@@ -40,7 +42,9 @@ class UserController extends Controller
             'name'          => $validated['name'],
             'surname'       => $validated['surname'],
             'email'         => $validated['email'],
-            'password'      => bcrypt($validated['password']),
+            // Never communicated to anyone - the account has no usable password
+            // until the new user sets their own via the emailed link below.
+            'password'      => bcrypt(Str::random(40)),
             // boolean() returns false when the checkbox is absent (unchecked boxes are not submitted)
             'is_admin'      => $request->boolean('is_admin'),
             'is_supervisor' => $request->boolean('is_supervisor'),
@@ -54,8 +58,11 @@ class UserController extends Controller
             ]);
         }
 
+        $token = Password::createToken($user);
+        Mail::to($user->email)->send(new WelcomeSetPasswordMail($user, $token));
+
         return redirect()->route('user-list')
-            ->with('success', 'Usuario creado correctamente.');
+            ->with('success', 'Usuario creado correctamente. Se le ha enviado un correo para que configure su contraseña.');
     }
 
     public function edit(User $user)
@@ -106,10 +113,26 @@ class UserController extends Controller
         return redirect()->route('user-edit', $user->id)->with('success', 'Organizador asignado correctamente.');
     }
 
+    private const SORTABLE_COLUMNS = ['name', 'surname', 'email', 'is_admin', 'is_supervisor'];
+
     public function index()
     {
-        $users = User::all();
-        return view('admin.user_list')->with('users', $users);
+        $sort = in_array(request('sort'), self::SORTABLE_COLUMNS, true) ? request('sort') : 'name';
+        $direction = request('direction') === 'desc' ? 'desc' : 'asc';
+
+        $users = User::orderBy($sort, $direction)
+            // name/surname double as each other's tie-breaker, same as
+            // PersonController::index() - see that method for the rationale.
+            ->when(in_array($sort, ['name', 'surname'], true), function ($query) use ($sort, $direction) {
+                $query->orderBy($sort === 'name' ? 'surname' : 'name', $direction);
+            })
+            ->get();
+
+        return view('admin.user_list')->with([
+            'users'     => $users,
+            'sort'      => $sort,
+            'direction' => $direction,
+        ]);
     }
 
     public function destroy(User $user)

@@ -46,30 +46,9 @@
                     <x-form-error name="email" />
                 </div>
 
-                {{-- ── Password ─────────────────────────────────────────────────────── --}}
-                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                    <div>
-                        <x-form-label for="password">Contraseña</x-form-label>
-                        <x-form-input
-                            type="password"
-                            id="password"
-                            name="password"
-                            placeholder="Mínimo 8 caracteres"
-                            required />
-                        <x-form-error name="password" />
-                    </div>
-
-                    <div>
-                        {{-- The confirmed rule checks that this field matches password --}}
-                        <x-form-label for="password_confirmation">Confirmar contraseña</x-form-label>
-                        <x-form-input
-                            type="password"
-                            id="password_confirmation"
-                            name="password_confirmation"
-                            placeholder="Repite la contraseña"
-                            required />
-                    </div>
-                </div>
+                <p class="text-gray-400 text-xs -mt-2">
+                    Por seguridad, no se define aquí ninguna contraseña — el nuevo usuario recibirá un correo con un enlace para configurar la suya.
+                </p>
 
                 {{-- ── Roles ────────────────────────────────────────────────────────── --}}
                 <div class="border-t border-gray-600 pt-5 space-y-3">

@@ -14,6 +14,7 @@ use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\AttendeeCancellationController;
 use App\Http\Controllers\EditionReminderController;
+use App\Http\Controllers\SetPasswordController;
 //Home route
 Route::get('/', [SessionController::class, 'create'])->name('home');
 //Login route
@@ -27,6 +28,9 @@ Route::post('/invitations/{token}', [InvitationRegistrationController::class, 's
 //Attendee self-cancellation routes (public: reached via the link embedded in the ticket email, no account)
 Route::get('/attendee/cancel/{token}', [AttendeeCancellationController::class, 'create'])->name('attendee-cancel-create');
 Route::post('/attendee/cancel/{token}', [AttendeeCancellationController::class, 'store'])->name('attendee-cancel-store');
+//Set password routes (public: reached via the welcome link sent when an admin creates an account, no session yet)
+Route::get('/set-password/{token}', [SetPasswordController::class, 'create'])->name('set-password-create');
+Route::post('/set-password', [SetPasswordController::class, 'store'])->name('set-password-store');
 //Policies routes
 Route::get('privacy-policy', function(){
     return view('privacy-policy');
