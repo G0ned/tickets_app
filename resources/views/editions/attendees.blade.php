@@ -64,7 +64,8 @@
                         </thead>
                         <tbody class="divide-y divide-gray-600">
                             @foreach($edition->attendees as $attendee)
-                                <tr class="hover:bg-gray-600 transition-colors duration-150">
+                                <tr class="hover:bg-gray-600 transition-colors duration-150 cursor-pointer"
+                                    onclick="window.location='{{ route('contacts-show', $attendee->id) }}'">
                                     <td class="px-4 py-3 text-white whitespace-nowrap font-medium">{{ $attendee->name }}</td>
                                     <td class="px-4 py-3 text-white whitespace-nowrap">{{ $attendee->surname }}</td>
                                     <td class="px-4 py-3 text-gray-300 whitespace-nowrap">{{ $attendee->email }}</td>
@@ -88,7 +89,7 @@
                                             : '—' }}
                                     </td>
 
-                                    <td class="px-4 py-3 whitespace-nowrap">
+                                    <td class="px-4 py-3 whitespace-nowrap" onclick="event.stopPropagation()">
                                         <div class="flex items-center gap-2">
                                             <a href="{{ route('ticket-download', ['edition' => $edition->id, 'attendee' => $attendee->id]) }}"
                                                title="Descargar ticket"
