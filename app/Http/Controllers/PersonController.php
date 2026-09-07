@@ -16,6 +16,20 @@ class PersonController extends Controller
         return view('admin.contact_list')->with('people', $people)->with('selectedType', request('type'))->with('selectedBrand', request('brand'));
     }
 
+    public function show(Person $person)
+    {
+        $person->load(['portfolio.user', 'allEditionRegistrations.event']);
+
+        $registrations = $person->allEditionRegistrations->sortByDesc(fn ($edition) => $edition->date);
+
+        return view('admin.contact_show', [
+            'person'        => $person,
+            'registrations' => $registrations,
+            'attendedCount'   => $registrations->filter(fn ($e) => !$e->pivot->cancelled_at && $e->pivot->attendance)->count(),
+            'cancelledCount'  => $registrations->filter(fn ($e) => $e->pivot->cancelled_at)->count(),
+        ]);
+    }
+
     public function destroy(Request $request)
     {
         $validated = $request->validate([

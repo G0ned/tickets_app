@@ -57,6 +57,7 @@ Route::middleware(['admin:admin'])->group(function(){
     Route::get('/user-list', [UserController::class, 'index'])->name('user-list');
     Route::delete('/user/{user}/delete', [UserController::class, 'destroy'])->name('user-delete');
     Route::get('/contacts', [PersonController::class, 'index'])->name('contacts-index');
+    Route::get('/contacts/{person}', [PersonController::class, 'show'])->name('contacts-show');
     Route::delete('/contacts', [PersonController::class, 'destroy'])->name('contacts-delete');
     //Cancel assistance route
     Route::delete('/edition/{edition}/attendee/{attendee}', [FormController::class, 'cancel_attendee'])->name('cancel-attendee-edition');
