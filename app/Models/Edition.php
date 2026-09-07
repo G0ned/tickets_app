@@ -40,13 +40,6 @@ class Edition extends Model
         )->wherePivotNull('cancelled_at');
     }
 
-    /**
-     * Every attendee_edition row ever created for this edition, including
-     * cancelled registrations (cancel_attendee()/AttendeeCancellationController
-     * flag rows with cancelled_at instead of detaching them, so history
-     * survives). Used for the person profile page; every other consumer of
-     * attendees() keeps seeing only active registrations, unchanged.
-     */
     public function attendeeRegistrations(): BelongsToMany
     {
         return $this->belongsToMany(Person::class, 'attendee_edition', 'edition_id', 'attendee_id')->withPivot(
