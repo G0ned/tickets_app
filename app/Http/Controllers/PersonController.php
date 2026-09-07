@@ -7,13 +7,29 @@ use Illuminate\Http\Request;
 
 class PersonController extends Controller
 {
+    private const SORTABLE_COLUMNS = ['name', 'surname', 'email', 'phone', 'type', 'brand'];
+
     public function index()
     {
+        $sort = in_array(request('sort'), self::SORTABLE_COLUMNS, true) ? request('sort') : 'name';
+        $direction = request('direction') === 'desc' ? 'desc' : 'asc';
+
         $people = Person::with('portfolio')
         ->when(request('type'), fn($query, $type) => $query->where('type', $type))
         ->when(request('brand'), fn($query, $brand) => $query->where('brand', 'like', "%{$brand}%"))
+        ->orderBy($sort, $direction)
+        ->when(in_array($sort, ['name', 'surname'], true), function ($query) use ($sort, $direction) {
+            $query->orderBy($sort === 'name' ? 'surname' : 'name', $direction);
+        })
         ->get();
-        return view('admin.contact_list')->with('people', $people)->with('selectedType', request('type'))->with('selectedBrand', request('brand'));
+
+        return view('admin.contact_list')->with([
+            'people'       => $people,
+            'selectedType' => request('type'),
+            'selectedBrand' => request('brand'),
+            'sort'         => $sort,
+            'direction'    => $direction,
+        ]);
     }
 
     public function show(Person $person)
