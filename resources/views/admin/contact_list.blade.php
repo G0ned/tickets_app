@@ -19,6 +19,8 @@
             </div>
     @else
         <form method="GET" action="{{ route('contacts-index') }}" class="mb-4 flex flex-wrap items-center gap-3">
+            <input type="hidden" name="sort" value="{{ $sort }}">
+            <input type="hidden" name="direction" value="{{ $direction }}">
             <select name="type" onchange="this.form.submit()"
                     class="px-3 py-2 bg-gray-600 border border-gray-500 rounded-md shadow-sm text-sm text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                 <option value="">Todos los tipos</option>
@@ -54,12 +56,12 @@
                                            x-bind:checked="selected.length === ids.length"
                                            @change="selected = $event.target.checked ? [...ids] : []">
                                 </th>
-                                <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Nombre</th>
-                                <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Apellidos</th>
-                                <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">e-mail</th>
-                                <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Telefono</th>
-                                <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Tipo</th>
-                                <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Marca</th>
+                                <x-sortable-th column="name" :sort="$sort" :direction="$direction">Nombre</x-sortable-th>
+                                <x-sortable-th column="surname" :sort="$sort" :direction="$direction">Apellidos</x-sortable-th>
+                                <x-sortable-th column="email" :sort="$sort" :direction="$direction" align="center">e-mail</x-sortable-th>
+                                <x-sortable-th column="phone" :sort="$sort" :direction="$direction" align="center">Telefono</x-sortable-th>
+                                <x-sortable-th column="type" :sort="$sort" :direction="$direction" align="center">Tipo</x-sortable-th>
+                                <x-sortable-th column="brand" :sort="$sort" :direction="$direction" align="center">Marca</x-sortable-th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Portfolio</th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Perfil</th>
                             </tr>
