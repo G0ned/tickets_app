@@ -45,13 +45,37 @@ class AttendeeRegistrationService
 
             $ticketToken = (string) Str::uuid();
 
-            $edition->attendees()->attach($attendee->id, [
-                'auth_for_ad'       => $validated['img_rights_ads'],
-                'auth_for_comms'    => $validated['img_rights_web'],
-                'auth_image_rights' => $validated['img_rights_rss'],
-                'privacy_policy'    => $validated['privacy_policy'],
-                'token'             => $ticketToken,
-            ]);
+            $cancelledRow = DB::table('attendee_edition')
+                ->where('edition_id', $edition->id)
+                ->where('attendee_id', $attendee->id)
+                ->whereNotNull('cancelled_at')
+                ->exists();
+
+            $pivotData = [
+                'auth_for_ad'          => $validated['img_rights_ads'],
+                'auth_for_comms'       => $validated['img_rights_web'],
+                'auth_image_rights'    => $validated['img_rights_rss'],
+                'privacy_policy'       => $validated['privacy_policy'],
+                'token'                => $ticketToken,
+                'cancelled_at'         => null,
+                'attendance'           => false,
+                'checked_in_at'        => null,
+                // Reset to null here - a fresh attach() never sets this either.
+                // The invitation flow re-links it to whichever code was just
+                // used right after register() returns (see
+                // InvitationRegistrationController::store()); a public
+                // registration has no code to link, so null is correct as-is.
+                'verification_code_id' => null,
+            ];
+
+            if ($cancelledRow) {
+                DB::table('attendee_edition')
+                    ->where('edition_id', $edition->id)
+                    ->where('attendee_id', $attendee->id)
+                    ->update($pivotData);
+            } else {
+                $edition->attendees()->attach($attendee->id, $pivotData);
+            }
 
             $qr = QrCode::format('png')->size(300)->generate($ticketToken);
             $ticketImage = $this->buildTicketImage($qr, $edition);
