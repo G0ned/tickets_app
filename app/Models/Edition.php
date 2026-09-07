@@ -36,7 +36,21 @@ class Edition extends Model
     public function attendees(): BelongsToMany
     {
         return $this->belongsToMany(Person::class, 'attendee_edition', 'edition_id', 'attendee_id')->withPivot(
-            'token', 'auth_for_ad', 'auth_for_comms', 'auth_image_rights', 'privacy_policy', 'attendance', 'checked_in_at', 'verification_code_id'
+            'token', 'auth_for_ad', 'auth_for_comms', 'auth_image_rights', 'privacy_policy', 'attendance', 'checked_in_at', 'verification_code_id', 'cancelled_at'
+        )->wherePivotNull('cancelled_at');
+    }
+
+    /**
+     * Every attendee_edition row ever created for this edition, including
+     * cancelled registrations (cancel_attendee()/AttendeeCancellationController
+     * flag rows with cancelled_at instead of detaching them, so history
+     * survives). Used for the person profile page; every other consumer of
+     * attendees() keeps seeing only active registrations, unchanged.
+     */
+    public function attendeeRegistrations(): BelongsToMany
+    {
+        return $this->belongsToMany(Person::class, 'attendee_edition', 'edition_id', 'attendee_id')->withPivot(
+            'token', 'auth_for_ad', 'auth_for_comms', 'auth_image_rights', 'privacy_policy', 'attendance', 'checked_in_at', 'verification_code_id', 'cancelled_at'
         );
     }
 
