@@ -85,10 +85,7 @@ class AttendeeCancellationController extends Controller
 
     private function resolveAttendance(string $token): ?object
     {
-        // whereNull('cancelled_at') keeps a second visit to an already-used
-        // cancellation link behaving exactly as before: the row still exists
-        // now (it's flagged, not detached), but must resolve as "not found"
-        // here just like it did when the row was actually gone.
+
         return DB::table('attendee_edition')->where('token', $token)->whereNull('cancelled_at')->first();
     }
 }
