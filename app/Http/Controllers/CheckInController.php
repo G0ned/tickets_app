@@ -22,6 +22,7 @@ class CheckInController extends Controller
 
         $pivotRow = DB::table('attendee_edition')
             ->where('token', $validated['token'])
+            ->whereNull('cancelled_at')
             ->first();
 
         if ($pivotRow === null) {
