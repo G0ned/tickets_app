@@ -60,11 +60,6 @@ class AttendeeRegistrationService
                 'cancelled_at'         => null,
                 'attendance'           => false,
                 'checked_in_at'        => null,
-                // Reset to null here - a fresh attach() never sets this either.
-                // The invitation flow re-links it to whichever code was just
-                // used right after register() returns (see
-                // InvitationRegistrationController::store()); a public
-                // registration has no code to link, so null is correct as-is.
                 'verification_code_id' => null,
             ];
 
