@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RestrictDoorman
 {
-    private array $allowedRoutes = ['checkin', 'checkin-store', 'logout'];
+    private array $allowedRoutes = ['checkin', 'checkin-store', 'logout', 'account-password-edit', 'account-password-update'];
 
     public function handle(Request $request, Closure $next): Response
     {

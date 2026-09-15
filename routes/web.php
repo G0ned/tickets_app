@@ -15,6 +15,7 @@ use App\Http\Controllers\PersonController;
 use App\Http\Controllers\AttendeeCancellationController;
 use App\Http\Controllers\EditionReminderController;
 use App\Http\Controllers\SetPasswordController;
+use App\Http\Controllers\PasswordController;
 //Home route
 Route::get('/', [SessionController::class, 'create'])->name('home');
 //Login route
@@ -73,6 +74,12 @@ Route::middleware(['admin:admin'])->group(function(){
     Route::get('portfolios-list', [ClientPortfolioController::class, 'list'])->name('portfolios-list');
     Route::get('/user/{id}/portfolio/create', [ClientPortfolioController::class, 'create'])->name('portfolios-create');
     Route::post('/user/{id}/portfolio', [ClientPortfolioController::class, 'store'])->name('portfolios-store');
+});
+
+Route::middleware(['auth'])->group(function () {
+    //Self-service password change (any authenticated user, including a pure doorman)
+    Route::get('/account/password', [PasswordController::class, 'edit'])->name('account-password-edit');
+    Route::patch('/account/password', [PasswordController::class, 'update'])->name('account-password-update');
 });
 
 Route::middleware(['auth', 'doorman'])->group(function () {
