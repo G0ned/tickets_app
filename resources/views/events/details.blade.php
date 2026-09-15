@@ -7,18 +7,15 @@
         $canCreateEditions = auth()->user()->isAdmin() || $event->organizers->contains('id', auth()->id());
     @endphp
 
-    {{-- Botón volver --}}
     <div class="mb-6">
         <x-button href="{{ route('events-index') }}">Volver a Eventos</x-button>
     </div>
 
     <div class="max-w-7xl mx-auto space-y-6">
 
-        {{-- Tarjeta principal: imagen + info --}}
         <div class="bg-gray-700 p-4 sm:p-8 rounded-xl shadow-xl">
             <div class="flex flex-col sm:flex-row gap-4 sm:gap-8">
 
-                {{-- Imagen --}}
                 <div class="w-full sm:w-48 sm:shrink-0">
                     @if($event->poster_path)
                         <img
@@ -33,7 +30,6 @@
                     @endif
                 </div>
 
-                {{-- Info del evento --}}
                 <div class="flex-1 space-y-4 min-w-0">
                     <h2 class="text-xl sm:text-2xl font-bold text-white break-words">{{ $event->name }}</h2>
 
@@ -96,7 +92,6 @@
             </div>
         </div>
 
-        {{-- Tarjeta ediciones --}}
         <div class="bg-gray-700 p-4 sm:p-8 rounded-xl shadow-xl">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
                 <h3 class="text-lg font-bold text-white">Ediciones del Evento</h3>
@@ -110,7 +105,6 @@
             @if($event->editions->isEmpty())
                 <p class="text-gray-400 text-center py-8">No hay ediciones creadas aún.</p>
             @else
-                {{-- Vista de tarjetas apiladas (móvil) --}}
                 <div class="grid grid-cols-1 gap-4 sm:hidden">
                     @foreach($event->editions as $edition)
                         <div class="bg-gray-800 rounded-lg p-4 space-y-2">
@@ -157,7 +151,6 @@
                     @endforeach
                 </div>
 
-                {{-- Vista de tabla (tablet y superior) --}}
                 <div class="hidden sm:block overflow-x-auto">
                     <table class="w-full">
                         <thead>
@@ -181,7 +174,7 @@
                                     <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->id }}</td>
                                     <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->date->format('d-m-Y') }}</td>
                                     <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->date->format('H:i') }}</td>
-                                    <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->duration }} min</td>
+                                    <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->duration }} h</td>
                                     <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->location ?? '-' }}</td>
                                     <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->capacity }}</td>
                                     <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->attendees->count() }}</td>
@@ -230,6 +223,82 @@
                 </div>
             @endif
         </div>
+
+        @admin()
+        @if($cancelledEditions->isNotEmpty())
+        <div class="bg-gray-700 p-4 sm:p-8 rounded-xl shadow-xl">
+            <h3 class="text-lg font-bold text-white mb-6">Ediciones canceladas</h3>
+
+            <div class="grid grid-cols-1 gap-4 sm:hidden">
+                @foreach($cancelledEditions as $edition)
+                    <div class="bg-gray-800 rounded-lg p-4 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400 text-xs uppercase tracking-wide">Edición #{{ $edition->id }}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 text-xs uppercase tracking-wide">Fecha</span>
+                            <p class="text-white">{{ $edition->date->format('d-m-Y') }} - {{ $edition->date->format('H:i') }}</p>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 text-xs uppercase tracking-wide">Ubicación</span>
+                            <p class="text-white">{{ $edition->location ?? '-' }}</p>
+                        </div>
+                        <div>
+                            <span class="text-gray-400 text-xs uppercase tracking-wide">Cancelada el</span>
+                            <p class="text-white">{{ $edition->deleted_at->format('d-m-Y H:i') }}</p>
+                        </div>
+                        <div class="pt-2">
+                            <form action="{{ route('editions-restore', $edition->id) }}" method="POST"
+                                  onsubmit="return confirm('¿Seguro que quieres reactivar esta edición?')">
+                                @csrf
+                                <x-form-button type="submit" class="w-full">Reactivar</x-form-button>
+                            </form>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <div class="hidden sm:block overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-gray-600">
+                            <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">#</th>
+                            <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Fecha</th>
+                            <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Hora</th>
+                            <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Ubicación</th>
+                            <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Cancelada el</th>
+                            <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-600">
+                        @foreach($cancelledEditions as $edition)
+                            <tr class="hover:bg-gray-600 transition-colors duration-150">
+                                <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->id }}</td>
+                                <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->date->format('d-m-Y') }}</td>
+                                <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->date->format('H:i') }}</td>
+                                <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->location ?? '-' }}</td>
+                                <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->deleted_at->format('d-m-Y H:i') }}</td>
+                                <td class="px-4 py-3">
+                                    <form action="{{ route('editions-restore', $edition->id) }}" method="POST"
+                                          onsubmit="return confirm('¿Seguro que quieres reactivar esta edición?')">
+                                        @csrf
+                                        <button type="submit"
+                                                title="Reactivar"
+                                                class="inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-300 hover:text-teal-400 hover:bg-gray-500 transition-colors duration-150">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @endif
+        @endadmin
 
     </div>
 </x-layout>
