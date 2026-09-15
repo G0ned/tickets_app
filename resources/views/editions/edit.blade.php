@@ -249,6 +249,22 @@
                     </form>
                 </div>
             </div>
+
+            @admin()
+            <div class="mt-8 border-t border-gray-500 pt-6">
+                <h3 class="text-white font-bold text-lg mb-2">Cancelar celebración</h3>
+                <p class="text-gray-400 text-sm mb-4">
+                    Cancela esta edición: quedará marcada como cancelada (podrá reactivarse más adelante si hace falta) y se
+                    notificará por correo a todos los asistentes actualmente inscritos.
+                </p>
+                <form method="POST" action="{{ route('editions-cancel', $edition->id) }}"
+                      onsubmit="return confirm('¿Seguro que quieres cancelar la celebración de esta edición? Se notificará por correo a todos los asistentes inscritos.')">
+                    @csrf
+                    @method('DELETE')
+                    <x-delete-button type="submit">Cancelar celebración</x-delete-button>
+                </form>
+            </div>
+            @endadmin
         </div>
     </div>
 </x-layout>
