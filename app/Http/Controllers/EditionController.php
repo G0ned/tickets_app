@@ -6,9 +6,13 @@ use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Models\Edition;
 use App\Models\User;
+use App\Models\VerificationCode;
 use App\Exports\AttendeesExport;
+use App\Mail\EditionCancelledMail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 class EditionController extends Controller
@@ -39,12 +43,6 @@ class EditionController extends Controller
             'occurrences.*.registration_deadline_time'   => ['nullable', 'date_format:H:i'],
         ]);
 
-        // Combine each occurrence into a single datetime string (plus its own
-        // optional registration deadline - each occurrence can have a
-        // different one, since sharing a single deadline across dates spread
-        // over weeks/months wouldn't make sense). Rejects duplicate date+time
-        // pairs, and half-filled deadlines, within the same submission
-        // before ever touching the database.
         $datetimes = [];
         $occurrences = [];
         foreach ($validated['occurrences'] as $index => $occurrence) {
@@ -166,6 +164,61 @@ class EditionController extends Controller
     {
         $edition->delete();
         return redirect(route('events-index'));
+    }
+
+    public function cancel(Edition $edition)
+    {
+        if ($edition->hasEnded()) {
+            return redirect()->route('editions-edit', $edition->id)
+                ->with('error', 'No es posible cancelar una edición que ya se ha celebrado.');
+        }
+
+        $edition->load(['event', 'attendees']);
+        $attendees = $edition->attendees;
+
+        $edition->delete();
+
+        foreach ($attendees as $attendee) {
+            if ($attendee->pivot->token) {
+                Storage::disk('public')->delete('tickets/' . $attendee->pivot->token . '.png');
+            }
+
+            Mail::to($attendee->email)->queue(new EditionCancelledMail($edition, $attendee));
+        }
+
+        return redirect()->route('events-index')
+            ->with('success', 'La edición se ha cancelado y se ha notificado a los asistentes inscritos.');
+    }
+
+    public function restore(Edition $edition)
+    {
+        $edition->restore();
+
+        DB::transaction(function () use ($edition) {
+            $activeRegistrations = DB::table('attendee_edition')
+                ->where('edition_id', $edition->id)
+                ->whereNull('cancelled_at')
+                ->get();
+
+            if ($activeRegistrations->isEmpty()) {
+                return;
+            }
+
+            DB::table('attendee_edition')
+                ->where('edition_id', $edition->id)
+                ->whereNull('cancelled_at')
+                ->delete();
+
+            $edition->increment('capacity', $activeRegistrations->count());
+
+            $verificationCodeIds = $activeRegistrations->pluck('verification_code_id')->filter();
+            if ($verificationCodeIds->isNotEmpty()) {
+                VerificationCode::whereIn('id', $verificationCodeIds)->update(['used_at' => null]);
+            }
+        });
+
+        return redirect()->route('events-show', $edition->event_id)
+            ->with('success', 'La edición se ha reactivado correctamente, sin las inscripciones previas.');
     }
 
     public function assignManager(Request $request, Edition $edition)
