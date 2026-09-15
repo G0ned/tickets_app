@@ -49,6 +49,8 @@ Route::middleware(['admin:admin'])->group(function(){
     Route::delete('/event/{event}/delete', [EventController::class, 'destroy'])->name('events-delete');
     //Edition routes
     Route::delete('/edition/{edition}', [EditionController::class, 'destroy'])->name('editions-delete');
+    Route::delete('/edition/{edition}/cancel-celebration', [EditionController::class, 'cancel'])->name('editions-cancel');
+    Route::post('/edition/{edition}/restore', [EditionController::class, 'restore'])->name('editions-restore')->withTrashed();
     Route::post('/edition/{edition}/assign-manager', [EditionController::class, 'assignManager'])->name('assign-user');
     Route::get('/edition/{edition}/attendees', [EditionController::class, 'attendees'])->name('edition-attendees');
     Route::get('/edition/{edition}/export-attendees', [EditionController::class, 'exportAttendees'])->name('export-attendees');
