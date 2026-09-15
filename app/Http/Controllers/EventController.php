@@ -25,7 +25,11 @@ class EventController extends Controller
     public function show(Event $event)
     {
         $event->load(['createdBy', 'editions']);
-        return view('events.details')->with('event', $event);
+        $cancelledEditions = $event->editions()->onlyTrashed()->get();
+
+        return view('events.details')
+            ->with('event', $event)
+            ->with('cancelledEditions', $cancelledEditions);
     }
 
     public function store()
