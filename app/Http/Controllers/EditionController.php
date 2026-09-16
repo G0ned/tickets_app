@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\VerificationCode;
 use App\Exports\AttendeesExport;
 use App\Mail\EditionCancelledMail;
+use App\Mail\EditionRestoredMail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -193,6 +194,11 @@ class EditionController extends Controller
     public function restore(Edition $edition)
     {
         $edition->restore();
+
+        $edition->load(['event', 'managers']);
+        foreach ($edition->managers as $manager) {
+            Mail::to($manager->email)->queue(new EditionRestoredMail($edition, $manager));
+        }
 
         DB::transaction(function () use ($edition) {
             $activeRegistrations = DB::table('attendee_edition')
