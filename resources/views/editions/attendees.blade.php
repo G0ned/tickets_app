@@ -14,12 +14,16 @@
             </div>
             <div class="flex items-center gap-6 text-sm">
                 <div class="text-center">
-                    <p class="text-gray-400 text-xs uppercase tracking-wide">Aforo</p>
-                    <p class="text-white font-semibold text-lg">{{ $edition->capacity }}</p>
+                    <p class="text-gray-400 text-xs uppercase tracking-wide">Aforo total</p>
+                    <p class="text-white font-semibold text-lg">{{ $edition->capacity + $edition->attendees->count()}}</p>
                 </div>
                 <div class="text-center">
                     <p class="text-gray-400 text-xs uppercase tracking-wide">Registrados</p>
                     <p class="text-teal-400 font-semibold text-lg">{{ $edition->attendees->count() }}</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-gray-400 text-xs uppercase tracking-wide">Aforo restante</p>
+                    <p class="text-white font-semibold text-lg">{{ $edition->capacity }}</p>
                 </div>
             </div>
         </div>

@@ -160,7 +160,7 @@
                                 <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Hora</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Duración</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Ubicación</th>
-                                <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Aforo</th>
+                                <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Aforo restante</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Nº Registros</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Acciones</th>
                                 @admin()
