@@ -63,13 +63,13 @@
                                 <x-sortable-th column="type" :sort="$sort" :direction="$direction" align="center">Tipo</x-sortable-th>
                                 <x-sortable-th column="brand" :sort="$sort" :direction="$direction" align="center">Marca</x-sortable-th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Portfolio</th>
-                                <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Perfil</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-600">
                             @foreach ($people as $person)
-                                <tr class="hover:bg-gray-600 transition-colors duration-150">
-                                    <td class="px-4 py-3 text-center">
+                                <tr class="hover:bg-gray-600 transition-colors duration-150 cursor-pointer"
+                                    onclick="window.location='{{ route('contacts-show', $person->id) }}'">
+                                    <td class="px-4 py-3 text-center" onclick="event.stopPropagation()">
                                         <input type="checkbox" name="person_ids[]" value="{{ $person->id }}" x-model="selected">
                                     </td>
                                     <td class="px-4 py-3 text-white whitespace-nowrap font-medium">{{ $person->name }}</td>
@@ -84,17 +84,6 @@
                                     </td>
                                     <td class="px-4 py-3 text-gray-300 text-center whitespace-nowrap">
                                         {{ $person->portfolio->name ?? '-' }}
-                                    </td>
-                                    <td class="px-4 py-3 text-center whitespace-nowrap">
-                                        <a href="{{ route('contacts-show', $person->id) }}"
-                                           title="Ver perfil"
-                                           class="inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-300 hover:text-teal-400 hover:bg-gray-500 transition-colors duration-150">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                                 stroke="currentColor" class="size-5">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                      d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                                            </svg>
-                                        </a>
                                     </td>
                                 </tr>
                             @endforeach
