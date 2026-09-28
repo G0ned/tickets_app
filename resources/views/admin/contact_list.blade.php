@@ -61,7 +61,6 @@
                                 <x-sortable-th column="email" :sort="$sort" :direction="$direction" align="center">e-mail</x-sortable-th>
                                 <x-sortable-th column="phone" :sort="$sort" :direction="$direction" align="center">Telefono</x-sortable-th>
                                 <x-sortable-th column="type" :sort="$sort" :direction="$direction" align="center">Tipo</x-sortable-th>
-                                <x-sortable-th column="brand" :sort="$sort" :direction="$direction" align="center">Marca</x-sortable-th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Portfolio</th>
                             </tr>
                         </thead>
@@ -78,9 +77,6 @@
                                     <td class="px-4 py-3 text-gray-300 text-center whitespace-nowrap">{{ $person->phone }}</td>
                                     <td class="px-4 py-3 text-gray-300 text-center whitespace-nowrap">
                                         {{ $person->type ? $type_labels[$person->type->value] : '-' }}
-                                    </td>
-                                    <td class="px-4 py-3 text-gray-300 text-center whitespace-nowrap">
-                                        {{ $person->brand ?? '-' }}
                                     </td>
                                     <td class="px-4 py-3 text-gray-300 text-center whitespace-nowrap">
                                         {{ $person->portfolio->name ?? '-' }}
