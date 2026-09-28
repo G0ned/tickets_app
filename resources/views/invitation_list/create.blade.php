@@ -39,6 +39,12 @@
             selected: [],
             registrations: {},
             capacity: {{ $managerPivot?->invitations_capacity ?? 'null' }},
+
+            personBrands: {{ Illuminate\Support\Js::from($portfolios->mapWithKeys(
+                fn ($portfolio) => [$portfolio->id => $portfolio->persons->pluck('brand', 'id')]
+            )) }},
+            selectedBrand: '',
+
             get totalRegistrations() {
                 return this.selected.reduce((sum, id) => sum + (parseInt(this.registrations[id]) || 0), 0);
             },
@@ -56,10 +62,19 @@
             },
             isSelected(id) { return this.selected.includes(id); },
 
+            matchesBrand(id) {
+                if (!this.selectedBrand) return true;
+                const brands = this.personBrands[this.portfolioId] || {};
+                return brands[id] === this.selectedBrand;
+            },
+            visiblePersonIds(personIds) {
+                return personIds.filter(id => this.matchesBrand(id));
+            },
+
             toggleAll(personIds) {
+                personIds = this.visiblePersonIds(personIds);
                 const allChecked = personIds.every(id => this.selected.includes(id));
                 if (allChecked) {
-                    // Deselect only the persons of the current portfolio
                     this.selected = this.selected.filter(id => !personIds.includes(id));
                 } else {
                     personIds.forEach(id => {
@@ -69,12 +84,14 @@
                 }
             },
             allSelected(personIds) {
+                personIds = this.visiblePersonIds(personIds);
                 return personIds.length > 0 && personIds.every(id => this.selected.includes(id));
             },
 
             switchPortfolio(id) {
                 this.portfolioId = id;
                 this.selected = []; // clear selection to keep list scoped to one portfolio
+                this.selectedBrand = ''; // brands differ per portfolio - don't carry a stale filter over
             }
         }">
             <form method="POST" action="{{ route('invitation-list-store', $edition->id) }}" class="space-y-6">
@@ -113,9 +130,23 @@
                 @foreach ($portfolios as $portfolio)
                     @php
                         $personIds = $portfolio->persons->pluck('id')->values()->all();
+                        $brands = $portfolio->persons->pluck('brand')->filter()->unique()->sort()->values();
                     @endphp
                     <div x-show="portfolioId === {{ $portfolio->id }}"
                          class="bg-gray-700 rounded-lg overflow-hidden">
+                        @if ($brands->isNotEmpty())
+                            <div class="px-5 py-3 bg-gray-700 border-b border-gray-600 flex items-center gap-2">
+                                <label for="brand-filter-{{ $portfolio->id }}" class="text-sm text-gray-300 shrink-0">Marca</label>
+                                <select id="brand-filter-{{ $portfolio->id }}"
+                                    x-model="selectedBrand"
+                                    class="flex-1 px-3 py-1.5 bg-gray-600 border border-gray-500 rounded-md shadow-sm text-sm text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option value="">Todas las marcas</option>
+                                    @foreach ($brands as $brand)
+                                        <option value="{{ $brand }}">{{ $brand }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
                         <div class="px-5 py-3 bg-gray-600 border-b border-gray-500 flex items-center justify-between">
                             <label class="flex items-center gap-2 cursor-pointer select-none">
                                 <input type="checkbox"
@@ -124,22 +155,20 @@
                                     class="w-4 h-4 accent-teal-500">
                                 <span class="text-sm text-gray-300 font-medium">Seleccionar todos</span>
                             </label>
-                            <span class="text-sm text-gray-400">{{ $portfolio->persons->count() }} personas</span>
+                            <span class="text-sm text-gray-400" x-text="visiblePersonIds(@json($personIds)).length + ' personas'"></span>
                         </div>
 
                         @if ($portfolio->persons->isEmpty())
                             <p class="px-5 py-8 text-gray-400 text-sm text-center">Este portfolio no tiene personas asociadas.</p>
                         @else
+                            <p x-show="visiblePersonIds(@json($personIds)).length === 0" x-cloak
+                               class="px-5 py-8 text-gray-400 text-sm text-center">
+                                Ninguna persona de este portfolio tiene la marca seleccionada.
+                            </p>
                             <ul class="divide-y divide-gray-600">
                                 @foreach ($portfolio->persons as $person)
-                                    <li class="hover:bg-gray-600 transition-colors flex items-center gap-4 px-5 py-3">
-                                        {{--
-                                            The label makes the checkbox + person info clickable.
-                                            The registrations input below is a SIBLING of this label
-                                            (not nested inside it) — a nested <label> would be invalid
-                                            HTML and some browsers forward its clicks to the checkbox,
-                                            silently deselecting the person while editing their count.
-                                        --}}
+                                    <li x-show="matchesBrand({{ $person->id }})"
+                                        class="hover:bg-gray-600 transition-colors flex items-center gap-4 px-5 py-3">
                                         <label class="flex items-center gap-4 flex-1 min-w-0 cursor-pointer select-none">
                                             <input type="checkbox"
                                                 name="persons[]"
@@ -153,6 +182,9 @@
                                                 </p>
                                                 <p class="text-gray-400 text-xs truncate">
                                                     {{ $person->email }} &middot; {{ $person->phone }}
+                                                    @if ($person->brand)
+                                                        &middot; {{ $person->brand }}
+                                                    @endif
                                                 </p>
                                             </div>
                                         </label>
