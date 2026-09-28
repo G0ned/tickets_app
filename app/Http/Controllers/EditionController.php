@@ -8,16 +8,19 @@ use App\Models\Edition;
 use App\Models\User;
 use App\Models\VerificationCode;
 use App\Exports\AttendeesExport;
-use App\Mail\EditionCancelledMail;
 use App\Mail\EditionRestoredMail;
+use App\Services\EditionCancellationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 class EditionController extends Controller
 {
+    public function __construct(private EditionCancellationService $cancellation)
+    {
+    }
+
     public function create(Event $event)
     {
         if (!(Auth::user()->is_admin || $event->organizers->contains('id', Auth::id()))) {
@@ -73,7 +76,6 @@ class EditionController extends Controller
             ];
         }
 
-        // Same (date, location) already exists from before this submission?
         $conflicting = Edition::where('location', $validated['location'])
             ->whereIn('date', $datetimes)
             ->pluck('date');
@@ -176,12 +178,20 @@ class EditionController extends Controller
             return redirect(route('events-index'));
         }
 
-        $this->cancelAndNotify($edition);
+        $this->cancellation->cancel($edition);
 
         return redirect()->route('events-index')
             ->with('success', 'La edición se ha cancelado y se ha notificado a los asistentes inscritos.');
     }
 
+    /**
+     * The actual cancel/notify work (soft-delete + per-attendee ticket cleanup
+     * + email) lives in EditionCancellationService, shared with destroy()
+     * above and with EventController::cancel() (cancelling a whole event
+     * cancels each of its editions the same way, plus notifies each
+     * edition's own managers - see the service and EventController::cancel()
+     * for that part, which this single-edition action doesn't do).
+     */
     public function cancel(Edition $edition)
     {
         if ($edition->hasEnded()) {
@@ -189,26 +199,10 @@ class EditionController extends Controller
                 ->with('error', 'No es posible cancelar una edición que ya se ha celebrado.');
         }
 
-        $this->cancelAndNotify($edition);
+        $this->cancellation->cancel($edition);
 
         return redirect()->route('events-index')
             ->with('success', 'La edición se ha cancelado y se ha notificado a los asistentes inscritos.');
-    }
-
-    private function cancelAndNotify(Edition $edition): void
-    {
-        $edition->load(['event', 'attendees']);
-        $attendees = $edition->attendees;
-
-        $edition->delete();
-
-        foreach ($attendees as $attendee) {
-            if ($attendee->pivot->token) {
-                Storage::disk('public')->delete('tickets/' . $attendee->pivot->token . '.png');
-            }
-
-            Mail::to($attendee->email)->queue(new EditionCancelledMail($edition, $attendee));
-        }
     }
 
     public function restore(Edition $edition)

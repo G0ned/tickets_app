@@ -79,6 +79,12 @@
                                 @method('DELETE')
                                 <x-delete-button type="submit">Eliminar evento</x-delete-button>
                             </form>
+
+                            <form action="{{route('events-cancel', $event->id)}}" method="POST" class="mt-1" onsubmit="return confirm('¿Seguro que quieres cancelar el evento &quot;{{ $event->name }}&quot;? Se cancelarán todas sus ediciones pendientes de celebrarse, notificando por correo a los asistentes inscritos y a los gestores de cada edición.')">
+                                @csrf
+                                @method('DELETE')
+                                <x-delete-button type="submit">Cancelar evento</x-delete-button>
+                            </form>
                             @endadmin
 
                             <div class="mt-1">

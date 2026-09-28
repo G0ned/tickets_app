@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\User;
+use App\Services\EditionCancellationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
@@ -11,6 +12,10 @@ use Illuminate\Support\Facades\DB;
 
 class EventController extends Controller
 {
+    public function __construct(private EditionCancellationService $cancellation)
+    {
+    }
+
     public function index()
     {
         $events = Event::with('createdBy')->get();
@@ -187,5 +192,45 @@ class EventController extends Controller
             $event->delete();
             return redirect(route('events-index'));
         }
+    }
+
+    /**
+     * Cancels the whole event: unlike destroy() above, this doesn't refuse
+     * when there are editions still to come - it cancels every one of them.
+     * Admin-only, mirroring EditionController::cancel().
+     *
+     * For each of the event's editions still upcoming (!hasEnded()):
+     * cancelled via EditionCancellationService::cancel() - same as cancelling
+     * that edition on its own (soft-deleted, its attendees' tickets removed,
+     * EditionCancelledMail queued to each) - plus, only here, every manager
+     * of that edition (manager_edition) is emailed EventCancelledMail, since
+     * a single edition's own cancel() never tells its managers anything.
+     * An edition that already took place is just soft-deleted, same as
+     * destroy() would for a past edition - nobody left to notify.
+     *
+     * The event itself is soft-deleted last. EventObserver::deleted() (fired
+     * by that) re-runs its own ->editions()->each(fn ($e) => $e->delete())
+     * cascade on top of what already happened here - harmless (SoftDeletes
+     * just re-stamps deleted_at on rows already trashed), so it's left as-is
+     * rather than special-cased.
+     */
+    public function cancel(Event $event)
+    {
+        $event->load('editions');
+
+        foreach ($event->editions as $edition) {
+            if ($edition->hasEnded()) {
+                $edition->delete();
+                continue;
+            }
+
+            $this->cancellation->notifyManagersOfEventCancellation($edition);
+            $this->cancellation->cancel($edition);
+        }
+
+        $event->delete();
+
+        return redirect()->route('events-index')
+            ->with('success', 'El evento se ha cancelado. Se ha notificado a los asistentes inscritos y a los gestores de cada edición.');
     }
 }

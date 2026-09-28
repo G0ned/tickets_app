@@ -48,6 +48,7 @@ Route::middleware(['admin:admin'])->group(function(){
     Route::delete('/event/{event}/organizer/{user}', [EventController::class, 'removeOrganizer'])->name('remove-organizer');
     Route::delete('/event/{event}/doorman/{user}', [EventController::class, 'removeDoorman'])->name('remove-doorman');
     Route::delete('/event/{event}/delete', [EventController::class, 'destroy'])->name('events-delete');
+    Route::delete('/event/{event}/cancel-celebration', [EventController::class, 'cancel'])->name('events-cancel');
     //Edition routes
     Route::delete('/edition/{edition}', [EditionController::class, 'destroy'])->name('editions-delete');
     Route::delete('/edition/{edition}/cancel-celebration', [EditionController::class, 'cancel'])->name('editions-cancel');

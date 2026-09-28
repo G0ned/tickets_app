@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cancelación — {{ $eventName }}</title>
+    <title>Evento cancelado — {{ $eventName }}</title>
 </head>
 <body style="margin:0; padding:0; background-color:#f1f5f9; font-family:'Segoe UI',Arial,sans-serif;">
 
@@ -15,7 +15,7 @@
 
                 <tr>
                     <td style="background:linear-gradient(135deg,#0f172a 0%,#7f1d1d 100%); padding:36px 48px; text-align:center;">
-                        <p style="color:#fca5a5; margin:0 0 4px; font-size:11px; letter-spacing:3px; text-transform:uppercase; font-weight:600;">Cancelación</p>
+                        <p style="color:#fca5a5; margin:0 0 4px; font-size:11px; letter-spacing:3px; text-transform:uppercase; font-weight:600;">Evento cancelado</p>
                         <h1 style="color:#ffffff; margin:0; font-size:28px; font-weight:800; letter-spacing:-0.5px;">{{ $eventName }}</h1>
                     </td>
                 </tr>
@@ -23,13 +23,15 @@
                 <tr>
                     <td style="padding:40px 48px 8px;">
                         <p style="color:#0f172a; font-size:22px; font-weight:700; margin:0 0 8px;">
-                            Hola, {{ $attendee->name }} {{ $attendee->surname }}
+                            Hola, {{ $manager->name }} {{ $manager->surname }}
                         </p>
                         <p style="color:#64748b; font-size:15px; line-height:1.7; margin:0;">
-                            Lamentamos informarte de que la edición de <strong>{{ $eventName }}</strong> a la que
-                            estabas inscrito/a, prevista para el {{ $edition->date->translatedFormat('d \d\e F \d\e Y') }}
-                            a las {{ $edition->date->format('H:i') }} h en {{ $edition->location }}, ha sido cancelada.
-                            Tu inscripción y tu entrada ya no son válidas.
+                            Te informamos de que el evento <strong>{{ $eventName }}</strong> ha sido cancelado
+                            en su totalidad por un administrador. Como consecuencia, la edición que gestionabas, prevista
+                            para el {{ $edition->date->translatedFormat('d \d\e F \d\e Y') }} a las
+                            {{ $edition->date->format('H:i') }} h en {{ $edition->location }}, también ha sido cancelada
+                            y se ha notificado a sus asistentes inscritos. Cualquier lista de invitaciones que gestionaras
+                            para esta edición deja de estar activa.
                         </p>
                     </td>
                 </tr>
