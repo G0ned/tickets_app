@@ -63,6 +63,13 @@ jobs:
             echo "🔁 Restarting scheduler container..."
             sudo docker compose restart scheduler
 
+            # Restart queue worker. It's a long-running process that keeps the code it
+            # booted with in memory, and every Mail::queue() email (edition cancellation,
+            # reminders, reactivation notice to managers) is only delivered while it runs.
+            # `restart` also starts it if it had stopped or crashed.
+            echo "🔁 Restarting queue container..."
+            sudo docker compose restart queue
+
             # Restart nginx container
             echo "🔁 Restarting nginx container..."
             sudo docker compose exec nginx nginx -s reload

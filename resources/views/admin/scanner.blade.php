@@ -2,13 +2,6 @@
     @section('title', 'Escáner de entradas')
     <x-slot:heading>Escáner de entradas</x-slot:heading>
 
-    {{-- min-h-[70dvh] (dvh, not vh - stable against the address bar showing/hiding
-         on a phone) centers the scanner within the space available below the header.
-         The result message lives in a grid row that's 0fr tall (collapsed) by
-         default; showResult()/hideResult() toggle it to 1fr, which grows/shrinks
-         it smoothly and, because it sits above #reader in a centered flex column,
-         visibly pushes the scanner down and lets it re-center once it collapses
-         again - no JS height math, no layout jump. --}}
     <div class="max-w-sm mx-auto min-h-[70dvh] flex flex-col items-center justify-center gap-6">
         <p class="text-gray-600 text-center">Apunte la cámara al código QR de la entrada.</p>
 
@@ -25,8 +18,6 @@
         <div id="reader" class="w-full bg-black rounded-lg overflow-hidden"></div>
 
         <style>
-            /* html5-qrcode genera estos elementos dinámicamente por JS,
-               por lo que no se les puede aplicar clases de Tailwind directamente. */
             #reader__dashboard_section_csr,
             #reader__dashboard_section_csr span,
             #reader__dashboard_section_csr button,
@@ -51,7 +42,6 @@
             try {
                 html5QrcodeScanner.pause(true);
             } catch (e) {
-                /* already paused (state race in html5-qrcode) */
             }
         }
 
@@ -59,7 +49,6 @@
             try {
                 html5QrcodeScanner.resume();
             } catch (e) {
-                /* already scanning (state race in html5-qrcode) */
             }
         }
 
@@ -93,13 +82,26 @@
                 });
         };
 
-        // How long the result stays pushed above the scanner before it
-        // collapses back and the scanner re-centers.
         const RESULT_VISIBLE_MS = 5000;
+        const COLLAPSE_TRANSITION_MS = 500;
+
         let hideResultTimeout = null;
+        let reopenTimeout = null;
+        let resultVisible = false;
 
         function showResult(status, message, notAcceptedRights) {
-            const resultRow = document.getElementById('result-row');
+            clearTimeout(hideResultTimeout);
+            clearTimeout(reopenTimeout);
+
+            if (resultVisible) {
+                collapseResultRow();
+                reopenTimeout = setTimeout(() => displayResult(status, message, notAcceptedRights), COLLAPSE_TRANSITION_MS);
+            } else {
+                displayResult(status, message, notAcceptedRights);
+            }
+        }
+
+        function displayResult(status, message, notAcceptedRights) {
             const resultDiv = document.getElementById('result');
             const title = document.getElementById('status-title');
             const msg = document.getElementById('status-msg');
@@ -131,16 +133,25 @@
                 ? '<strong>Derechos revocados:</strong><br>' + notAcceptedRights.join('<br>')
                 : '';
 
-            resultRow.classList.remove('grid-rows-[0fr]');
-            resultRow.classList.add('grid-rows-[1fr]');
+            expandResultRow();
+            resultVisible = true;
 
-            // Re-triggering mid-display (a new scan while the previous result is
-            // still up) restarts the 5s window instead of hiding it early.
             clearTimeout(hideResultTimeout);
             hideResultTimeout = setTimeout(hideResult, RESULT_VISIBLE_MS);
         }
 
         function hideResult() {
+            collapseResultRow();
+            resultVisible = false;
+        }
+
+        function expandResultRow() {
+            const resultRow = document.getElementById('result-row');
+            resultRow.classList.remove('grid-rows-[0fr]');
+            resultRow.classList.add('grid-rows-[1fr]');
+        }
+
+        function collapseResultRow() {
             const resultRow = document.getElementById('result-row');
             resultRow.classList.remove('grid-rows-[1fr]');
             resultRow.classList.add('grid-rows-[0fr]');
