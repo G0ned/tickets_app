@@ -161,10 +161,25 @@ class EditionController extends Controller
         
     }
 
+    /**
+     * The "Eliminar" action on the event page. A soft-deleted edition shows up
+     * in the same "Ediciones canceladas" table (and can be reactivated) no matter
+     * which button removed it, so an edition that hasn't happened yet has to be
+     * handled exactly like cancel(): attendees notified, their tickets removed.
+     * Only an edition that already took place is removed silently (clean-up of
+     * past editions, nobody left to tell).
+     */
     public function destroy(Edition $edition)
     {
-        $edition->delete();
-        return redirect(route('events-index'));
+        if ($edition->hasEnded()) {
+            $edition->delete();
+            return redirect(route('events-index'));
+        }
+
+        $this->cancelAndNotify($edition);
+
+        return redirect()->route('events-index')
+            ->with('success', 'La edición se ha cancelado y se ha notificado a los asistentes inscritos.');
     }
 
     public function cancel(Edition $edition)
@@ -174,6 +189,14 @@ class EditionController extends Controller
                 ->with('error', 'No es posible cancelar una edición que ya se ha celebrado.');
         }
 
+        $this->cancelAndNotify($edition);
+
+        return redirect()->route('events-index')
+            ->with('success', 'La edición se ha cancelado y se ha notificado a los asistentes inscritos.');
+    }
+
+    private function cancelAndNotify(Edition $edition): void
+    {
         $edition->load(['event', 'attendees']);
         $attendees = $edition->attendees;
 
@@ -186,9 +209,6 @@ class EditionController extends Controller
 
             Mail::to($attendee->email)->queue(new EditionCancelledMail($edition, $attendee));
         }
-
-        return redirect()->route('events-index')
-            ->with('success', 'La edición se ha cancelado y se ha notificado a los asistentes inscritos.');
     }
 
     public function restore(Edition $edition)

@@ -2,8 +2,25 @@
     @section('title', 'Escáner de entradas')
     <x-slot:heading>Escáner de entradas</x-slot:heading>
 
-    <div class="max-w-sm mx-auto space-y-6">
+    {{-- min-h-[70dvh] (dvh, not vh - stable against the address bar showing/hiding
+         on a phone) centers the scanner within the space available below the header.
+         The result message lives in a grid row that's 0fr tall (collapsed) by
+         default; showResult()/hideResult() toggle it to 1fr, which grows/shrinks
+         it smoothly and, because it sits above #reader in a centered flex column,
+         visibly pushes the scanner down and lets it re-center once it collapses
+         again - no JS height math, no layout jump. --}}
+    <div class="max-w-sm mx-auto min-h-[70dvh] flex flex-col items-center justify-center gap-6">
         <p class="text-gray-600 text-center">Apunte la cámara al código QR de la entrada.</p>
+
+        <div id="result-row" class="w-full grid grid-rows-[0fr] transition-[grid-template-rows] duration-500 ease-in-out">
+            <div class="overflow-hidden">
+                <div id="result" class="p-4 rounded-lg text-center">
+                    <h2 id="status-title" class="text-xl font-bold text-white"></h2>
+                    <p id="status-msg" class="text-white"></p>
+                    <div id="not-accepted-rights" class="mt-3 text-sm text-gray-100"></div>
+                </div>
+            </div>
+        </div>
 
         <div id="reader" class="w-full bg-black rounded-lg overflow-hidden"></div>
 
@@ -22,12 +39,6 @@
                 color: #f9fafb !important;
             }
         </style>
-
-        <div id="result" class="p-4 rounded-lg text-center hidden">
-            <h2 id="status-title" class="text-xl font-bold text-white"></h2>
-            <p id="status-msg" class="text-white"></p>
-            <div id="not-accepted-rights" class="mt-3 text-sm text-gray-100"></div>
-        </div>
     </div>
 
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -82,13 +93,19 @@
                 });
         };
 
+        // How long the result stays pushed above the scanner before it
+        // collapses back and the scanner re-centers.
+        const RESULT_VISIBLE_MS = 5000;
+        let hideResultTimeout = null;
+
         function showResult(status, message, notAcceptedRights) {
+            const resultRow = document.getElementById('result-row');
             const resultDiv = document.getElementById('result');
             const title = document.getElementById('status-title');
             const msg = document.getElementById('status-msg');
             const rightsDiv = document.getElementById('not-accepted-rights');
 
-            resultDiv.classList.remove('hidden', 'bg-green-600', 'bg-yellow-600', 'bg-red-600');
+            resultDiv.classList.remove('bg-green-600', 'bg-yellow-600', 'bg-red-600');
 
             if (status === 'success') {
                 resultDiv.classList.add('bg-green-600');
@@ -113,6 +130,20 @@
             rightsDiv.innerHTML = (notAcceptedRights && notAcceptedRights.length > 0)
                 ? '<strong>Derechos revocados:</strong><br>' + notAcceptedRights.join('<br>')
                 : '';
+
+            resultRow.classList.remove('grid-rows-[0fr]');
+            resultRow.classList.add('grid-rows-[1fr]');
+
+            // Re-triggering mid-display (a new scan while the previous result is
+            // still up) restarts the 5s window instead of hiding it early.
+            clearTimeout(hideResultTimeout);
+            hideResultTimeout = setTimeout(hideResult, RESULT_VISIBLE_MS);
+        }
+
+        function hideResult() {
+            const resultRow = document.getElementById('result-row');
+            resultRow.classList.remove('grid-rows-[1fr]');
+            resultRow.classList.add('grid-rows-[0fr]');
         }
 
         html5QrcodeScanner.render(onScanSuccess);

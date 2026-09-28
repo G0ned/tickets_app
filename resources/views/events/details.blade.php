@@ -140,7 +140,7 @@
                                 @endadmin
                                 @admin()
                                 <form action="{{route('editions-delete', $edition->id)}}" method="POST"
-                                    onsubmit="return confirm('¿Seguro que quieres eliminar esta edición?. Esta acción no se puede deshacer.')">
+                                    onsubmit="return confirm('¿Seguro que quieres eliminar esta edición? Si aún no se ha celebrado, se cancelará y se notificará por correo a los asistentes inscritos (podrá reactivarse después).')">
                                     @csrf
                                     @method('DELETE')
                                     <x-delete-button type="submit" class="w-full">Eliminar</x-delete-button>
@@ -191,7 +191,7 @@
                                             @endif
                                             @admin()
                                             <form action="{{route('editions-delete', $edition->id)}}" method="POST"
-                                                onsubmit="return confirm('¿Seguro que quieres eliminar esta edición?. Esta acción no se puede deshacer.')">
+                                                onsubmit="return confirm('¿Seguro que quieres eliminar esta edición? Si aún no se ha celebrado, se cancelará y se notificará por correo a los asistentes inscritos (podrá reactivarse después).')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit"
