@@ -16,6 +16,7 @@ use App\Http\Controllers\AttendeeCancellationController;
 use App\Http\Controllers\EditionReminderController;
 use App\Http\Controllers\SetPasswordController;
 use App\Http\Controllers\PasswordController;
+use App\Http\Controllers\ForgotPasswordController;
 //Home route
 Route::get('/', [SessionController::class, 'create'])->name('home');
 //Login route
@@ -32,6 +33,11 @@ Route::post('/attendee/cancel/{token}', [AttendeeCancellationController::class, 
 //Set password routes (public: reached via the welcome link sent when an admin creates an account, no session yet)
 Route::get('/set-password/{token}', [SetPasswordController::class, 'create'])->name('set-password-create');
 Route::post('/set-password', [SetPasswordController::class, 'store'])->name('set-password-store');
+//Forgot password routes (public: "¿Olvidaste tu contraseña?" from the login page, no session yet)
+Route::get('/forgot-password', [ForgotPasswordController::class, 'create'])->name('forgot-password-create');
+Route::post('/forgot-password', [ForgotPasswordController::class, 'store'])->name('forgot-password-store');
+Route::get('/forgot-password/{token}', [ForgotPasswordController::class, 'edit'])->name('forgot-password-edit');
+Route::post('/forgot-password/reset', [ForgotPasswordController::class, 'update'])->name('forgot-password-update');
 //Policies routes
 Route::get('privacy-policy', function(){
     return view('privacy-policy');
@@ -48,7 +54,6 @@ Route::middleware(['admin:admin'])->group(function(){
     Route::delete('/event/{event}/organizer/{user}', [EventController::class, 'removeOrganizer'])->name('remove-organizer');
     Route::delete('/event/{event}/doorman/{user}', [EventController::class, 'removeDoorman'])->name('remove-doorman');
     Route::delete('/event/{event}/delete', [EventController::class, 'destroy'])->name('events-delete');
-    Route::delete('/event/{event}/cancel-celebration', [EventController::class, 'cancel'])->name('events-cancel');
     //Edition routes
     Route::delete('/edition/{edition}', [EditionController::class, 'destroy'])->name('editions-delete');
     Route::delete('/edition/{edition}/cancel-celebration', [EditionController::class, 'cancel'])->name('editions-cancel');

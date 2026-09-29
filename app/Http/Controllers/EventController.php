@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\User;
-use App\Services\EditionCancellationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
@@ -12,10 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class EventController extends Controller
 {
-    public function __construct(private EditionCancellationService $cancellation)
-    {
-    }
-
     public function index()
     {
         $events = Event::with('createdBy')->get();
@@ -32,9 +27,20 @@ class EventController extends Controller
         $event->load(['createdBy', 'editions']);
         $cancelledEditions = $event->editions()->onlyTrashed()->get();
 
+        // The single "Cancelar evento"/"Eliminar evento" button on
+        // events/details.blade.php needs to know which one it is before it
+        // even renders: the soonest edition that hasn't happened yet, if
+        // any - see destroy()/EditionController::cancel() below for what
+        // each button does with it.
+        $pendingEdition = $event->editions
+            ->reject(fn ($edition) => $edition->hasEnded())
+            ->sortBy('date')
+            ->first();
+
         return view('events.details')
             ->with('event', $event)
-            ->with('cancelledEditions', $cancelledEditions);
+            ->with('cancelledEditions', $cancelledEditions)
+            ->with('pendingEdition', $pendingEdition);
     }
 
     public function store()
@@ -183,6 +189,17 @@ class EventController extends Controller
         return redirect()->route('events-edit', $event->id)->with('success', 'Portero eliminado correctamente');
     }
 
+    /**
+     * The single "Eliminar evento"/"Cancelar evento" button on
+     * events/details.blade.php always posts here or to editions-cancel
+     * (EditionController::cancel(), never both, never a separate
+     * events-cancel route - see $pendingEdition in show() above, which
+     * decides which one the button targets before this is ever reached.
+     * So by the time a request lands here, there is nothing left upcoming
+     * to cancel - hasActiveEditions() is kept as a defensive guard anyway
+     * (matches the same defense-in-depth already used elsewhere in this
+     * app), not because the UI can normally trigger it.
+     */
     public function destroy(Event $event)
     {
         if($event->hasActiveEditions()){
@@ -192,45 +209,5 @@ class EventController extends Controller
             $event->delete();
             return redirect(route('events-index'));
         }
-    }
-
-    /**
-     * Cancels the whole event: unlike destroy() above, this doesn't refuse
-     * when there are editions still to come - it cancels every one of them.
-     * Admin-only, mirroring EditionController::cancel().
-     *
-     * For each of the event's editions still upcoming (!hasEnded()):
-     * cancelled via EditionCancellationService::cancel() - same as cancelling
-     * that edition on its own (soft-deleted, its attendees' tickets removed,
-     * EditionCancelledMail queued to each) - plus, only here, every manager
-     * of that edition (manager_edition) is emailed EventCancelledMail, since
-     * a single edition's own cancel() never tells its managers anything.
-     * An edition that already took place is just soft-deleted, same as
-     * destroy() would for a past edition - nobody left to notify.
-     *
-     * The event itself is soft-deleted last. EventObserver::deleted() (fired
-     * by that) re-runs its own ->editions()->each(fn ($e) => $e->delete())
-     * cascade on top of what already happened here - harmless (SoftDeletes
-     * just re-stamps deleted_at on rows already trashed), so it's left as-is
-     * rather than special-cased.
-     */
-    public function cancel(Event $event)
-    {
-        $event->load('editions');
-
-        foreach ($event->editions as $edition) {
-            if ($edition->hasEnded()) {
-                $edition->delete();
-                continue;
-            }
-
-            $this->cancellation->notifyManagersOfEventCancellation($edition);
-            $this->cancellation->cancel($edition);
-        }
-
-        $event->delete();
-
-        return redirect()->route('events-index')
-            ->with('success', 'El evento se ha cancelado. Se ha notificado a los asistentes inscritos y a los gestores de cada edición.');
     }
 }

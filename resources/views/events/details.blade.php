@@ -74,17 +74,25 @@
 
 
                             @admin()
-                            <form action="{{route('events-delete', $event->id)}}" method="POST" class="mt-1" onsubmit="return confirm('¿Seguro que quieres eliminar el evento &quot;{{ $event->name }}&quot;? Esta acción no se puede deshacer.')">
-                                @csrf
-                                @method('DELETE')
-                                <x-delete-button type="submit">Eliminar evento</x-delete-button>
-                            </form>
-
-                            <form action="{{route('events-cancel', $event->id)}}" method="POST" class="mt-1" onsubmit="return confirm('¿Seguro que quieres cancelar el evento &quot;{{ $event->name }}&quot;? Se cancelarán todas sus ediciones pendientes de celebrarse, notificando por correo a los asistentes inscritos y a los gestores de cada edición.')">
-                                @csrf
-                                @method('DELETE')
-                                <x-delete-button type="submit">Cancelar evento</x-delete-button>
-                            </form>
+                                @if($pendingEdition)
+                                    {{-- The event still has an edition that hasn't happened yet: cancel
+                                         only that one (same as the "Cancelar celebración" button on that
+                                         edition's own edit page) - every other edition of this event,
+                                         past or otherwise pending, is left untouched. --}}
+                                    <form action="{{route('editions-cancel', $pendingEdition->id)}}" method="POST" class="mt-1" onsubmit="return confirm('¿Seguro que quieres cancelar el evento &quot;{{ $event->name }}&quot;? Se cancelará la próxima edición pendiente de celebrarse ({{ $pendingEdition->date->format('d-m-Y H:i') }}), notificando por correo a sus asistentes inscritos. El resto de ediciones no se ven afectadas.')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <x-delete-button type="submit">Cancelar evento</x-delete-button>
+                                    </form>
+                                @else
+                                    {{-- Nothing left pending to celebrate: nothing to cancel, so the
+                                         action is just to remove the event (silent - see destroy()). --}}
+                                    <form action="{{route('events-delete', $event->id)}}" method="POST" class="mt-1" onsubmit="return confirm('¿Seguro que quieres eliminar el evento &quot;{{ $event->name }}&quot;? Esta acción no se puede deshacer.')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <x-delete-button type="submit">Eliminar evento</x-delete-button>
+                                    </form>
+                                @endif
                             @endadmin
 
                             <div class="mt-1">

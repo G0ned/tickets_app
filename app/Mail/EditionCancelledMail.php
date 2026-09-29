@@ -14,15 +14,6 @@ class EditionCancelledMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    /**
-     * Captured up front, not read lazily via $edition->event->name: when this
-     * mail was queued from a whole-event cancellation (EventController::cancel()),
-     * the event itself gets soft-deleted right after every edition is queued for
-     * cancellation. By the time the queued job actually runs, Laravel re-fetches
-     * $edition fresh and reloads its event relation - which, being scoped by
-     * Event's own SoftDeletes, now resolves to null, crashing the job. A plain
-     * string has no such relation to lose on the way through the queue.
-     */
     public string $eventName;
 
     public function __construct(public Edition $edition, public Person $attendee)

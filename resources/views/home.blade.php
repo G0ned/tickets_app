@@ -34,10 +34,14 @@
                     <div class="grid grid-cols-1 gap-6">
                         <x-form-error name="email"/>
                         <x-form-button>
-                            Iniciar Sesión 
+                            Iniciar Sesión
                         </x-form-button>
                     </div>
                 </form>
+
+                <p class="text-center text-sm text-gray-400 mt-6">
+                    <a href="{{ route('forgot-password-create') }}" class="text-teal-400 hover:text-teal-300">¿Olvidaste tu contraseña?</a>
+                </p>
             </div>
         </div>
     </div>
