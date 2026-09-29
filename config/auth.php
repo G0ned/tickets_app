@@ -99,6 +99,18 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+
+        // "Olvidé mi contraseña" (ForgotPasswordController) - its own broker,
+        // own table, own (much shorter) expiration, kept separate from the
+        // 'users' broker above so a forgotten-password link's 5-minute
+        // window can never be checked against - or overwrite - the 'users'
+        // broker's 60-minute welcome-link token for the same email.
+        'forgot_password' => [
+            'provider' => 'users',
+            'table' => 'forgot_password_tokens',
+            'expire' => 5,
+            'throttle' => 60,
+        ],
     ],
 
     /*

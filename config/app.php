@@ -60,12 +60,16 @@ return [
     |--------------------------------------------------------------------------
     |
     | Here you may specify the default timezone for your application, which
-    | will be used by the PHP date and date-time functions. The timezone
-    | is set to "UTC" by default as it is suitable for most use cases.
+    | will be used by the PHP date and date-time functions. Eventia runs
+    | for the Canary Islands (Atlantic/Canary - WET/WEST, one hour behind
+    | mainland Spain's Europe/Madrid, same DST transition dates) rather
+    | than UTC, so every displayed date/time, every created_at/updated_at,
+    | and the hourly edition-reminder schedule (bootstrap/app.php) all
+    | read and write in local wall-clock time instead of UTC.
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('APP_TIMEZONE', 'Atlantic/Canary'),
 
     /*
     |--------------------------------------------------------------------------
