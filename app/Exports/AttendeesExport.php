@@ -24,7 +24,7 @@ class AttendeesExport implements FromCollection, WithHeadings, WithMapping
         return [
             'Evento', 'ID edicion', 'Nombre', 'Apellidos', 'Identificación', 'e-mail', 'Teléfono',
             'Derechos para publicidad', 'Derechos para comunicaciones', 'Derechos de imagen',
-            'Politica de privacidad', 'Asistió', 'Hora de entrada',
+            'Politica de privacidad', 'Asistió', 'Hora de entrada', 'Invitado',
         ];
     }
 
@@ -44,6 +44,7 @@ class AttendeesExport implements FromCollection, WithHeadings, WithMapping
             $attendee->pivot->privacy_policy ? 'Si' : 'No',
             $attendee->pivot->attendance ? 'Si' : 'No',
             $attendee->pivot->checked_in_at ? \Carbon\Carbon::parse($attendee->pivot->checked_in_at)->format('d/m/Y H:i') : '-',
+            $attendee->pivot->is_guest ? 'Si' : 'No',
         ];
     }
 }

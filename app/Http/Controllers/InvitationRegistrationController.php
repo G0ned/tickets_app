@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Type;
 use App\Models\InvitationList;
 use App\Models\Person;
 use App\Models\VerificationCode;
@@ -96,10 +97,21 @@ class InvitationRegistrationController extends Controller
 
             $code->update(['used_at' => now()]);
 
+            // Flags a registration made with someone else's invitation code as
+            // a "guest" - but only when the person who actually registered
+            // isn't already a known client (Person::type). A client using
+            // their own code for themselves is not a guest of anyone; anyone
+            // else (a brand new person, an employee, an outsider) genuinely
+            // is - see the migration for the full reasoning.
+            $isGuest = $registration['attendee']->type !== Type::Client;
+
             DB::table('attendee_edition')
                 ->where('edition_id', $invitation->list->edition_id)
                 ->where('attendee_id', $registration['attendee']->id)
-                ->update(['verification_code_id' => $code->id]);
+                ->update([
+                    'verification_code_id' => $code->id,
+                    'is_guest'              => $isGuest,
+                ]);
 
             return $registration;
         });

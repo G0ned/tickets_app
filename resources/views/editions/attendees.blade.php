@@ -61,6 +61,7 @@
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Imagen</th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Privacidad</th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Asistencia</th>
+                                <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Invitado</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Check-in</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Acciones</th>
                             </tr>
@@ -85,6 +86,13 @@
                                     <td class="px-4 py-3 text-center">{!! $attendee->pivot->auth_image_rights ? $yes : $no !!}</td>
                                     <td class="px-4 py-3 text-center">{!! $attendee->pivot->privacy_policy  ? $yes : $no !!}</td>
                                     <td class="px-4 py-3 text-center">{!! $attendee->pivot->attendance      ? $yes : $no !!}</td>
+                                    <td class="px-4 py-3 text-center">
+                                        @if($attendee->pivot->is_guest)
+                                            <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-amber-600 text-white text-xs font-bold whitespace-nowrap">Invitado</span>
+                                        @else
+                                            <span class="text-gray-500">—</span>
+                                        @endif
+                                    </td>
 
                                     <td class="px-4 py-3 text-gray-300 whitespace-nowrap">
                                         {{ $attendee->pivot->checked_in_at
