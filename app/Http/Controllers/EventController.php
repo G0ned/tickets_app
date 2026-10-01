@@ -26,12 +26,6 @@ class EventController extends Controller
     {
         $event->load(['createdBy', 'editions']);
         $cancelledEditions = $event->editions()->onlyTrashed()->get();
-
-        // The single "Cancelar evento"/"Eliminar evento" button on
-        // events/details.blade.php needs to know which one it is before it
-        // even renders: the soonest edition that hasn't happened yet, if
-        // any - see destroy()/EditionController::cancel() below for what
-        // each button does with it.
         $pendingEdition = $event->editions
             ->reject(fn ($edition) => $edition->hasEnded())
             ->sortBy('date')
@@ -188,18 +182,7 @@ class EventController extends Controller
 
         return redirect()->route('events-edit', $event->id)->with('success', 'Portero eliminado correctamente');
     }
-
-    /**
-     * The single "Eliminar evento"/"Cancelar evento" button on
-     * events/details.blade.php always posts here or to editions-cancel
-     * (EditionController::cancel(), never both, never a separate
-     * events-cancel route - see $pendingEdition in show() above, which
-     * decides which one the button targets before this is ever reached.
-     * So by the time a request lands here, there is nothing left upcoming
-     * to cancel - hasActiveEditions() is kept as a defensive guard anyway
-     * (matches the same defense-in-depth already used elsewhere in this
-     * app), not because the UI can normally trigger it.
-     */
+    
     public function destroy(Event $event)
     {
         if($event->hasActiveEditions()){

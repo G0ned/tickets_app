@@ -9,12 +9,6 @@ use Illuminate\Support\Facades\DB;
 
 class AttendeeCancellationController extends Controller
 {
-    /**
-     * Shows a confirmation page for the attendee's own cancellation link
-     * (embedded in their ticket email). Public, no auth: the attendee has
-     * no account, so the ticket token is what authenticates the request -
-     * same pattern as InvitationRegistrationController's token-based routes.
-     */
     public function create(string $token)
     {
         $row = $this->resolveAttendance($token);

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 
 class Edition extends Model
 {
@@ -61,6 +62,25 @@ class Edition extends Model
     public function registrationClosed(): bool
     {
         return $this->registration_deadline !== null && now() > $this->registration_deadline;
+    }
+
+    public function guestInviterNames(): Collection
+    {
+        $codeIds = $this->relationLoaded('attendees')
+            ? $this->attendees->pluck('pivot.verification_code_id')->filter()->unique()->values()
+            : collect();
+
+        if ($codeIds->isEmpty()) {
+            return collect();
+        }
+
+        return VerificationCode::with('person')
+            ->whereIn('id', $codeIds)
+            ->get()
+            ->filter(fn (VerificationCode $code) => $code->person !== null)
+            ->mapWithKeys(fn (VerificationCode $code) => [
+                $code->id => trim($code->person->name . ' ' . $code->person->surname),
+            ]);
     }
 
     protected $casts = [

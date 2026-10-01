@@ -62,6 +62,7 @@
                                 <x-sortable-th column="phone" :sort="$sort" :direction="$direction" align="center">Telefono</x-sortable-th>
                                 <x-sortable-th column="type" :sort="$sort" :direction="$direction" align="center">Tipo</x-sortable-th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Portfolio</th>
+                                <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Invitado</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-600">
@@ -80,6 +81,13 @@
                                     </td>
                                     <td class="px-4 py-3 text-gray-300 text-center whitespace-nowrap">
                                         {{ $person->portfolio->name ?? '-' }}
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        @if($person->has_been_guest)
+                                            <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-amber-600 text-white text-xs font-bold whitespace-nowrap">Invitado</span>
+                                        @else
+                                            <span class="text-gray-500">—</span>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach

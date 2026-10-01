@@ -15,6 +15,7 @@ class PersonController extends Controller
         $direction = request('direction') === 'desc' ? 'desc' : 'asc';
 
         $people = Person::with('portfolio')
+        ->withExists(['allEditionRegistrations as has_been_guest' => fn ($query) => $query->where('attendee_edition.is_guest', true)])
         ->when(request('type'), fn($query, $type) => $query->where('type', $type))
         ->when(request('brand'), fn($query, $brand) => $query->where('brand', 'like', "%{$brand}%"))
         ->orderBy($sort, $direction)

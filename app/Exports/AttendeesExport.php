@@ -10,8 +10,11 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 
 class AttendeesExport implements FromCollection, WithHeadings, WithMapping
 {
+    private Collection $inviterNames;
+
     public function __construct(private Edition $edition)
     {
+        $this->inviterNames = $edition->guestInviterNames();
     }
 
     public function collection(): Collection
@@ -24,12 +27,16 @@ class AttendeesExport implements FromCollection, WithHeadings, WithMapping
         return [
             'Evento', 'ID edicion', 'Nombre', 'Apellidos', 'Identificación', 'e-mail', 'Teléfono',
             'Derechos para publicidad', 'Derechos para comunicaciones', 'Derechos de imagen',
-            'Politica de privacidad', 'Asistió', 'Hora de entrada', 'Invitado',
+            'Politica de privacidad', 'Asistió', 'Hora de entrada', 'Invitado', 'Invitado por',
         ];
     }
 
     public function map($attendee): array
     {
+        $invitedBy = $attendee->pivot->is_guest
+            ? ($this->inviterNames[$attendee->pivot->verification_code_id] ?? '-')
+            : '-';
+
         return [
             $this->edition->event->name,
             $this->edition->id,
@@ -45,6 +52,7 @@ class AttendeesExport implements FromCollection, WithHeadings, WithMapping
             $attendee->pivot->attendance ? 'Si' : 'No',
             $attendee->pivot->checked_in_at ? \Carbon\Carbon::parse($attendee->pivot->checked_in_at)->format('d/m/Y H:i') : '-',
             $attendee->pivot->is_guest ? 'Si' : 'No',
+            $invitedBy,
         ];
     }
 }

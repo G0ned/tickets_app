@@ -9,13 +9,6 @@ use Illuminate\Support\Facades\Password;
 
 class SetPasswordController extends Controller
 {
-    /**
-     * Public, token-authenticated: reached from the link in
-     * WelcomeSetPasswordMail, sent when an admin creates a new account.
-     * Same pattern as InvitationRegistrationController/AttendeeCancellationController
-     * (validate the token up front, show an "unavailable" view rather than a
-     * broken form if it's missing/expired/already used).
-     */
     public function create(string $token, Request $request)
     {
         $email = $request->query('email');

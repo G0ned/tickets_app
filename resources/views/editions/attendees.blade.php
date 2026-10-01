@@ -62,6 +62,7 @@
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Privacidad</th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Asistencia</th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Invitado</th>
+                                <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Invitado por</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Check-in</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Acciones</th>
                             </tr>
@@ -92,6 +93,10 @@
                                         @else
                                             <span class="text-gray-500">—</span>
                                         @endif
+                                    </td>
+                                    <td class="px-4 py-3 text-gray-300 whitespace-nowrap">
+                                        {{-- Not a guest (public sign-up, or the client used their own code): always a hyphen. --}}
+                                        {{ $attendee->pivot->is_guest ? ($inviterNames[$attendee->pivot->verification_code_id] ?? '-') : '-' }}
                                     </td>
 
                                     <td class="px-4 py-3 text-gray-300 whitespace-nowrap">

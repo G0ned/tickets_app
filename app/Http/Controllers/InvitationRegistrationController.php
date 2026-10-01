@@ -96,13 +96,6 @@ class InvitationRegistrationController extends Controller
             }
 
             $code->update(['used_at' => now()]);
-
-            // Flags a registration made with someone else's invitation code as
-            // a "guest" - but only when the person who actually registered
-            // isn't already a known client (Person::type). A client using
-            // their own code for themselves is not a guest of anyone; anyone
-            // else (a brand new person, an employee, an outsider) genuinely
-            // is - see the migration for the full reasoning.
             $isGuest = $registration['attendee']->type !== Type::Client;
 
             DB::table('attendee_edition')
@@ -128,17 +121,6 @@ class InvitationRegistrationController extends Controller
         return redirect()->route('form-success');
     }
 
-    /**
-     * Looks up the invitation by its token via the query builder (not the Eloquent
-     * Pivot model): a Pivot instance only knows its composite key columns when it's
-     * instantiated through its parent BelongsToMany relation, so a standalone lookup
-     * by token would break any later save()/increment() call.
-     *
-     * Returns null when the token is real but has run out of registrations — callers
-     * render a friendly "unavailable" page for that case instead of an HTTP error page.
-     * A token that doesn't exist at all (or belongs to a list that was never actually
-     * sent) is a genuinely broken link, so that still aborts with 404.
-     */
     private function resolveInvitation(string $token): ?object
     {
         $row = DB::table('invitation_list_person')->where('token', $token)->first();

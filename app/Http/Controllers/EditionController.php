@@ -163,14 +163,6 @@ class EditionController extends Controller
         
     }
 
-    /**
-     * The "Eliminar" action on the event page. A soft-deleted edition shows up
-     * in the same "Ediciones canceladas" table (and can be reactivated) no matter
-     * which button removed it, so an edition that hasn't happened yet has to be
-     * handled exactly like cancel(): attendees notified, their tickets removed.
-     * Only an edition that already took place is removed silently (clean-up of
-     * past editions, nobody left to tell).
-     */
     public function destroy(Edition $edition)
     {
         if ($edition->hasEnded()) {
@@ -183,15 +175,7 @@ class EditionController extends Controller
         return redirect()->route('events-index')
             ->with('success', 'La edición se ha cancelado y se ha notificado a los asistentes inscritos.');
     }
-
-    /**
-     * The actual cancel/notify work (soft-delete + per-attendee ticket cleanup
-     * + email) lives in EditionCancellationService, shared with destroy()
-     * above and with EventController::cancel() (cancelling a whole event
-     * cancels each of its editions the same way, plus notifies each
-     * edition's own managers - see the service and EventController::cancel()
-     * for that part, which this single-edition action doesn't do).
-     */
+    
     public function cancel(Edition $edition)
     {
         if ($edition->hasEnded()) {
@@ -269,8 +253,9 @@ class EditionController extends Controller
     public function attendees(Edition $edition)
     {
         $edition->load(['event', 'attendees']);
+        $inviterNames = $edition->guestInviterNames();
 
-        return view('editions.attendees', compact('edition'));
+        return view('editions.attendees', compact('edition', 'inviterNames'));
     }
 
     public function exportAttendees(Edition $edition, Request $request)
@@ -281,16 +266,22 @@ class EditionController extends Controller
             return Excel::download(new AttendeesExport($edition), "{$edition->event->name}-asistentes-edicion-{$edition->id}.xlsx");
         }
 
+        $inviterNames = $edition->guestInviterNames();
+
         return response()->streamDownload(
-            function() use ($edition)
+            function() use ($edition, $inviterNames)
             {
                 $handle = fopen('php://output', 'w');
                 fputcsv($handle, ['Evento', 'ID edicion', 'Nombre', 'Apellidos', 'Identificación', 'e-mail', 'Teléfono',
-                'Derechos para publicidad', 'Derechos para comunicaciones', 'Derechos de imagen', 'Politica de privacidad', 'Asistió', 'Hora de entrada', 'Invitado']);
+                'Derechos para publicidad', 'Derechos para comunicaciones', 'Derechos de imagen', 'Politica de privacidad', 'Asistió', 'Hora de entrada', 'Invitado', 'Invitado por']);
                     foreach($edition->attendees as $attendee){
+                        // Not a guest (public sign-up, or the client used their own code): always a hyphen.
+                        $invitedBy = $attendee->pivot->is_guest
+                            ? ($inviterNames[$attendee->pivot->verification_code_id] ?? '-')
+                            : '-';
                         fputcsv($handle, [$edition->event->name, $edition->id, $attendee->name, $attendee->surname, $attendee->passport,
                         $attendee->email, $attendee->phone, $attendee->pivot->auth_for_ad ? 'Si' : 'No', $attendee->pivot->auth_for_comms ? 'Si' : 'No',
-                        $attendee->pivot->auth_image_rights ? 'Si' : 'No', $attendee->pivot->privacy_policy ? 'Si' : 'No', $attendee->pivot->attendance ? 'Si' : 'No', $attendee->pivot->checked_in_at ? \Carbon\Carbon::parse($attendee->pivot->checked_in_at)->format('d/m/Y H:i'):'-', $attendee->pivot->is_guest ? 'Si' : 'No']);
+                        $attendee->pivot->auth_image_rights ? 'Si' : 'No', $attendee->pivot->privacy_policy ? 'Si' : 'No', $attendee->pivot->attendance ? 'Si' : 'No', $attendee->pivot->checked_in_at ? \Carbon\Carbon::parse($attendee->pivot->checked_in_at)->format('d/m/Y H:i'):'-', $attendee->pivot->is_guest ? 'Si' : 'No', $invitedBy]);
                     }
                 fclose($handle);
             }, "asistentes-{$edition->event->name}-edicion-{$edition->id}.csv", ['Content-Type' => 'text/csv']);

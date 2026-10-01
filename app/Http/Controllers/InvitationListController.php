@@ -182,11 +182,6 @@ class InvitationListController extends Controller
         return back()->with('success', 'Código de verificación reenviado a ' . $person->email . '.');
     }
 
-    /**
-     * Aggregated view for a supervisor: every edition where the authenticated
-     * user holds the is_supervisor pivot flag, with each manager's invitation
-     * lists, committed registrations, and current capacity.
-     */
     public function supervisedIndex(User $user)
     {
         abort_unless(auth()->id() === $user->id, 403);
@@ -270,10 +265,6 @@ class InvitationListController extends Controller
         });
     }
 
-    /**
-     * Map each selected person id to its assigned number of registrations,
-     * defaulting to 1 when not explicitly provided.
-     */
     private function resolveRegistrations(array $personIds, array $registrations): \Illuminate\Support\Collection
     {
         return collect($personIds)->mapWithKeys(fn ($id) => [

@@ -11,27 +11,11 @@ use Illuminate\Support\Facades\Password;
 
 class ForgotPasswordController extends Controller
 {
-    /**
-     * Public: the "¿Olvidaste tu contraseña?" flow from the login page
-     * (home.blade.php). Uses its own password broker (config('auth.passwords.
-     * forgot_password'), 5-minute expiry, own forgot_password_tokens table)
-     * instead of the 'users' broker SetPasswordController uses for a brand
-     * new account's 60-minute welcome link - see that broker's config entry
-     * for why they're kept apart.
-     */
     public function create()
     {
         return view('auth.forgot_password');
     }
 
-    /**
-     * Deliberately reveals whether the email exists (explicit requirement:
-     * "if the email does not exist ... a message must be displayed that the
-     * email does not exist") - a real trade-off against the usual practice of
-     * staying silent either way to avoid confirming which emails have an
-     * account, but this is an internal staff tool, not a public sign-up form,
-     * and the request was explicit about wanting the confirmation.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -53,13 +37,6 @@ class ForgotPasswordController extends Controller
             ->with('success', 'Te hemos enviado un correo con un enlace para restablecer tu contraseña. Caduca en 5 minutos.');
     }
 
-    /**
-     * Same pattern as SetPasswordController::create() - validate the token
-     * up front, an "unavailable" view (distinct wording: expired/used here
-     * means "send a new request", not "ask an admin to recreate the
-     * account") instead of a broken form for a missing/expired/already-used
-     * token.
-     */
     public function edit(string $token, Request $request)
     {
         $email = $request->query('email');
