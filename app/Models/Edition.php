@@ -39,14 +39,14 @@ class Edition extends Model
     {
         return $this->belongsToMany(Person::class, 'attendee_edition', 'edition_id', 'attendee_id')->withPivot(
             'token', 'auth_for_ad', 'auth_for_comms', 'auth_image_rights', 'privacy_policy', 'attendance', 'checked_in_at', 'verification_code_id', 'cancelled_at', 'is_guest'
-        )->wherePivotNull('cancelled_at');
+        )->withTimestamps()->wherePivotNull('cancelled_at');
     }
 
     public function attendeeRegistrations(): BelongsToMany
     {
         return $this->belongsToMany(Person::class, 'attendee_edition', 'edition_id', 'attendee_id')->withPivot(
             'token', 'auth_for_ad', 'auth_for_comms', 'auth_image_rights', 'privacy_policy', 'attendance', 'checked_in_at', 'verification_code_id', 'cancelled_at', 'is_guest'
-        );
+        )->withTimestamps();
     }
 
     public function reminders(): HasMany

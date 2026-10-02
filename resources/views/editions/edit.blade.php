@@ -98,7 +98,6 @@
             <div class="mt-8 border-t border-gray-500 pt-6">
                 <h3 class="text-white font-bold text-lg mb-4">Gestores de esta edición</h3>
 
-                {{-- Lista de gestores actuales --}}
                 @if ($edition->managers->isEmpty())
                     <p class="text-gray-400 text-sm mb-6">No hay gestores asignados.</p>
                 @else
@@ -124,7 +123,6 @@
                     </ul>
                 @endif
 
-                {{-- Formulario para asignar nuevo gestor --}}
                 @if ($assignableUsers->isNotEmpty())
                     <div class="bg-gray-600 rounded-xl p-6">
                         <h4 class="text-white font-semibold text-sm uppercase tracking-wide mb-4">Asignar nuevo gestor</h4>
@@ -172,12 +170,6 @@
             </div>
             @endadmin
 
-            {{--
-                Not wrapped in @admin: @admin only checks is_admin, but this page
-                itself is already gated to admin-or-organizer in the controller
-                (see EditionController::edit()), so anyone who can reach this view
-                is already allowed to manage reminders too.
-            --}}
             <div class="mt-8 border-t border-gray-500 pt-6">
                 <h3 class="text-white font-bold text-lg mb-4">Recordatorios de la edición</h3>
 
@@ -251,6 +243,17 @@
             </div>
 
             @admin()
+            @if($historyCount > 0)
+            <div class="mt-8 border-t border-gray-500 pt-6">
+                <h3 class="text-white font-bold text-lg mb-2">Historial de inscripciones canceladas</h3>
+                <p class="text-gray-400 text-sm mb-4">
+                    Esta edición se ha reactivado antes. Hay {{ $historyCount }} {{ $historyCount === 1 ? 'inscripción archivada' : 'inscripciones archivadas' }}
+                    de quienes estaban registrados justo antes de esa reactivación.
+                </p>
+                <x-button href="{{ route('edition-history', $edition->id) }}">Ver historial</x-button>
+            </div>
+            @endif
+
             <div class="mt-8 border-t border-gray-500 pt-6">
                 <h3 class="text-white font-bold text-lg mb-2">Cancelar celebración</h3>
                 <p class="text-gray-400 text-sm mb-4">

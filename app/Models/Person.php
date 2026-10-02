@@ -41,13 +41,13 @@ class Person extends Model
     {
         return $this->belongsToMany(Edition::class, 'attendee_edition', 'attendee_id', 'edition_id')->withPivot(
             'token', 'auth_for_ad', 'auth_for_comms', 'auth_image_rights', 'privacy_policy', 'attendance', 'checked_in_at', 'verification_code_id', 'cancelled_at', 'is_guest'
-        )->wherePivotNull('cancelled_at');
+        )->withTimestamps()->wherePivotNull('cancelled_at');
     }
 
     public function allEditionRegistrations(): BelongsToMany
     {
         return $this->belongsToMany(Edition::class, 'attendee_edition', 'attendee_id', 'edition_id')->withPivot(
             'token', 'auth_for_ad', 'auth_for_comms', 'auth_image_rights', 'privacy_policy', 'attendance', 'checked_in_at', 'verification_code_id', 'cancelled_at', 'is_guest'
-        );
+        )->withTimestamps();
     }
 }

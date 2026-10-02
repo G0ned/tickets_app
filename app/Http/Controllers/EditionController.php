@@ -7,6 +7,7 @@ use App\Models\Event;
 use App\Models\Edition;
 use App\Models\User;
 use App\Models\VerificationCode;
+use App\Models\AttendeeEditionHistory;
 use App\Exports\AttendeesExport;
 use App\Mail\EditionRestoredMail;
 use App\Services\EditionCancellationService;
@@ -121,8 +122,9 @@ class EditionController extends Controller
 
         $edition->load(['managers', 'reminders']);
         $assignableUsers = User::whereNotIn('id', $edition->managers->pluck('id'))->get();
+        $historyCount = AttendeeEditionHistory::where('edition_id', $edition->id)->count();
 
-        return view('editions.edit', compact('edition', 'assignableUsers'));
+        return view('editions.edit', compact('edition', 'assignableUsers', 'historyCount'));
     }
 
     public function update(Edition $edition)
@@ -208,6 +210,25 @@ class EditionController extends Controller
                 return;
             }
 
+            $archivedAt = now();
+            DB::table('attendee_edition_history')->insert(
+                $activeRegistrations->map(fn ($registration) => [
+                    'edition_id'            => $edition->id,
+                    'attendee_id'           => $registration->attendee_id,
+                    'token'                 => $registration->token,
+                    'auth_for_ad'           => $registration->auth_for_ad,
+                    'auth_for_comms'        => $registration->auth_for_comms,
+                    'auth_image_rights'     => $registration->auth_image_rights,
+                    'privacy_policy'        => $registration->privacy_policy,
+                    'attendance'            => $registration->attendance,
+                    'checked_in_at'         => $registration->checked_in_at,
+                    'verification_code_id'  => $registration->verification_code_id,
+                    'is_guest'              => $registration->is_guest,
+                    'registered_at'         => $registration->created_at,
+                    'archived_at'           => $archivedAt,
+                ])->all()
+            );
+
             DB::table('attendee_edition')
                 ->where('edition_id', $edition->id)
                 ->whereNull('cancelled_at')
@@ -256,6 +277,19 @@ class EditionController extends Controller
         $inviterNames = $edition->guestInviterNames();
 
         return view('editions.attendees', compact('edition', 'inviterNames'));
+    }
+
+    public function cancellationHistory(Edition $edition)
+    {
+        $edition->load('event');
+
+        $history = AttendeeEditionHistory::where('edition_id', $edition->id)
+            ->with(['attendee', 'verificationCode.person'])
+            ->orderByDesc('archived_at')
+            ->orderBy('registered_at')
+            ->get();
+
+        return view('editions.history', compact('edition', 'history'));
     }
 
     public function exportAttendees(Edition $edition, Request $request)
