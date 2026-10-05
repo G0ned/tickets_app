@@ -19,6 +19,12 @@ class InvitationListController extends Controller
     {
         $user = auth()->user();
 
+        $existingList = $this->managerLists($edition, $user)->first();
+        if ($existingList !== null) {
+            return redirect()->route('invitation-list-show', $existingList->id)
+                ->with('success', 'Ya tienes una lista de invitaciones para esta edición. Puedes modificarla desde aquí.');
+        }
+
         $managerPivot = $edition->managers()
             ->where('manager_id', $user->id)
             ->first()
@@ -32,6 +38,12 @@ class InvitationListController extends Controller
     public function store(Request $request, Edition $edition)
     {
         $user = auth()->user();
+
+        $existingList = $this->managerLists($edition, $user)->first();
+        if ($existingList !== null) {
+            return redirect()->route('invitation-list-show', $existingList->id)
+                ->withErrors(['name' => 'Ya tienes una lista de invitaciones para esta edición. Solo se permite una por edición.']);
+        }
 
         $validated = $request->validate([
             'name'             => ['required', 'string', 'max:255'],
