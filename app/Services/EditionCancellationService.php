@@ -17,13 +17,10 @@ use Illuminate\Support\Facades\Storage;
 class EditionCancellationService
 {
     /**
-     * Cancels the celebration of one edition: soft-deletes it (Edition uses
-     * SoftDeletes, so it can be restored later), deletes the ticket PNG of
-     * each currently-registered attendee, and emails each of them.
-     *
-     * Deliberately does NOT touch attendee_edition.cancelled_at (reserved for
-     * an attendee's own manual cancellation) or manager_edition - see
-     * EditionController::cancel()'s docblock for the full reasoning.
+     * Cancela la celebración de una edición de manera que hace un soft-delete
+     * (para poder recuperarla en el futuro en caso de ser necesario). A la vez
+     * Elimina los tickets de cada uno de los asistentes registrados y se envía
+     * un correo a cada uno de ellos indicándoles que se ha cancelado la edición.
      */
     public function cancel(Edition $edition): void
     {

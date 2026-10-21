@@ -59,9 +59,9 @@ Route::middleware(['admin:admin'])->group(function(){
     Route::delete('/edition/{edition}/cancel-celebration', [EditionController::class, 'cancel'])->name('editions-cancel');
     Route::post('/edition/{edition}/restore', [EditionController::class, 'restore'])->name('editions-restore')->withTrashed();
     Route::post('/edition/{edition}/assign-manager', [EditionController::class, 'assignManager'])->name('assign-user');
-    Route::get('/edition/{edition}/attendees', [EditionController::class, 'attendees'])->name('edition-attendees');
+    Route::get('/edition/{edition}/attendees', [EditionController::class, 'attendees'])->name('edition-attendees')->withTrashed();
     Route::get('/edition/{edition}/history', [EditionController::class, 'cancellationHistory'])->name('edition-history')->withTrashed();
-    Route::get('/edition/{edition}/export-attendees', [EditionController::class, 'exportAttendees'])->name('export-attendees');
+    Route::get('/edition/{edition}/export-attendees', [EditionController::class, 'exportAttendees'])->name('export-attendees')->withTrashed();
     //User routes
     Route::get('/user/create', [UserController::class, 'create'])->name('user-create');
     Route::post('/user/create', [UserController::class, 'store'])->name('user-store');
