@@ -91,7 +91,10 @@
             switchPortfolio(id) {
                 this.portfolioId = id;
                 this.selected = []; // clear selection to keep list scoped to one portfolio
-                this.selectedBrand = ''; // brands differ per portfolio - don't carry a stale filter over
+                // selectedBrand is NOT reset here: the brand filter now lists every brand
+                // in the database (not just this portfolio's), so it stays applied across
+                // portfolio tabs on purpose - e.g. picking 'Nike' and then browsing another
+                // portfolio keeps only its Nike-tagged clients visible too.
             }
         }">
             <form method="POST" action="{{ route('invitation-list-store', $edition->id) }}" class="space-y-6">
@@ -126,27 +129,26 @@
                             </div>
                         </div>
                     @endif
+                    @if ($allBrands->isNotEmpty())
+                        <div>
+                            <label for="brand-filter" class="text-sm font-medium text-gray-300 mb-2 block">Marca</label>
+                            <select id="brand-filter"
+                                x-model="selectedBrand"
+                                class="w-full px-3 py-1.5 bg-gray-600 border border-gray-500 rounded-md shadow-sm text-sm text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="">Todas las marcas</option>
+                                @foreach ($allBrands as $brand)
+                                    <option value="{{ $brand }}">{{ $brand }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
                 </div>
                 @foreach ($portfolios as $portfolio)
                     @php
                         $personIds = $portfolio->persons->pluck('id')->values()->all();
-                        $brands = $portfolio->persons->pluck('brand')->filter()->unique()->sort()->values();
                     @endphp
                     <div x-show="portfolioId === {{ $portfolio->id }}"
                          class="bg-gray-700 rounded-lg overflow-hidden">
-                        @if ($brands->isNotEmpty())
-                            <div class="px-5 py-3 bg-gray-700 border-b border-gray-600 flex items-center gap-2">
-                                <label for="brand-filter-{{ $portfolio->id }}" class="text-sm text-gray-300 shrink-0">Marca</label>
-                                <select id="brand-filter-{{ $portfolio->id }}"
-                                    x-model="selectedBrand"
-                                    class="flex-1 px-3 py-1.5 bg-gray-600 border border-gray-500 rounded-md shadow-sm text-sm text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                                    <option value="">Todas las marcas</option>
-                                    @foreach ($brands as $brand)
-                                        <option value="{{ $brand }}">{{ $brand }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        @endif
                         <div class="px-5 py-3 bg-gray-600 border-b border-gray-500 flex items-center justify-between">
                             <label class="flex items-center gap-2 cursor-pointer select-none">
                                 <input type="checkbox"

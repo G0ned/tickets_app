@@ -32,7 +32,9 @@ class InvitationListController extends Controller
 
         $portfolios = $user->portfolios()->with('persons')->get();
 
-        return view('invitation_list.create', compact('edition', 'portfolios', 'managerPivot'));
+        $allBrands = Person::whereNotNull('brand')->select('brand')->distinct()->orderBy('brand')->pluck('brand');
+
+        return view('invitation_list.create', compact('edition', 'portfolios', 'managerPivot', 'allBrands'));
     }
 
     public function store(Request $request, Edition $edition)
