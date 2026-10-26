@@ -56,14 +56,13 @@
                                 <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Email</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Teléfono</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Pasaporte / ID</th>
+                                <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Asistencia</th>
+                                <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Check-in</th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Publicidad</th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Comunicaciones</th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Imagen</th>
-                                <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Privacidad</th>
-                                <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Asistencia</th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Invitado</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Invitado por</th>
-                                <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Check-in</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Acciones</th>
                             </tr>
                         </thead>
@@ -82,11 +81,16 @@
                                         $no  = '<span class="inline-flex items-center justify-center w-6 h-6 bg-red-700  rounded-full text-white text-xs font-bold">✗</span>';
                                     @endphp
 
+                                    <td class="px-4 py-3 text-center">{!! $attendee->pivot->attendance      ? $yes : $no !!}</td>
+                                    <td class="px-4 py-3 text-gray-300 whitespace-nowrap">
+                                        {{ $attendee->pivot->checked_in_at
+                                            ? \Carbon\Carbon::parse($attendee->pivot->checked_in_at)->format('d/m/Y H:i')
+                                            : '—' }}
+                                    </td>
                                     <td class="px-4 py-3 text-center">{!! $attendee->pivot->auth_for_ad     ? $yes : $no !!}</td>
                                     <td class="px-4 py-3 text-center">{!! $attendee->pivot->auth_for_comms  ? $yes : $no !!}</td>
                                     <td class="px-4 py-3 text-center">{!! $attendee->pivot->auth_image_rights ? $yes : $no !!}</td>
-                                    <td class="px-4 py-3 text-center">{!! $attendee->pivot->privacy_policy  ? $yes : $no !!}</td>
-                                    <td class="px-4 py-3 text-center">{!! $attendee->pivot->attendance      ? $yes : $no !!}</td>
+                                    
                                     <td class="px-4 py-3 text-center">
                                         @if($attendee->pivot->is_guest)
                                             <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-amber-600 text-white text-xs font-bold whitespace-nowrap">Invitado</span>
@@ -95,14 +99,7 @@
                                         @endif
                                     </td>
                                     <td class="px-4 py-3 text-gray-300 whitespace-nowrap">
-                                        {{-- Not a guest (public sign-up, or the client used their own code): always a hyphen. --}}
                                         {{ $attendee->pivot->is_guest ? ($inviterNames[$attendee->pivot->verification_code_id] ?? '-') : '-' }}
-                                    </td>
-
-                                    <td class="px-4 py-3 text-gray-300 whitespace-nowrap">
-                                        {{ $attendee->pivot->checked_in_at
-                                            ? \Carbon\Carbon::parse($attendee->pivot->checked_in_at)->format('d/m/Y H:i')
-                                            : '—' }}
                                     </td>
 
                                     <td class="px-4 py-3 whitespace-nowrap" onclick="event.stopPropagation()">
