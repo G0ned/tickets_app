@@ -27,7 +27,7 @@
                             <tr class="hover:bg-gray-600 transition-colors duration-150">
                                 <td class="px-4 py-3 text-white whitespace-nowrap font-medium">{{ $portfolio->id }}</td>
                                 <td class="px-4 py-3 text-gray-300 whitespace-nowrap">{{ $portfolio->name }}</td>
-                                <td class="px-4 py-3 text-gray-300 text-center whitespace-nowrap">{{ $portfolio->user->name }}</td>
+                                <td class="px-4 py-3 text-gray-300 text-center whitespace-nowrap">{{ $portfolio->user->name ?? 'Sin gestor asignado' }}</td>
                                 <td class="px-4 py-3 text-gray-300 text-center whitespace-nowrap">{{ $portfolio->persons->count() }}</td>
                             </tr>
                         @endforeach

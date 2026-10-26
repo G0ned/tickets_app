@@ -8,6 +8,8 @@ use App\Models\Edition;
 use App\Models\User;
 use App\Models\VerificationCode;
 use App\Models\AttendeeEditionHistory;
+use App\Models\InvitationList;
+use App\Models\Person;
 use App\Exports\AttendeesExport;
 use App\Mail\EditionRestoredMail;
 use App\Services\EditionCancellationService;
@@ -200,6 +202,8 @@ class EditionController extends Controller
             Mail::to($manager->email)->queue(new EditionRestoredMail($edition, $manager));
         }
 
+        $this->duplicateSentInvitationLists($edition);
+
         DB::transaction(function () use ($edition) {
             $activeRegistrations = DB::table('attendee_edition')
                 ->where('edition_id', $edition->id)
@@ -244,6 +248,69 @@ class EditionController extends Controller
 
         return redirect()->route('events-show', $edition->event_id)
             ->with('success', 'La edición se ha reactivado correctamente, sin las inscripciones previas.');
+    }
+
+    /**
+     * A sent InvitationList is permanently locked (InvitationListController::update()
+     * aborts on isSent()) and the "one list per manager per edition" rule means a
+     * manager with only a sent list could never create a new one either - so without
+     * this, reactivating an edition would leave that manager stuck forever with an
+     * uneditable list. The old sent list is kept untouched as the historical record of
+     * what was actually delivered; a fresh, unsent copy is created alongside it with the
+     * same invited clients (same `allowed_registrations`), so the manager can add/remove
+     * clients and adjust registrations, then send it again.
+     *
+     * The old list's still-unused invitation link (`invitation_list_person.token`) and
+     * verification codes are explicitly invalidated rather than reused or copied:
+     * nothing guarantees the fresh list will end up inviting the exact same people with
+     * the exact same allowances, so a stale link/code that still worked after the
+     * reactivation would let someone register outside of what the manager now controls.
+     * Codes that were already used stay untouched - they're a real historical record of
+     * who actually registered, same spirit as `attendee_edition_history`.
+     */
+    private function duplicateSentInvitationLists(Edition $edition): void
+    {
+        $sentLists = InvitationList::where('edition_id', $edition->id)
+            ->whereNotNull('sent_at')
+            ->with('persons')
+            ->get();
+
+        if ($sentLists->isEmpty()) {
+            return;
+        }
+
+        DB::transaction(function () use ($sentLists, $edition) {
+            foreach ($sentLists as $oldList) {
+                VerificationCode::where('invitation_list_id', $oldList->id)
+                    ->whereNull('used_at')
+                    ->delete();
+
+                DB::table('invitation_list_person')
+                    ->where('invitation_list_id', $oldList->id)
+                    ->update(['token' => null]);
+
+                $alreadyHasUnsentList = InvitationList::where('edition_id', $edition->id)
+                    ->where('client_portfolio_id', $oldList->client_portfolio_id)
+                    ->whereNull('sent_at')
+                    ->exists();
+
+                if ($alreadyHasUnsentList) {
+                    continue;
+                }
+
+                $newList = InvitationList::create([
+                    'name'                => $oldList->name,
+                    'client_portfolio_id' => $oldList->client_portfolio_id,
+                    'edition_id'          => $edition->id,
+                ]);
+
+                $newList->persons()->attach(
+                    $oldList->persons->mapWithKeys(fn (Person $person) => [
+                        $person->id => ['allowed_registrations' => $person->pivot->allowed_registrations],
+                    ])->all()
+                );
+            }
+        });
     }
 
     public function assignManager(Request $request, Edition $edition)

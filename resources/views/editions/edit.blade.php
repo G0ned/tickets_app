@@ -2,6 +2,9 @@
     @section('title', 'Edit Edition')
     <x-slot:heading>Editar Edición</x-slot:heading>
     <div class="container px-5 py-10 mx-auto">
+        <div class="max-w-3xl mx-auto mb-4">
+            <x-button href="{{ route('events-show', $edition->event_id) }}">← Volver al evento</x-button>
+        </div>
         <div class="max-w-3xl mx-auto bg-gray-700 p-8 rounded-xl shadow-xl">
             <form method="POST" action={{ route('editions-edit', $edition->id) }} class="space-y-6">
                 @csrf

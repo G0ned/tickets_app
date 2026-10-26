@@ -30,6 +30,23 @@
             </div>
         </div>
 
+        @if (!$list->edition)
+            <div class="bg-red-900/40 border border-red-700 rounded-lg p-4 flex items-start gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="size-5 text-red-400 shrink-0 mt-0.5">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                </svg>
+                <p class="text-red-200 text-sm">
+                    @if ($list->edition_id === null)
+                        Esta lista no tiene ninguna edición asociada.
+                    @else
+                        El evento de esta edición está cancelado. No es posible enviar ni reenviar invitaciones hasta que se reactive.
+                    @endif
+                </p>
+            </div>
+        @endif
+
         {{-- List info card --}}
         <div class="bg-gray-700 rounded-lg p-5">
             <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Cartera</p>
@@ -58,6 +75,21 @@
                     Invitaciones enviadas el <strong>{{ $list->sent_at->format('d/m/Y H:i') }}</strong>
                 </p>
             @endif
+            @if ($relatedList)
+                <p class="mt-2 inline-flex items-center gap-1.5 text-sm text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="size-4 shrink-0">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    @if ($relatedList->isSent())
+                        Esta edición se canceló y se reactivó: esta lista es la copia editable.
+                        <a href="{{ route('invitation-list-show', $relatedList->id) }}" class="text-indigo-400 hover:text-indigo-300 font-medium">Ver la lista anterior (histórico)</a>
+                    @else
+                        Esta lista quedó congelada tras cancelarse y reactivarse la edición; la sustituye una copia editable.
+                        <a href="{{ route('invitation-list-show', $relatedList->id) }}" class="text-indigo-400 hover:text-indigo-300 font-medium">Ver la lista actual</a>
+                    @endif
+                </p>
+            @endif
         </div>
 
         @if ($list->isSent())
@@ -80,20 +112,33 @@
                             <span class="text-xs text-gray-400 shrink-0">
                                 {{ $person->pivot->registrations_used }} / {{ $person->pivot->allowed_registrations }} registros usados
                             </span>
-                            <form method="POST"
-                                  action="{{ route('invitation-list-resend-code', ['list' => $list->id, 'person' => $person->id]) }}"
-                                  class="shrink-0">
-                                @csrf
-                                <button type="submit"
-                                        title="Reenviar código de verificación"
-                                        class="inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-300 hover:text-teal-400 hover:bg-gray-500 transition-colors duration-150">
+                            @if ($list->edition)
+                                <form method="POST"
+                                      action="{{ route('invitation-list-resend-code', ['list' => $list->id, 'person' => $person->id]) }}"
+                                      class="shrink-0">
+                                    @csrf
+                                    <button type="submit"
+                                            title="Reenviar código de verificación"
+                                            class="inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-300 hover:text-teal-400 hover:bg-gray-500 transition-colors duration-150">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                             stroke="currentColor" class="size-5">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            @else
+                                <button type="button"
+                                        disabled
+                                        title="El evento está cancelado: no se puede reenviar el código"
+                                        class="inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-500 opacity-50 cursor-not-allowed shrink-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                          stroke="currentColor" class="size-5">
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                               d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                                     </svg>
                                 </button>
-                            </form>
+                            @endif
                         </li>
                     @endforeach
                 </ul>
@@ -269,7 +314,9 @@
         <form method="POST" action="{{ route('invitation-list-send', $list->id) }}">
             @csrf
             <button type="submit"
-                    class="w-full bg-teal-700 hover:bg-teal-600 text-white font-semibold px-6 py-2.5 rounded-lg transition-colors duration-150">
+                    @disabled(!$list->edition)
+                    title="{{ $list->edition ? '' : 'El evento está cancelado: no se pueden enviar invitaciones' }}"
+                    class="w-full font-semibold px-6 py-2.5 rounded-lg transition-colors duration-150 {{ $list->edition ? 'bg-teal-700 hover:bg-teal-600 text-white cursor-pointer' : 'bg-gray-500 text-gray-300 opacity-50 cursor-not-allowed' }}">
                 Enviar invitaciones
             </button>
         </form>

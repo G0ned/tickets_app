@@ -9,8 +9,21 @@
     @foreach ($editions as $item)
         @php($edition = $item['edition'])
         <div class="mb-10 bg-gray-700 rounded-xl shadow-xl p-6">
-            <h3 class="text-white font-bold text-lg mb-1">{{ $edition->event->name }}</h3>
+            <div class="flex items-center gap-2 mb-1">
+                <h3 class="text-white font-bold text-lg">{{ $edition->event->name ?? '(evento eliminado)' }}</h3>
+                @if ($item['cancelled'])
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-red-900/60 text-red-300 text-xs font-semibold">Cancelada</span>
+                @else
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-900/60 text-emerald-300 text-xs font-semibold">Activa</span>
+                @endif
+            </div>
             <p class="text-gray-400 text-sm mb-4">{{ $edition->date->format('d-m-Y H:i') }} &middot; {{ $edition->location }}</p>
+
+            @if ($item['cancelled'])
+                <p class="mb-4 text-amber-300 text-xs">
+                    ⚠ Esta edición está cancelada: no se pueden enviar ni reenviar invitaciones hasta que se reactive.
+                </p>
+            @endif
 
             @if ($item['managers']->isEmpty())
                 <p class="text-gray-400 text-sm">Esta edición no tiene gestores asignados.</p>

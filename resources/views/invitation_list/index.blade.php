@@ -19,6 +19,7 @@
                             <tr class="border-b border-gray-600 bg-gray-600">
                                 <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Nombre</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Cartera</th>
+                                <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Edición</th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Estado</th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Detalles</th>
                             </tr>
@@ -28,6 +29,14 @@
                                 <tr class="hover:bg-gray-600 transition-colors duration-150">
                                     <td class="px-4 py-3 text-white whitespace-nowrap font-medium">{{ $invl->name }}</td>
                                     <td class="px-4 py-3 text-gray-300 whitespace-nowrap">{{ $invl->clientPorfolio->name }}</td>
+                                    <td class="px-4 py-3 text-gray-300 whitespace-nowrap">
+                                        @if ($invl->edition)
+                                            {{ $invl->edition->event->name ?? '(evento eliminado)' }}
+                                            <span class="text-gray-500">&middot; {{ $invl->edition->date->format('d/m/Y') }}</span>
+                                        @else
+                                            —
+                                        @endif
+                                    </td>
                                     <td class="px-4 py-3 text-center whitespace-nowrap">
                                         @if ($invl->isSent())
                                             <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-teal-700 text-teal-100">Enviada</span>

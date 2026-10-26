@@ -6,8 +6,10 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Models\User;
 use App\Models\Event;
+use App\Models\ClientPortfolio;
 use App\Mail\WelcomeSetPasswordMail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
@@ -135,7 +137,30 @@ class UserController extends Controller
             return back()->with('error', 'No puedes eliminar tu propia cuenta.');
         }
 
-        $user->delete();
-        return redirect()->route('user-list')->with('success', 'Usuario eliminado correctamente');
+        // ClientPortfolio::user() is a plain belongsTo with no fallback: once $user
+        // is soft-deleted, Eloquent's SoftDeletingScope hides it even from existing
+        // relations, so any portfolio left pointing at it would resolve ->user to
+        // null (portfolios/list.blade.php and portfolios/show.blade.php used to crash
+        // on that). Reassigning to the admin doing the deletion - always an admin,
+        // this action is admin-only - keeps every portfolio owned by someone who can
+        // actually manage it, with no new config needed to pick "which" admin.
+        $reassignedCount = DB::transaction(function () use ($user) {
+            $count = ClientPortfolio::where('user_id', $user->id)->count();
+
+            if ($count > 0) {
+                ClientPortfolio::where('user_id', $user->id)->update(['user_id' => Auth::id()]);
+            }
+
+            $user->delete();
+
+            return $count;
+        });
+
+        $message = 'Usuario eliminado correctamente.';
+        if ($reassignedCount > 0) {
+            $message .= ' Se ' . ($reassignedCount === 1 ? 'ha reasignado 1 cartera de clientes' : "han reasignado {$reassignedCount} carteras de clientes") . ' a tu cuenta.';
+        }
+
+        return redirect()->route('user-list')->with('success', $message);
     }
 }

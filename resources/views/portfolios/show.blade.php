@@ -4,7 +4,9 @@
 
     <div class="mb-6 bg-gray-600 rounded-lg p-5">
         <p class="text-sm text-gray-300">Propietario</p>
-        <p class="text-lg font-semibold text-white">{{ $portfolio->user->name }} {{ $portfolio->user->surname }}</p>
+        <p class="text-lg font-semibold text-white">
+            {{ $portfolio->user ? trim($portfolio->user->name . ' ' . $portfolio->user->surname) : 'Sin gestor asignado' }}
+        </p>
     </div>
 
     <h2 class="text-white font-semibold text-base mb-3">Personas asociadas</h2>
