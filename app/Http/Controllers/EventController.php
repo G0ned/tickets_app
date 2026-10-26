@@ -43,9 +43,10 @@ class EventController extends Controller
             'name' => ['required', 'string'],
             'poster' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'public' => ['required', 'boolean'],
-            'desc' => ['required', 'string']
+            'desc' => ['required', 'string'],
+            'survey_url' => ['nullable', 'url', 'max:2048'],
         ]);
-        
+
         $posterPath = null;
 
         if(request()->hasFile('poster'))
@@ -58,6 +59,7 @@ class EventController extends Controller
                 'description' => $event_info['desc'],
                 'public' => $event_info['public'],
                 'poster_path' => $posterPath,
+                'survey_url' => $event_info['survey_url'] ?? null,
                 'created_by' => Auth::user()->id
             ]);
             return redirect(route('editions-create', ['event' => $new_event->id]));
@@ -95,7 +97,8 @@ class EventController extends Controller
             'name' => ['required', 'string'],
             'poster_path' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp|max:2048'],
             'public' => ['required', 'boolean'],
-            'desc' => ['required', 'string'] 
+            'desc' => ['required', 'string'],
+            'survey_url' => ['nullable', 'url', 'max:2048'],
         ]);
 
         $posterPath = $event->poster_path;
@@ -114,6 +117,7 @@ class EventController extends Controller
             'public' => $event_new_data['public'],
             'description' => $event_new_data['desc'],
             'poster_path' => $posterPath,
+            'survey_url' => $event_new_data['survey_url'] ?? null,
             'updated_by' => Auth::user()->id
             ]);
             return redirect(route('events-show', $event->id))->with('success', 'Datos del evento actualizados correctamente');

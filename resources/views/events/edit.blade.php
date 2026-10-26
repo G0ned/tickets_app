@@ -58,6 +58,18 @@
                         <x-form-error name="desc" />
                     </div>
 
+                    <div>
+                        <x-form-label for="survey_url">Enlace de la encuesta de satisfacción</x-form-label>
+                        <x-form-input
+                            type="url"
+                            id="survey_url"
+                            name="survey_url"
+                            placeholder="https://..."
+                            value="{{ old('survey_url', $event->survey_url) }}" />
+                        <p class="text-gray-400 text-xs mt-1">Opcional. Es el mismo enlace para todas las ediciones de este evento.</p>
+                        <x-form-error name="survey_url" />
+                    </div>
+
                     <div class="col-span-2 max-w-sm mx-auto my-2">
                         <x-form-button>
                             Guardar Evento

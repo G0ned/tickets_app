@@ -17,6 +17,7 @@ class Event extends Model
         'description',
         'public',
         'poster_path',
+        'survey_url',
         'created_by',
         'updated_by',
         'deleted_by'

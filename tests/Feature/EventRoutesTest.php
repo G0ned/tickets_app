@@ -84,6 +84,49 @@ class EventRoutesTest extends TestCase
         ]);
     }
 
+    public function test_event_creation_persists_survey_url(): void
+    {
+        // Verificar que el enlace de la encuesta de satisfacción se guarda al crear el evento
+        $this->actingAs($this->user)->post(route('events-store'), [
+            'name' => 'Demo Name',
+            'desc' => 'Demo Event Description',
+            'public' => false,
+            'survey_url' => 'https://forms.example.test/survey',
+        ]);
+
+        $this->assertDatabaseHas('events', [
+            'name' => 'Demo Name',
+            'survey_url' => 'https://forms.example.test/survey',
+        ]);
+    }
+
+    public function test_event_creation_rejects_invalid_survey_url(): void
+    {
+        // Verificar que un valor que no es una URL válida no se acepta
+        $response = $this->actingAs($this->user)->post(route('events-store'), [
+            'name' => 'Demo Name',
+            'desc' => 'Demo Event Description',
+            'public' => false,
+            'survey_url' => 'not-a-url',
+        ]);
+
+        $response->assertSessionHasErrors('survey_url');
+        $this->assertDatabaseMissing('events', ['name' => 'Demo Name']);
+    }
+
+    public function test_event_creation_without_survey_url_is_optional(): void
+    {
+        // Verificar que el campo es opcional y no bloquea la creación si se omite
+        $response = $this->actingAs($this->user)->post(route('events-store'), [
+            'name' => 'Demo Name',
+            'desc' => 'Demo Event Description',
+            'public' => false,
+        ]);
+
+        $response->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('events', ['name' => 'Demo Name', 'survey_url' => null]);
+    }
+
     public function test_event_editing(): void
     {   //Verificar que el acceso a la edicion de un evento solo es posible si el usuario esta identificado
         $event = Event::create([
@@ -117,7 +160,30 @@ class EventRoutesTest extends TestCase
         $this->assertDatabaseHas('events', ['name' => 'New Demo Event Name']);
     }
 
-    
+    public function test_event_updating_persists_survey_url(): void
+    {
+        // Verificar que el enlace de la encuesta se actualiza igual que el resto de campos
+        $event = Event::create([
+            'name' => 'Demo Event Name',
+            'description' => 'Demo Event Description',
+            'public' => false,
+            'created_by' => $this->user->id,
+        ]);
+
+        $this->actingAs($this->user)->patch(route('events-update', $event->id), [
+            'name' => $event->name,
+            'desc' => $event->description,
+            'public' => false,
+            'survey_url' => 'https://forms.example.test/survey',
+        ]);
+
+        $this->assertDatabaseHas('events', [
+            'id' => $event->id,
+            'survey_url' => 'https://forms.example.test/survey',
+        ]);
+    }
+
+
     public function test_updated_by_is_filled_on_event_editing(): void
     {
         $event = Event::create([

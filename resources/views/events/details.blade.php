@@ -38,6 +38,16 @@
                         <p class="text-white mt-1 break-words">{{ $event->description }}</p>
                     </div>
 
+                    @if($event->survey_url)
+                        <div>
+                            <span class="text-gray-400 text-sm uppercase tracking-wide">Encuesta de satisfacción</span>
+                            <p class="mt-1">
+                                <a href="{{ $event->survey_url }}" target="_blank" rel="noopener noreferrer"
+                                   class="text-teal-400 hover:text-teal-300 break-all">{{ $event->survey_url }}</a>
+                            </p>
+                        </div>
+                    @endif
+
                     <div class="flex flex-col sm:flex-row gap-4 sm:gap-8">
                         <div>
                             <span class="text-gray-400 text-sm uppercase tracking-wide">Creado por</span>
