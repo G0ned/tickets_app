@@ -29,7 +29,8 @@
                             Lamentamos informarte de que la edición de <strong>{{ $eventName }}</strong> a la que
                             estabas inscrito/a, prevista para el {{ $edition->date->translatedFormat('d \d\e F \d\e Y') }}
                             a las {{ $edition->date->format('H:i') }} h en {{ $edition->location }}, ha sido cancelada.
-                            Tu inscripción y tu entrada ya no son válidas.
+                            Tu inscripción y tu entrada ya no son válidas. En caso de que el evento se reactive, recibirá un nuevo correo
+                            indicando la nueva hora y fecha del evento.
                         </p>
                     </td>
                 </tr>

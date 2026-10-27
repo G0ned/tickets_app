@@ -15,14 +15,28 @@ class PersonController extends Controller
         $direction = request('direction') === 'desc' ? 'desc' : 'asc';
 
         $people = Person::with('portfolio')
-        ->withExists(['allEditionRegistrations as has_been_guest' => fn ($query) => $query->where('attendee_edition.is_guest', true)])
+        // Both checks are needed, not just one: allEditionRegistrations() is a
+        // belongsToMany to Edition (SoftDeletes), so without withTrashed() here a
+        // guest registration under a now-cancelled-but-not-reactivated edition is
+        // silently dropped from the join (the bug this withTrashed() fixes).
+        // editionRegistrationHistory() covers the other half - once that edition
+        // is reactivated, the row moves out of attendee_edition into
+        // attendee_edition_history entirely, so even withTrashed() above can't see
+        // it anymore; only the archived table still can.
+        ->withExists([
+            'allEditionRegistrations as has_live_guest_registration' => fn ($query) => $query->withTrashed()->where('attendee_edition.is_guest', true),
+            'editionRegistrationHistory as has_archived_guest_registration' => fn ($query) => $query->where('is_guest', true),
+        ])
         ->when(request('type'), fn($query, $type) => $query->where('type', $type))
         ->when(request('brand'), fn($query, $brand) => $query->where('brand', 'like', "%{$brand}%"))
         ->orderBy($sort, $direction)
         ->when(in_array($sort, ['name', 'surname'], true), function ($query) use ($sort, $direction) {
             $query->orderBy($sort === 'name' ? 'surname' : 'name', $direction);
         })
-        ->get();
+        ->get()
+        ->each(function (Person $person) {
+            $person->has_been_guest = $person->has_live_guest_registration || $person->has_archived_guest_registration;
+        });
 
         return view('admin.contact_list')->with([
             'people'       => $people,
