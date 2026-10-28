@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Models\Person;
 use App\Models\Edition;
-use App\Rules\ValidateId;
 use App\Services\AttendeeRegistrationService;
 use App\Events\AttendeeEditionCancelAssistance as cancel_assistance;
 use Illuminate\Support\Facades\Storage;
@@ -27,37 +26,38 @@ class FormController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'editions'       => ['required', 'exists:editions,id'],
-            'identification' => ['required', 'string', 'max:9', new ValidateId($request->input('id_type'))],
-            'firstname'      => ['required', 'string', 'max:255'],
-            'surname'        => ['required', 'string', 'max:255'],
-            'email'          => ['required', 'email'],
-            'phone'          => ['required', 'string', 'max:20'],
-            'zip_code'       => ['required', 'digits:5'],
+        $editionValidated = $request->validate([
+            'editions' => ['required', 'exists:editions,id'],
+        ], [
+            'editions.required' => 'Debe seleccionar una edición.',
+            'editions.exists'   => 'La edición seleccionada no es válida.',
+        ]);
+
+        $edition = Edition::findOrFail($editionValidated['editions']);
+
+        if ($edition->registrationClosed()) {
+            $existingPerson = $request->filled('identification')
+                ? Person::where('passport', $request->input('identification'))->first()
+                : Person::where('email', $request->input('email'))->first();
+
+            return view('form.registration-closed', [
+                'deadline' => $edition->registration_deadline,
+                'manager'  => $existingPerson?->portfolio?->user,
+            ]);
+        }
+
+        $identity = $this->registrar->resolveIdentity($request);
+
+        if (isset($identity['error'])) {
+            return back()->withErrors(['error' => $identity['error']])->withInput();
+        }
+
+        $consents = $request->validate([
             'img_rights_ads' => ['required', 'boolean'],
             'img_rights_web' => ['required', 'boolean'],
             'img_rights_rss' => ['required', 'boolean'],
             'privacy_policy' => ['required', 'in:1'],
         ], [
-            'editions.required'       => 'Debe seleccionar una edición.',
-            'editions.exists'         => 'La edición seleccionada no es válida.',
-            'identification.required' => 'El número de identificación es obligatorio.',
-            'identification.string'   => 'El número de identificación no es válido.',
-            'identification.max'      => 'El número de identificación no puede tener más de :max caracteres.',
-            'firstname.required'      => 'El nombre es obligatorio.',
-            'firstname.string'        => 'El nombre no es válido.',
-            'firstname.max'           => 'El nombre no puede tener más de :max caracteres.',
-            'surname.required'        => 'Los apellidos son obligatorios.',
-            'surname.string'          => 'Los apellidos no son válidos.',
-            'surname.max'             => 'Los apellidos no pueden tener más de :max caracteres.',
-            'email.required'          => 'El e-mail es obligatorio.',
-            'email.email'             => 'El e-mail no es válido.',
-            'phone.required'          => 'El teléfono es obligatorio.',
-            'phone.string'            => 'El teléfono no es válido.',
-            'phone.max'               => 'El teléfono no puede tener más de :max caracteres.',
-            'zip_code.required'       => 'El código postal es obligatorio.',
-            'zip_code.digits'         => 'El código postal debe tener :digits dígitos.',
             'img_rights_ads.required' => 'Debe indicar si autoriza el uso publicitario.',
             'img_rights_ads.boolean'  => 'La opción de autorización publicitaria no es válida.',
             'img_rights_web.required' => 'Debe indicar si autoriza las comunicaciones.',
@@ -68,21 +68,17 @@ class FormController extends Controller
             'privacy_policy.in'       => 'Debe aceptar la Política de Privacidad para continuar.',
         ]);
 
-        $edition = Edition::findOrFail($validated['editions']);
-
-        if ($edition->registrationClosed()) {
-            $existingPerson = Person::where('passport', $validated['identification'])->first();
-
-            return view('form.registration-closed', [
-                'deadline' => $edition->registration_deadline,
-                'manager'  => $existingPerson?->portfolio?->user,
+        if ($request->input('registration_mode') !== 'returning') {
+            $request->validate(['zip_code' => ['required', 'digits:5']], [
+                'zip_code.required' => 'El código postal es obligatorio.',
+                'zip_code.digits'   => 'El código postal debe tener :digits dígitos.',
             ]);
         }
 
-        $result = $this->registrar->register($edition, $validated);
+        $result = $this->registrar->register($edition, array_merge($identity, $consents));
 
         if (isset($result['error'])) {
-            return back()->withErrors(['error' => $result['error']]);
+            return back()->withErrors(['error' => $result['error']])->withInput();
         }
 
         return redirect()->route('form-success');

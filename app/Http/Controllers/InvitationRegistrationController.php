@@ -6,7 +6,6 @@ use App\Enums\Type;
 use App\Models\InvitationList;
 use App\Models\Person;
 use App\Models\VerificationCode;
-use App\Rules\ValidateId;
 use App\Services\AttendeeRegistrationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -58,19 +57,28 @@ class InvitationRegistrationController extends Controller
             ]);
         }
 
-        $validated = $request->validate([
-            'identification'    => ['required', 'string', 'max:9', new ValidateId($request->input('id_type'))],
-            'firstname'         => ['required', 'string', 'max:255'],
-            'surname'           => ['required', 'string', 'max:255'],
-            'email'             => ['required', 'email'],
-            'phone'             => ['required', 'string', 'max:20'],
-            'zip_code'          => ['required', 'digits:5'],
+        $identity = $this->registrar->resolveIdentity($request);
+
+        if (isset($identity['error'])) {
+            return back()->withErrors(['error' => $identity['error']])->withInput();
+        }
+
+        $rest = $request->validate([
             'img_rights_ads'    => ['required', 'boolean'],
             'img_rights_web'    => ['required', 'boolean'],
             'img_rights_rss'    => ['required', 'boolean'],
             'privacy_policy'    => ['required', 'in:1'],
             'verification_code' => ['required', 'string'],
         ]);
+
+        if ($request->input('registration_mode') !== 'returning') {
+            $request->validate(['zip_code' => ['required', 'digits:5']], [
+                'zip_code.required' => 'El código postal es obligatorio.',
+                'zip_code.digits'   => 'El código postal debe tener :digits dígitos.',
+            ]);
+        }
+
+        $validated = array_merge($identity, $rest);
 
         $result = DB::transaction(function () use ($validated, $invitation) {
             $code = VerificationCode::where('code', $validated['verification_code'])

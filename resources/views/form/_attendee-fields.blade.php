@@ -1,102 +1,140 @@
 @php($submitLabel ??= 'Registrar Asistente')
 
-<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 p-2 sm:p-4">
+<div x-data="{ registrationMode: @js(old('registration_mode', 'new')) }" class="p-2 sm:p-4">
     @error('error')
         <div class="alert alert-danger">
             {{ $message }}
         </div>
     @enderror
-    <div>
-        <label for="id_type">Tipo de Identificación</label>
-        <select
-            id="id_type"
-            name="id_type"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-            required
-        >
-            <option value="" disabled selected>Seleccione tipo</option>
-            <option value="NIF" {{ old('id_type') == 'NIF' ? 'selected' : '' }}>NIF</option>
-            <option value="NIE" {{ old('id_type') == 'NIE' ? 'selected' : '' }}>NIE</option>
-        </select>
-        <x-form-error name="id_type" />
+
+    <div class="mb-6">
+        <label class="block text-black font-medium mb-2">¿Es la primera vez que te registras en algún evento?</label>
+        <div class="flex flex-col sm:flex-row gap-4">
+            <label class="inline-flex items-center gap-2 text-black cursor-pointer">
+                <input type="radio" name="registration_mode" value="new" x-model="registrationMode" class="accent-teal-500" required>
+                Sí, es la primera vez
+            </label>
+            <label class="inline-flex items-center gap-2 text-black cursor-pointer">
+                <input type="radio" name="registration_mode" value="returning" x-model="registrationMode" class="accent-teal-500">
+                No, ya me he registrado antes en otro evento
+            </label>
+        </div>
+        <x-form-error name="registration_mode" />
     </div>
 
-    <div>
-        <label for="identification">Número de Identificación</label>
-        <x-form-input
-            type="text"
-            id="identification"
-            name="identification"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-            placeholder="00000000X"
-            required/>
-        <x-form-error name="identification" />
-    </div>
+    <template x-if="registrationMode === 'new'">
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div>
+                <label for="id_type">Tipo de Identificación</label>
+                <select
+                    id="id_type"
+                    name="id_type"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    required
+                >
+                    <option value="" disabled selected>Seleccione tipo</option>
+                    <option value="NIF" {{ old('id_type') == 'NIF' ? 'selected' : '' }}>NIF</option>
+                    <option value="NIE" {{ old('id_type') == 'NIE' ? 'selected' : '' }}>NIE</option>
+                </select>
+                <x-form-error name="id_type" />
+            </div>
 
-    <div>
-        <label for="firstname">Nombre</label>
-        <x-form-input
-            type="text"
-            id="firstname"
-            name="firstname"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-            placeholder="Nombre"
-            value="{{ old('firstname') }}"
-            required/>
-        <x-form-error name="firstname" />
-    </div>
+            <div>
+                <label for="identification">Número de Identificación</label>
+                <x-form-input
+                    type="text"
+                    id="identification"
+                    name="identification"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    placeholder="00000000X"
+                    required/>
+                <x-form-error name="identification" />
+            </div>
 
-    <div>
-        <label for="surname">Apellido/s</label>
-        <x-form-input
-            type="text"
-            id="surname"
-            name="surname"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-            placeholder="Apellido/s"
-            value="{{ old('surname') }}"
-            required/>
-        <x-form-error name="surname" />
-    </div>
+            <div>
+                <label for="firstname">Nombre</label>
+                <x-form-input
+                    type="text"
+                    id="firstname"
+                    name="firstname"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    placeholder="Nombre"
+                    value="{{ old('firstname') }}"
+                    required/>
+                <x-form-error name="firstname" />
+            </div>
 
-    <div>
-        <label for="email">E-mail</label>
-        <x-form-input
-            type="email"
-            id="email"
-            name="email"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-            placeholder="correo@gmail.com"
-            value="{{ old('email') }}"
-            required/>
-        <x-form-error name="email" />
-    </div>
+            <div>
+                <label for="surname">Apellido/s</label>
+                <x-form-input
+                    type="text"
+                    id="surname"
+                    name="surname"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    placeholder="Apellido/s"
+                    value="{{ old('surname') }}"
+                    required/>
+                <x-form-error name="surname" />
+            </div>
 
-    <div>
-        <label for="phone">Nº Teléfono</label>
-        <x-form-input
-            type="text"
-            id="phone"
-            name="phone"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-            placeholder="000 000 000"
-            value="{{ old('phone') }}"
-            required/>
-        <x-form-error name="phone" />
-    </div>
+            <div>
+                <label for="email">E-mail</label>
+                <x-form-input
+                    type="email"
+                    id="email"
+                    name="email"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    placeholder="correo@gmail.com"
+                    value="{{ old('email') }}"
+                    required/>
+                <x-form-error name="email" />
+            </div>
 
-    <div>
-        <label for="zip_code">Código Postal</label>
-        <x-form-input
-            type="text"
-            id="zip_code"
-            name="zip_code"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-            placeholder="00000"
-            value="{{ old('zip_code') }}"
-            required/>
-        <x-form-error name="zip_code" />
-    </div>
+            <div>
+                <label for="phone">Nº Teléfono</label>
+                <x-form-input
+                    type="text"
+                    id="phone"
+                    name="phone"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    placeholder="000 000 000"
+                    value="{{ old('phone') }}"
+                    required/>
+                <x-form-error name="phone" />
+            </div>
+
+            <div>
+                <label for="zip_code">Código Postal</label>
+                <x-form-input
+                    type="text"
+                    id="zip_code"
+                    name="zip_code"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    placeholder="00000"
+                    value="{{ old('zip_code') }}"
+                    required/>
+                <x-form-error name="zip_code" />
+            </div>
+        </div>
+    </template>
+
+    <template x-if="registrationMode === 'returning'">
+        <div class="grid grid-cols-1 gap-6">
+            <div>
+                <label for="email_returning">E-mail</label>
+                <x-form-input
+                    type="email"
+                    id="email_returning"
+                    name="email"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    placeholder="correo@gmail.com"
+                    value="{{ old('email') }}"
+                    required/>
+                <x-form-error name="email" />
+                <p class="text-gray-500 text-sm mt-1">Usaremos los datos que ya tenemos registrados para ti.</p>
+            </div>
+        </div>
+    </template>
 </div>
 <hr class="my-6 border-gray-300" />
 <div class="space-y-6 mt-8">

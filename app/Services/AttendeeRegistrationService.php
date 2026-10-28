@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Events\AttendeeEditionSignUpEvent;
 use App\Models\Edition;
 use App\Models\Person;
+use App\Rules\ValidateId;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -12,14 +14,55 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AttendeeRegistrationService
 {
-    /**
-     * Registra a una persona como asistente de la edición seleccionada,
-     * comprueba la capacidad, identificaciones duplicadas (DNI), genera el QR
-     * y dispara el evento para enviar el email correspondiente y actualizar el aforo de 
-     * la edición.
-     * @param array{identification: string, firstname: string, surname: string, email: string, phone: string, img_rights_ads: mixed, img_rights_web: mixed, img_rights_rss: mixed, privacy_policy: mixed} $validated
-     * @return array{error: string}|array{attendee: Person}
-     */
+    public function resolveIdentity(Request $request): array
+    {
+        if ($request->input('registration_mode') === 'returning') {
+            $validated = $request->validate([
+                'email' => ['required', 'email'],
+            ], [
+                'email.required' => 'El e-mail es obligatorio.',
+                'email.email'    => 'El e-mail no es válido.',
+            ]);
+
+            $person = Person::where('email', $validated['email'])->first();
+
+            if ($person === null) {
+                return ['error' => 'No encontramos ningún registro con ese e-mail. Si es la primera vez que te registras en un evento, selecciona esa opción arriba.'];
+            }
+
+            return [
+                'identification' => $person->passport,
+                'firstname'      => $person->name,
+                'surname'        => $person->surname,
+                'email'          => $person->email,
+                'phone'          => $person->phone,
+            ];
+        }
+
+        return $request->validate([
+            'identification' => ['required', 'string', 'max:9', new ValidateId($request->input('id_type'))],
+            'firstname'      => ['required', 'string', 'max:255'],
+            'surname'        => ['required', 'string', 'max:255'],
+            'email'          => ['required', 'email'],
+            'phone'          => ['required', 'string', 'max:20'],
+        ], [
+            'identification.required' => 'El número de identificación es obligatorio.',
+            'identification.string'   => 'El número de identificación no es válido.',
+            'identification.max'      => 'El número de identificación no puede tener más de :max caracteres.',
+            'firstname.required'      => 'El nombre es obligatorio.',
+            'firstname.string'        => 'El nombre no es válido.',
+            'firstname.max'           => 'El nombre no puede tener más de :max caracteres.',
+            'surname.required'        => 'Los apellidos son obligatorios.',
+            'surname.string'          => 'Los apellidos no son válidos.',
+            'surname.max'             => 'Los apellidos no pueden tener más de :max caracteres.',
+            'email.required'          => 'El e-mail es obligatorio.',
+            'email.email'             => 'El e-mail no es válido.',
+            'phone.required'          => 'El teléfono es obligatorio.',
+            'phone.string'            => 'El teléfono no es válido.',
+            'phone.max'               => 'El teléfono no puede tener más de :max caracteres.',
+        ]);
+    }
+
     public function register(Edition $edition, array $validated): array
     {
         return DB::transaction(function () use ($edition, $validated) {
@@ -29,15 +72,29 @@ class AttendeeRegistrationService
                 return ['error' => 'La edición no admite a más asistentes. Pruebe a registrarse en otra edición.'];
             }
 
-            $attendee = Person::firstOrCreate(
-                ['passport' => $validated['identification']],
-                [
-                    'name'    => $validated['firstname'],
-                    'surname' => $validated['surname'],
-                    'email'   => $validated['email'],
-                    'phone'   => $validated['phone'],
-                ]
-            );
+            if (!Person::where('passport', $validated['identification'])->exists()) {
+                $emailTaken = Person::where('email', $validated['email'])->exists();
+                $phoneTaken = !$emailTaken && Person::where('phone', $validated['phone'])->exists();
+
+                if ($emailTaken || $phoneTaken) {
+                    $field = $emailTaken ? 'email' : 'número de teléfono';
+                    return ['error' => "Ya existe otra persona registrada con ese {$field}. Revisa que lo has escrito bien, o contacta con el organizador si crees que es un error."];
+                }
+            }
+
+            try {
+                $attendee = Person::firstOrCreate(
+                    ['passport' => $validated['identification']],
+                    [
+                        'name'    => $validated['firstname'],
+                        'surname' => $validated['surname'],
+                        'email'   => $validated['email'],
+                        'phone'   => $validated['phone'],
+                    ]
+                );
+            } catch (\Illuminate\Database\UniqueConstraintViolationException) {
+                return ['error' => 'Ya existe otra persona registrada con ese email o teléfono. Revisa que lo has escrito bien, o contacta con el organizador si crees que es un error.'];
+            }
 
             if ($edition->attendees()->where('attendee_id', $attendee->id)->exists()) {
                 return ['error' => 'Ya estás registrado en esta edición.'];
