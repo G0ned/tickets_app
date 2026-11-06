@@ -41,7 +41,9 @@ class EditionReminder extends Model
      */
     public function isDue(): bool
     {
-        if ($this->isSent()) {
+        // La relación excluye ediciones soft-deleted (canceladas): sin edición
+        // no hay fecha de referencia y el recordatorio no debe enviarse.
+        if ($this->isSent() || $this->edition === null) {
             return false;
         }
 
