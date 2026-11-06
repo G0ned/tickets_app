@@ -23,12 +23,12 @@
                 <tr>
                     <td style="padding:40px 48px 8px;">
                         <p style="color:#0f172a; font-size:22px; font-weight:700; margin:0 0 8px;">
-                            Hola, {{ $attendee->name }} {{ $attendee->surname }}
+                            Hola, {{ $attendeeName }}
                         </p>
                         <p style="color:#64748b; font-size:15px; line-height:1.7; margin:0;">
                             Lamentamos informarte de que la edición de <strong>{{ $eventName }}</strong> a la que
-                            estabas inscrito/a, prevista para el {{ $edition->date->translatedFormat('d \d\e F \d\e Y') }}
-                            a las {{ $edition->date->format('H:i') }} h en {{ $edition->location }}, ha sido cancelada.
+                            estabas inscrito/a, prevista para el {{ $date->translatedFormat('d \d\e F \d\e Y') }}
+                            a las {{ $date->format('H:i') }} h en {{ $location }}, ha sido cancelada.
                             Tu inscripción y tu entrada ya no son válidas. En caso de que el evento se reactive, recibirá un nuevo correo
                             indicando la nueva hora y fecha del evento.
                         </p>
