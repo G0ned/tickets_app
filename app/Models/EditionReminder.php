@@ -34,15 +34,9 @@ class EditionReminder extends Model
         return $this->sent_at !== null;
     }
 
-    /**
-     * True once "days_before" days remain until the edition's start (or
-     * fewer - a reminder that's overdue, e.g. the scheduler was down, still
-     * fires once it catches up). Only ever true for a reminder not yet sent.
-     */
     public function isDue(): bool
     {
-        // La relación excluye ediciones soft-deleted (canceladas): sin edición
-        // no hay fecha de referencia y el recordatorio no debe enviarse.
+
         if ($this->isSent() || $this->edition === null) {
             return false;
         }
