@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Carbon\Carbon;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
 use App\Models\Event;
@@ -24,6 +25,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Fechas en español (translatedFormat) en correos y vistas, independientemente de APP_LOCALE.
+        Carbon::setLocale('es');
+
         //Registro del observer de Eventos.
         Event::observe(EventObserver::class);
 
