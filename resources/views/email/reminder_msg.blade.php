@@ -128,7 +128,7 @@
                 <tr>
                     <td style="padding:0 48px 32px;">
                         <p style="color:#94a3b8; font-size:12px; line-height:1.7; margin:32px 0 0;">
-                            Recibes este recordatorio porque autorizaste el envío de comunicaciones al inscribirte.
+                            Recibes este recordatorio porque estás inscrito/a en este evento.
                         </p>
                     </td>
                 </tr>

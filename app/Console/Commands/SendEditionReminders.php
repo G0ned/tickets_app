@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Mail;
 use Throwable;
 
 #[Signature('app:send-edition-reminders')]
-#[Description('Sends due edition reminder emails to attendees who consented to communications')]
+#[Description('Sends due edition reminder emails to registered attendees')]
 class SendEditionReminders extends Command
 {
     /**
@@ -38,10 +38,6 @@ class SendEditionReminders extends Command
                 $edition = $reminder->edition;
 
                 foreach ($edition->attendees as $attendee) {
-                    if (!$attendee->pivot->auth_for_comms) {
-                        continue;
-                    }
-
                     Mail::to($attendee->email)->queue(
                         new EditionReminderMail($edition, $attendee, $reminder->days_before, $attendee->pivot->token)
                     );
