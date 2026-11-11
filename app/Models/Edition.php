@@ -21,6 +21,7 @@ class Edition extends Model
         'capacity',
         'status',
         'registration_deadline',
+        'survey_sent_at',
     ];
 
     public function event():BelongsTo
@@ -87,5 +88,6 @@ class Edition extends Model
         'date'                   => 'datetime',
         'duration'               => 'float',
         'registration_deadline'  => 'datetime',
+        'survey_sent_at'         => 'datetime',
     ];
 }
