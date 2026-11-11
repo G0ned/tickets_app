@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withSchedule(function (Schedule $schedule): void {
         $schedule->command('app:send-edition-reminders')->hourly();
+        $schedule->command('app:send-edition-surveys')->everyFiveMinutes();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
