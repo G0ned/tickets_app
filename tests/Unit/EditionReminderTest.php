@@ -4,7 +4,7 @@ namespace Tests\Unit;
 
 use App\Models\Edition;
 use App\Models\EditionReminder;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class EditionReminderTest extends TestCase
 {
