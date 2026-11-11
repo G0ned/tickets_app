@@ -206,7 +206,7 @@ class EventTest extends TestCase
 
             $edition3 = Edition::create([
                 'event_id' => $this->event->id,
-                'date' => '2026-08-01 08:00:00',
+                'date' => now()->addMonth()->format('Y-m-d H:i:s'),
                 'duration' => 1,
                 'location' => 'demoPlace',
                 'capacity' => 999,
