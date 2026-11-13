@@ -117,7 +117,7 @@
                                     @endif
                                     @if ($manager->pivot->invitations_capacity)
                                         <span class="bg-gray-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
-                                            Cap. inv.: {{ $manager->pivot->invitations_capacity }}
+                                            Cap. inv.: {{ $manager->pivot->invitations_capacity }} / {{ $edition->capacity }}
                                         </span>
                                     @endif
                                 </div>
@@ -158,10 +158,36 @@
                                 </div>
                             </div>
 
-                            <div>
+                            <div x-data="{
+                                    capacity: {{ (int) $edition->capacity }},
+                                    assigned: {{ $assignedInvitations }},
+                                    unlimited: {{ $unlimitedManagers }},
+                                    value: '',
+                                    get entered() { return parseInt(this.value) || 0 },
+                                    get total() { return this.assigned + this.entered },
+                                    get remaining() { return this.capacity - this.total },
+                                }">
                                 <x-form-label for="invitations_capacity">Capacidad de invitaciones <span class="text-gray-400 font-normal">(opcional)</span></x-form-label>
-                                <x-form-input type="number" name="invitations_capacity" id="invitations_capacity" min="0" placeholder="Sin límite" />
+                                <x-form-input type="number" name="invitations_capacity" id="invitations_capacity" min="0" placeholder="Sin límite" x-model="value" />
                                 <x-form-error name="invitations_capacity" />
+
+                                <div class="mt-3 rounded-lg bg-gray-700 border border-gray-500 px-4 py-3 text-sm space-y-1">
+                                    <p class="text-gray-300">Aforo de la edición: <strong class="text-white">{{ $edition->capacity }}</strong></p>
+                                    <p class="text-gray-300">Ya asignadas a otros gestores: <strong class="text-white">{{ $assignedInvitations }}</strong></p>
+                                    <p class="text-gray-300">
+                                        Con este gestor:
+                                        <strong :class="remaining < 0 ? 'text-red-400' : 'text-teal-400'" x-text="total + ' de ' + capacity"></strong>
+                                        <span class="text-gray-400" x-text="remaining >= 0 ? '(' + remaining + ' libres)' : '(' + Math.abs(remaining) + ' por encima del aforo)'"></span>
+                                    </p>
+                                    <p x-show="remaining < 0" x-cloak class="text-red-400 text-xs">
+                                        Las invitaciones asignadas superan el aforo de la edición.
+                                    </p>
+                                    @if ($unlimitedManagers > 0)
+                                        <p class="text-amber-300 text-xs">
+                                            {{ $unlimitedManagers }} {{ $unlimitedManagers === 1 ? 'gestor no tiene' : 'gestores no tienen' }} límite de invitaciones y no se incluye{{ $unlimitedManagers === 1 ? '' : 'n' }} en esta suma.
+                                        </p>
+                                    @endif
+                                </div>
                             </div>
 
                             <x-form-button>Asignar gestor</x-form-button>
