@@ -113,11 +113,20 @@
         <div class="bg-gray-700 p-4 sm:p-8 rounded-xl shadow-xl">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
                 <h3 class="text-lg font-bold text-white">Ediciones del Evento</h3>
-                @if($canCreateEditions)
-                <x-button href="{{ route('editions-create', $event->id) }}">
-                    + Nueva Edición
-                </x-button>
-                @endif
+                <div class="flex flex-col sm:flex-row gap-2">
+                    @admin()
+                    @if($event->editions->isNotEmpty())
+                    <x-button href="{{ route('export-event-attendees', $event->id) }}">
+                        Exportar asistencias (Excel)
+                    </x-button>
+                    @endif
+                    @endadmin
+                    @if($canCreateEditions)
+                    <x-button href="{{ route('editions-create', $event->id) }}">
+                        + Nueva Edición
+                    </x-button>
+                    @endif
+                </div>
             </div>
 
             @if($event->editions->isEmpty())
@@ -149,6 +158,10 @@
                                 <span class="text-gray-400 text-xs uppercase tracking-wide">Nº Registros</span>
                                 <p class="text-white">{{ $edition->attendees->count() }}</p>
                             </div>
+                            <div>
+                                <span class="text-gray-400 text-xs uppercase tracking-wide">Aforo restante</span>
+                                <p class="text-white">{{ max(0, $edition->capacity - $edition->attendees->count()) }}</p>
+                            </div>
                             <div class="flex flex-col gap-2 pt-2">
                                 @if($canEditEvent)
                                 <x-button href="{{route('editions-edit', $edition->id)}}" class="block w-full text-center">Editar</x-button>
@@ -179,8 +192,9 @@
                                 <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Hora</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Duración</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Ubicación</th>
-                                <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Aforo restante</th>
-                                <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Nº Registros</th>
+                                <th class="px-4 py-3 text-center text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Aforo</th>
+                                <th class="px-4 py-3 text-center text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Nº Registros</th>
+                                <th class="px-4 py-3 text-center text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Aforo restante</th>
                                 <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Acciones</th>
                                 @admin()
                                 <th class="px-4 py-3 text-left text-gray-400 text-sm uppercase tracking-wide whitespace-nowrap">Asistentes</th>
@@ -195,8 +209,9 @@
                                     <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->date->format('H:i') }}</td>
                                     <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->duration }} h</td>
                                     <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->location ?? '-' }}</td>
-                                    <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->capacity }}</td>
-                                    <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->attendees->count() }}</td>
+                                    <td class="px-2 py-3 text-white text-center whitespace-nowrap">{{ $edition->capacity }}</td>
+                                    <td class="px-2 py-3 text-white text-center whitespace-nowrap">{{ $edition->attendees->count() }}</td>
+                                    <td class="px-2 py-3 text-white text-center whitespace-nowrap">{{ max(0, $edition->capacity - $edition->attendees->count()) }}</td>
                                     <td class="px-4 py-3">
                                         <div class="flex items-center gap-2">
                                             @if($canEditEvent)
