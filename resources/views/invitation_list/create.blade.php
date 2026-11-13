@@ -129,19 +129,17 @@
                             </div>
                         </div>
                     @endif
-                    @if ($allBrands->isNotEmpty())
-                        <div>
-                            <label for="brand-filter" class="text-sm font-medium text-gray-300 mb-2 block">Marca</label>
-                            <select id="brand-filter"
-                                x-model="selectedBrand"
-                                class="w-full px-3 py-1.5 bg-gray-600 border border-gray-500 rounded-md shadow-sm text-sm text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                                <option value="">Todas las marcas</option>
-                                @foreach ($allBrands as $brand)
-                                    <option value="{{ $brand }}">{{ $brand }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    @endif
+                    <div>
+                        <label for="brand-filter" class="text-sm font-medium text-gray-300 mb-2 block">Marca</label>
+                        <select id="brand-filter"
+                            x-model="selectedBrand"
+                            class="w-full px-3 py-1.5 bg-gray-600 border border-gray-500 rounded-md shadow-sm text-sm text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="">Todas las marcas</option>
+                            @foreach ($allBrands as $brand)
+                                <option value="{{ $brand }}">{{ $brand }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
                 @foreach ($portfolios as $portfolio)
                     @php

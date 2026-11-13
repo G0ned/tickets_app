@@ -117,4 +117,43 @@ class InvitationListBrandFilterTest extends TestCase
             'The "Nike" brand option should appear exactly once in the dropdown, not once per person.'
         );
     }
+
+    public function test_brand_dropdown_is_still_rendered_when_no_person_has_a_brand(): void
+    {
+        $admin = User::create([
+            'name' => 'John', 'surname' => 'Doe', 'email' => 'admin@example.test',
+            'password' => bcrypt('secret1234'), 'is_admin' => true, 'is_supervisor' => false,
+        ]);
+        $manager = User::create([
+            'name' => 'Mister', 'surname' => 'Manager', 'email' => 'manager@example.test',
+            'password' => bcrypt('secret1234'), 'is_admin' => false, 'is_supervisor' => false,
+        ]);
+
+        $event = Event::create([
+            'name' => 'DemoName', 'description' => 'DemoDescription', 'public' => false,
+            'poster_path' => 'path/to/poster.jpeg', 'created_by' => $admin->id,
+            'updated_by' => null, 'deleted_by' => null,
+        ]);
+        $edition = Edition::create([
+            'event_id' => $event->id, 'date' => now()->addDay(), 'location' => 'DemoPlace',
+            'duration' => 2, 'capacity' => 50, 'status' => false,
+        ]);
+        $edition->managers()->attach($manager->id, [
+            'is_supervisor' => false, 'is_doorman' => false, 'invitations_capacity' => null,
+        ]);
+
+        $portfolio = ClientPortfolio::create(['name' => 'My Portfolio', 'user_id' => $manager->id]);
+        Person::create([
+            'name' => 'Own', 'surname' => 'Client', 'email' => 'own@example.test',
+            'phone' => '600000000', 'passport' => '22222222J', 'type' => Type::Client,
+            'client_portfolio_id' => $portfolio->id, 'brand' => null,
+        ]);
+
+        $response = $this->actingAs($manager)
+            ->get(route('edition-invitation-list', $edition->id));
+
+        $response->assertOk();
+        $response->assertSee('id="brand-filter"', false);
+        $response->assertSee('Todas las marcas');
+    }
 }
