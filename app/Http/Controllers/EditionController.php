@@ -11,6 +11,7 @@ use App\Models\AttendeeEditionHistory;
 use App\Models\InvitationList;
 use App\Models\Person;
 use App\Exports\AttendeesExport;
+use App\Exports\EventAttendeesExport;
 use App\Mail\EditionRestoredMail;
 use App\Services\EditionCancellationService;
 use Illuminate\Support\Facades\Auth;
@@ -416,6 +417,17 @@ class EditionController extends Controller
             ->get();
 
         return view('editions.history', compact('edition', 'history'));
+    }
+
+    public function exportEventAttendees(Event $event)
+    {
+        $event->load('editions');
+
+        if ($event->editions->isEmpty()) {
+            return back()->withErrors(['export' => 'El evento no tiene ediciones que exportar.']);
+        }
+
+        return Excel::download(new EventAttendeesExport($event), "{$event->name}-asistentes.xlsx");
     }
 
     public function exportAttendees(Edition $edition, Request $request)
