@@ -74,6 +74,13 @@
                     </svg>
                     Invitaciones enviadas el <strong>{{ $list->sent_at->format('d/m/Y H:i') }}</strong>
                 </p>
+                @admin()
+                    @if ($list->edition_id !== null)
+                        <p class="mt-2 text-sm">
+                            <a href="{{ route('edition-invitation-codes', $list->edition_id) }}" class="text-indigo-400 hover:text-indigo-300 font-medium">Ver códigos de toda la edición</a>
+                        </p>
+                    @endif
+                @endadmin
             @endif
             @if ($relatedList)
                 <p class="mt-2 inline-flex items-center gap-1.5 text-sm text-gray-400">
@@ -108,6 +115,9 @@
                                 <p class="text-gray-400 text-xs truncate">
                                     {{ $person->email }} &middot; {{ $person->phone }}
                                 </p>
+                            </div>
+                            <div class="shrink-0 text-sm">
+                                @include('invitation_list._codes', ['codes' => $codesByPerson->get($person->id, collect())])
                             </div>
                             <span class="text-xs text-gray-400 shrink-0">
                                 {{ $person->pivot->registrations_used }} / {{ $person->pivot->allowed_registrations }} registros usados

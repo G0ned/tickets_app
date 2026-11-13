@@ -22,10 +22,11 @@
                                 <th class="px-4 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Edición</th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Estado</th>
                                 <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Detalles</th>
+                                <th class="px-4 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Códigos</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-600">
-                            @foreach ($inv_lists as $invl)
+                        @foreach ($inv_lists as $invl)
+                        <tbody class="divide-y divide-gray-600 border-t border-gray-600" x-data="{ open: false }">
                                 <tr class="hover:bg-gray-600 transition-colors duration-150">
                                     <td class="px-4 py-3 text-white whitespace-nowrap font-medium">{{ $invl->name }}</td>
                                     <td class="px-4 py-3 text-gray-300 whitespace-nowrap">{{ $invl->clientPorfolio->name }}</td>
@@ -55,9 +56,45 @@
                                             </svg>
                                         </a>
                                     </td>
+                                    <td class="px-4 py-3 text-center whitespace-nowrap">
+                                        @if ($invl->isSent())
+                                            <button type="button" @click="open = !open"
+                                                    class="text-xs font-semibold text-indigo-400 hover:text-indigo-300">
+                                                <span x-text="open ? 'Ocultar' : 'Ver códigos'"></span>
+                                            </button>
+                                        @else
+                                            <span class="text-gray-500 text-xs">—</span>
+                                        @endif
+                                    </td>
                                 </tr>
-                            @endforeach
+                                @if ($invl->isSent())
+                                    <tr x-show="open" x-cloak class="bg-gray-800/40">
+                                        <td colspan="6" class="px-4 py-3">
+                                            <table class="w-full text-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="py-2 pr-4 text-left text-gray-400 text-xs uppercase tracking-wide">Cliente</th>
+                                                        <th class="py-2 pr-4 text-left text-gray-400 text-xs uppercase tracking-wide">Email</th>
+                                                        <th class="py-2 text-left text-gray-400 text-xs uppercase tracking-wide">Códigos</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="divide-y divide-gray-600">
+                                                    @foreach ($invl->persons as $person)
+                                                        <tr class="align-top">
+                                                            <td class="py-2 pr-4 text-white whitespace-nowrap">{{ $person->name }} {{ $person->surname }}</td>
+                                                            <td class="py-2 pr-4 text-gray-300 whitespace-nowrap">{{ $person->email }}</td>
+                                                            <td class="py-2">
+                                                                @include('invitation_list._codes', ['codes' => $codes->get($invl->id . '-' . $person->id, collect())])
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                @endif
                         </tbody>
+                        @endforeach
                     </table>
                 </div>
             </div>
