@@ -126,7 +126,12 @@ class EditionController extends Controller
         $assignableUsers = User::whereNotIn('id', $edition->managers->pluck('id'))->get();
         $historyCount = AttendeeEditionHistory::where('edition_id', $edition->id)->count();
 
-        return view('editions.edit', compact('edition', 'assignableUsers', 'historyCount'));
+        // Invitaciones ya repartidas entre los gestores frente al aforo de la edición.
+        // Un gestor sin capacidad (null) no tiene límite: no suma, pero se avisa de ello.
+        $assignedInvitations = (int) $edition->managers->sum(fn (User $manager) => (int) $manager->pivot->invitations_capacity);
+        $unlimitedManagers = $edition->managers->filter(fn (User $manager) => $manager->pivot->invitations_capacity === null)->count();
+
+        return view('editions.edit', compact('edition', 'assignableUsers', 'historyCount', 'assignedInvitations', 'unlimitedManagers'));
     }
 
     public function update(Edition $edition)
@@ -193,9 +198,63 @@ class EditionController extends Controller
             ->with('success', 'La edición se ha cancelado y se ha notificado a los asistentes inscritos.');
     }
 
+    /**
+     * Paso previo a reactivar: siempre se muestra el formulario con los datos
+     * originales precargados (se pueden conservar tal cual). La reactivación
+     * no se completa hasta que se guarda este formulario (ver restore()).
+     */
+    public function restoreForm(Edition $edition)
+    {
+        abort_unless($edition->trashed(), 404);
+
+        $edition->load(['event' => fn ($query) => $query->withTrashed()]);
+
+        return view('editions.restore', compact('edition'));
+    }
+
     public function restore(Edition $edition)
     {
+        abort_unless($edition->trashed(), 404);
+
+        $validated = request()->validate([
+            'location'                   => ['required', 'string'],
+            'date'                       => ['required', 'date'],
+            'time'                       => ['required', 'date_format:H:i'],
+            'duration'                   => ['required', 'numeric', 'min:0', 'decimal:0,2'],
+            'registration_deadline_date' => ['nullable', 'date', 'required_with:registration_deadline_time'],
+            'registration_deadline_time' => ['nullable', 'date_format:H:i', 'required_with:registration_deadline_date'],
+        ]);
+
+        $newDate = $validated['date'] . ' ' . $validated['time'];
+
+        $conflict = Edition::where('location', $validated['location'])
+            ->where('date', $newDate)
+            ->where('id', '!=', $edition->id)
+            ->exists();
+
+        if ($conflict) {
+            return back()
+                ->withErrors(['date' => 'Ya existe una edición en esa ubicación a esa fecha y hora.'])
+                ->withInput();
+        }
+
+        // Los datos nuevos se guardan antes de reactivar y de avisar a los gestores,
+        // para que el correo y el resto del flujo vean ya la fecha definitiva.
+        $edition->update([
+            'location'              => $validated['location'],
+            'date'                  => $newDate,
+            'duration'              => $validated['duration'],
+            'registration_deadline' => !empty($validated['registration_deadline_date'])
+                ? $validated['registration_deadline_date'] . ' ' . $validated['registration_deadline_time']
+                : null,
+        ]);
+
         $edition->restore();
+
+        // Los recordatorios se calculan a partir de la fecha de la edición (days_before),
+        // así que se desplazan solos con la nueva fecha. Pero los que ya se enviaron en el
+        // ciclo anterior no volverían a salir nunca: se reinician para que apliquen al nuevo.
+        $edition->reminders()->update(['sent_at' => null, 'last_error' => null]);
 
         $edition->load(['event', 'managers']);
         foreach ($edition->managers as $manager) {
