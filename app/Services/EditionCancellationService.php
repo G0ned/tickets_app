@@ -7,13 +7,6 @@ use App\Models\Edition;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
-/**
- * Shared by EditionController::cancel() and destroy() (cancelling one
- * edition, whether from its own edit page or via the "Cancelar evento"
- * button on the parent event's page - see EventController::show()'s
- * $pendingEdition). Kept here instead of duplicated in both action methods
- * so they can't drift apart.
- */
 class EditionCancellationService
 {
     /**
@@ -24,7 +17,7 @@ class EditionCancellationService
      */
     public function cancel(Edition $edition): void
     {
-        $edition->load(['event', 'attendees']);
+        $edition->load(['event', 'attendees.portfolio.user']);
         $attendees = $edition->attendees;
 
         $edition->delete();
