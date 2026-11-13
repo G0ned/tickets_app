@@ -87,16 +87,16 @@ class InvitationListController extends Controller
             $id->portfolios()->select('id')
         )->with(['clientPorfolio', 'edition' => fn ($query) => $query->withTrashed()->with('event')])->get();
 
-        // A list that was sent and then superseded by an unsent copy of itself
-        // (EditionController::duplicateSentInvitationLists(), triggered when its
-        // edition got cancelled and reactivated) would otherwise look like a stray
-        // duplicate here - same name, same portfolio, nothing in this flat table says
-        // they're the same edition's two cycles. Hide it from this general listing;
-        // it's still fully intact in the database and reachable from the current
-        // list's own page (see show()) - this view is just not the place for it.
         $inv_lists = $this->withoutSupersededLists($inv_lists);
 
-        return view('invitation_list.index', compact('inv_lists'));
+        // Para el desplegable de cada lista enviada: clientes y sus códigos.
+        $inv_lists->load('persons');
+        $codes = VerificationCode::whereIn('invitation_list_id', $inv_lists->pluck('id'))
+            ->orderBy('id')
+            ->get()
+            ->groupBy(fn (VerificationCode $code) => $code->invitation_list_id . '-' . $code->person_id);
+
+        return view('invitation_list.index', compact('inv_lists', 'codes'));
     }
 
     public function show(InvitationList $list)
@@ -106,10 +106,7 @@ class InvitationListController extends Controller
         $currentRegistrations = $list->persons->pluck('pivot.allowed_registrations', 'id')->all();
         $portfolioPersons = $list->clientPorfolio->persons;
 
-        // The other half of a cancel+reactivate cycle (see duplicateSentInvitationLists()
-        // in EditionController): at most one other list shares this edition+portfolio.
-        // Surfaced here so each list links to the other instead of leaving the old,
-        // sent one as a dead end once it's hidden from the general listings above.
+
         $relatedList = $list->edition_id !== null
             ? InvitationList::where('edition_id', $list->edition_id)
                 ->where('client_portfolio_id', $list->client_portfolio_id)
@@ -117,7 +114,12 @@ class InvitationListController extends Controller
                 ->first()
             : null;
 
-        return view('invitation_list.show', compact('list', 'portfolioPersons', 'currentPersonIds', 'currentRegistrations', 'relatedList'));
+        $codesByPerson = VerificationCode::where('invitation_list_id', $list->id)
+            ->orderBy('id')
+            ->get()
+            ->groupBy('person_id');
+
+        return view('invitation_list.show', compact('list', 'portfolioPersons', 'currentPersonIds', 'currentRegistrations', 'relatedList', 'codesByPerson'));
     }
 
 
