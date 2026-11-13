@@ -22,6 +22,8 @@ class EditionCancelledMail extends Mailable
 
     public ?string $location;
 
+    public ?string $salesEmail;
+
     /**
      * Guarda solo valores sueltos y no los modelos: la edición ya está
      * soft-deleted cuando el worker procesa el job y SerializesModels no
@@ -33,6 +35,8 @@ class EditionCancelledMail extends Mailable
         $this->attendeeName = trim($attendee->name . ' ' . $attendee->surname);
         $this->date = $edition->date->copy();
         $this->location = $edition->location;
+        // Comercial al que pertenece el cliente (Person -> cartera -> usuario).
+        $this->salesEmail = $attendee->portfolio?->user?->email;
     }
 
     public function envelope(): Envelope
