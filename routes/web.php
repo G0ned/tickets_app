@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EditionController;
 use App\Http\Controllers\ClientPortfolioController;
+use App\Http\Controllers\EditionInvitationCodesController;
 use App\Http\Controllers\InvitationListController;
 use App\Http\Controllers\InvitationRegistrationController;
 use App\Http\Controllers\FormController;
@@ -57,6 +58,7 @@ Route::middleware(['admin:admin'])->group(function(){
     //Edition routes
     Route::delete('/edition/{edition}', [EditionController::class, 'destroy'])->name('editions-delete');
     Route::delete('/edition/{edition}/cancel-celebration', [EditionController::class, 'cancel'])->name('editions-cancel');
+    Route::get('/edition/{edition}/restore', [EditionController::class, 'restoreForm'])->name('editions-restore-form')->withTrashed();
     Route::post('/edition/{edition}/restore', [EditionController::class, 'restore'])->name('editions-restore')->withTrashed();
     Route::post('/edition/{edition}/assign-manager', [EditionController::class, 'assignManager'])->name('assign-user');
     Route::get('/edition/{edition}/attendees', [EditionController::class, 'attendees'])->name('edition-attendees')->withTrashed();
@@ -119,6 +121,8 @@ Route::middleware(['auth', 'doorman.restrict'])->group(function (){
     Route::patch('/invitation-list/{list}', [InvitationListController::class, 'update'])->name('invitation-list-update');
     Route::post('/invitation-list/{list}/send', [InvitationListController::class, 'sendInvitations'])->name('invitation-list-send');
     Route::post('/invitation-list/{list}/person/{person}/resend-code', [InvitationListController::class, 'resendVerificationCode'])->name('invitation-list-resend-code');
+    //Codes sent per edition (admin: all sales reps; sales rep: own portfolios only)
+    Route::get('/edition/{edition}/invitation-codes', [EditionInvitationCodesController::class, 'index'])->name('edition-invitation-codes')->withTrashed();
     //Supervised invitations routes
     Route::get('/invitations-list/{user}', [InvitationListController::class, 'supervisedIndex'])->name('supervised-invitations-list');
     Route::patch('/edition/{edition}/manager/{manager}/invitations-capacity', [InvitationListController::class, 'updateManagerCapacity'])->name('supervised-manager-capacity-update');
