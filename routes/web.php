@@ -64,6 +64,7 @@ Route::middleware(['admin:admin'])->group(function(){
     Route::get('/edition/{edition}/attendees', [EditionController::class, 'attendees'])->name('edition-attendees')->withTrashed();
     Route::get('/edition/{edition}/history', [EditionController::class, 'cancellationHistory'])->name('edition-history')->withTrashed();
     Route::get('/edition/{edition}/export-attendees', [EditionController::class, 'exportAttendees'])->name('export-attendees')->withTrashed();
+    Route::get('/event/{event}/export-attendees', [EditionController::class, 'exportEventAttendees'])->name('export-event-attendees');
     //User routes
     Route::get('/user/create', [UserController::class, 'create'])->name('user-create');
     Route::post('/user/create', [UserController::class, 'store'])->name('user-store');
