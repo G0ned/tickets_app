@@ -146,7 +146,7 @@ class EditionController extends Controller
             'date' => ['required', 'date'],
             'time' => ['required', 'date_format:H:i'],
             'duration' => ['required', 'numeric', 'min:0', 'decimal:0,2'],
-            'capacity' => ['required', 'numeric', 'min:0'],
+            'capacity' => ['required', 'integer', 'min:' . $edition->attendees()->count()],
             'registration_deadline_date' => ['nullable', 'date', 'required_with:registration_deadline_time'],
             'registration_deadline_time' => ['nullable', 'date_format:H:i', 'required_with:registration_deadline_date'],
         ]);
@@ -161,7 +161,8 @@ class EditionController extends Controller
                 'location' => $validated['location'],
                 'date' => $validated['date'] . " " . $validated['time'],
                 'duration' => $validated['duration'],
-                'capacity' => $validated['capacity'],
+                // El formulario trabaja con el aforo máximo; en BD se guarda el restante.
+                'capacity' => $validated['capacity'] - $edition->attendees()->count(),
                 'registration_deadline' => $registrationDeadline,
             ]);
             return redirect(route('events-index'));

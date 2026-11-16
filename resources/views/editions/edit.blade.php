@@ -56,7 +56,7 @@
                             type="number"
                             id="capacity"
                             name="capacity"
-                            value="{{$edition->capacity}}"
+                            value="{{ $edition->capacity + $edition->attendees()->count() }}"
                             required />
                         <x-form-error name="capacity" />
                     </div>
