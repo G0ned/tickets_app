@@ -427,7 +427,14 @@ class EditionController extends Controller
             return back()->withErrors(['export' => 'El evento no tiene ediciones que exportar.']);
         }
 
-        return Excel::download(new EventAttendeesExport($event), "{$event->name}-asistentes.xlsx");
+        return Excel::download(new EventAttendeesExport($event), $this->safeFilename("{$event->name}-asistentes") . '.xlsx');
+    }
+
+    private function safeFilename(string $name): string
+    {
+        $name = preg_replace('/[\\\\\/:*?"<>|%\x00-\x1F]+/u', '-', $name);
+
+        return trim(mb_substr($name, 0, 120)) ?: 'export';
     }
 
     public function exportAttendees(Edition $edition, Request $request)
@@ -435,7 +442,7 @@ class EditionController extends Controller
         $edition->load(['event', 'attendees']);
 
         if ($request->query('format') === 'xlsx') {
-            return Excel::download(new AttendeesExport($edition), "{$edition->event->name}-asistentes-edicion-{$edition->id}.xlsx");
+            return Excel::download(new AttendeesExport($edition), $this->safeFilename("{$edition->event->name}-asistentes-edicion-{$edition->id}") . '.xlsx');
         }
 
         $inviterNames = $edition->guestInviterNames();
