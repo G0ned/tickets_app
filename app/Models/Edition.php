@@ -36,6 +36,16 @@ class Edition extends Model
         );
     }
 
+    /**
+     * Aforo máximo de la edición. La columna `capacity` guarda las plazas libres
+     * (baja con cada inscripción y sube con cada cancelación), así que el máximo
+     * es libres + inscritos activos.
+     */
+    public function getMaxCapacityAttribute(): int
+    {
+        return (int) $this->capacity + $this->attendees()->count();
+    }
+
     public function attendees(): BelongsToMany
     {
         return $this->belongsToMany(Person::class, 'attendee_edition', 'edition_id', 'attendee_id')->withPivot(

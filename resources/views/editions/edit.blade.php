@@ -56,7 +56,7 @@
                             type="number"
                             id="capacity"
                             name="capacity"
-                            value="{{ $edition->capacity + $edition->attendees()->count() }}"
+                            value="{{ $edition->max_capacity }}"
                             required />
                         <x-form-error name="capacity" />
                     </div>
@@ -117,7 +117,7 @@
                                     @endif
                                     @if ($manager->pivot->invitations_capacity)
                                         <span class="bg-gray-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
-                                            Cap. inv.: {{ $manager->pivot->invitations_capacity }} / {{ $edition->capacity }}
+                                            Cap. inv.: {{ $manager->pivot->invitations_capacity }} / {{ $edition->max_capacity }}
                                         </span>
                                     @endif
                                 </div>
@@ -159,7 +159,7 @@
                             </div>
 
                             <div x-data="{
-                                    capacity: {{ (int) $edition->capacity }},
+                                    capacity: {{ $edition->max_capacity }},
                                     assigned: {{ $assignedInvitations }},
                                     unlimited: {{ $unlimitedManagers }},
                                     value: '',
@@ -172,7 +172,7 @@
                                 <x-form-error name="invitations_capacity" />
 
                                 <div class="mt-3 rounded-lg bg-gray-700 border border-gray-500 px-4 py-3 text-sm space-y-1">
-                                    <p class="text-gray-300">Aforo de la edición: <strong class="text-white">{{ $edition->capacity }}</strong></p>
+                                    <p class="text-gray-300">Aforo máximo de la edición: <strong class="text-white">{{ $edition->max_capacity }}</strong></p>
                                     <p class="text-gray-300">Ya asignadas a otros gestores: <strong class="text-white">{{ $assignedInvitations }}</strong></p>
                                     <p class="text-gray-300">
                                         Con este gestor:
