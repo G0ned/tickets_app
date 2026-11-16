@@ -152,7 +152,7 @@
                             </div>
                             <div>
                                 <span class="text-gray-400 text-xs uppercase tracking-wide">Aforo</span>
-                                <p class="text-white">{{ $edition->capacity }}</p>
+                                <p class="text-white">{{ $edition->capacity + $edition->attendees->count() }}</p>
                             </div>
                             <div>
                                 <span class="text-gray-400 text-xs uppercase tracking-wide">Nº Registros</span>
@@ -160,7 +160,7 @@
                             </div>
                             <div>
                                 <span class="text-gray-400 text-xs uppercase tracking-wide">Aforo restante</span>
-                                <p class="text-white">{{ max(0, $edition->capacity - $edition->attendees->count()) }}</p>
+                                <p class="text-white">{{ max(0, $edition->capacity) }}</p>
                             </div>
                             <div class="flex flex-col gap-2 pt-2">
                                 @if($canEditEvent)
@@ -209,9 +209,9 @@
                                     <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->date->format('H:i') }}</td>
                                     <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->duration }} h</td>
                                     <td class="px-2 py-3 text-white whitespace-nowrap">{{ $edition->location ?? '-' }}</td>
-                                    <td class="px-2 py-3 text-white text-center whitespace-nowrap">{{ $edition->capacity }}</td>
+                                    <td class="px-2 py-3 text-white text-center whitespace-nowrap">{{ $edition->capacity + $edition->attendees->count() }}</td>
                                     <td class="px-2 py-3 text-white text-center whitespace-nowrap">{{ $edition->attendees->count() }}</td>
-                                    <td class="px-2 py-3 text-white text-center whitespace-nowrap">{{ max(0, $edition->capacity - $edition->attendees->count()) }}</td>
+                                    <td class="px-2 py-3 text-white text-center whitespace-nowrap">{{ max(0, $edition->capacity) }}</td>
                                     <td class="px-4 py-3">
                                         <div class="flex items-center gap-2">
                                             @if($canEditEvent)
