@@ -40,11 +40,13 @@
                         <p style="color:#94a3b8; font-size:12px; line-height:1.7; margin:0;">
                             Si tienes alguna duda, ponte en contacto con
                             <a href="mailto:ec@eurocos.es" style="color:#0f766e;">ec@eurocos.es</a>.
-                            @if($salesEmail)
-                                O con tu comercial:
-                                <a href="mailto:{{ $salesEmail }}" style="color:#0f766e;">{{ $salesEmail }}</a>.
-                            @endif
                         </p>
+                        @if($salesEmail)
+                            <p style="color:#94a3b8; font-size:12px; line-height:1.7; margin:4px 0 0;">
+                                También puedes ponerte en contacto con el comercial que gestionó tus invitaciones:
+                                <a href="mailto:{{ $salesEmail }}" style="color:#0f766e;">{{ $salesEmail }}</a>.
+                            </p>
+                        @endif
                     </td>
                 </tr>
 

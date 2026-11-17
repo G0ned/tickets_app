@@ -3,7 +3,9 @@
 namespace App\Mail;
 
 use App\Models\Edition;
+use App\Models\InvitationList;
 use App\Models\Person;
+use App\Models\VerificationCode;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -35,8 +37,37 @@ class EditionCancelledMail extends Mailable
         $this->attendeeName = trim($attendee->name . ' ' . $attendee->surname);
         $this->date = $edition->date->copy();
         $this->location = $edition->location;
-        // Comercial al que pertenece el cliente (Person -> cartera -> usuario).
-        $this->salesEmail = $attendee->portfolio?->user?->email;
+        $this->salesEmail = $this->resolveSalesEmail($edition, $attendee);
+    }
+
+    /**
+     * Email del comercial que gestionó las invitaciones del asistente, por orden:
+     *  1. Código de verificación con el que se registró (clientes invitados e
+     *     invitados de un cliente): código -> lista de invitación -> cartera -> usuario.
+     *  2. Lista de invitación de esta edición en la que figura el asistente.
+     *  3. Cartera del propio cliente (Person -> cartera -> usuario).
+     */
+    private function resolveSalesEmail(Edition $edition, Person $attendee): ?string
+    {
+        $codeId = $attendee->pivot?->verification_code_id;
+
+        if ($codeId) {
+            $email = VerificationCode::with('invitationList.clientPorfolio.user')
+                ->find($codeId)
+                ?->invitationList?->clientPorfolio?->user?->email;
+
+            if ($email) {
+                return $email;
+            }
+        }
+
+        $email = InvitationList::with('clientPorfolio.user')
+            ->where('edition_id', $edition->id)
+            ->whereHas('persons', fn ($q) => $q->where('person.id', $attendee->id))
+            ->first()
+            ?->clientPorfolio?->user?->email;
+
+        return $email ?? $attendee->portfolio?->user?->email;
     }
 
     public function envelope(): Envelope
