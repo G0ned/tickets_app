@@ -60,9 +60,24 @@ class ClientPortfolioController extends Controller
 
     public function show(ClientPortfolio $portfolio)
     {
-        $portfolio->load(['persons', 'user']);
+        $portfolio->load('user');
 
-        return view('portfolios.show')->with('portfolio', $portfolio);
+        $sort = in_array(request('sort'), Person::LIST_SORTABLE_COLUMNS, true) ? request('sort') : 'name';
+        $direction = request('direction') === 'desc' ? 'desc' : 'asc';
+
+        $people = Person::flagGuests(
+            $portfolio->persons()->forListing($sort, $direction, request('type'), request('brand'))->get()
+        );
+
+        return view('portfolios.show')->with([
+            'portfolio'     => $portfolio,
+            'people'        => $people,
+            'totalPeople'   => $portfolio->persons()->count(),
+            'selectedType'  => request('type'),
+            'selectedBrand' => request('brand'),
+            'sort'          => $sort,
+            'direction'     => $direction,
+        ]);
     }
 
     public function list()
