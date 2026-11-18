@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -32,6 +33,30 @@ class Person extends Model
         return [
             'type' => Type::class
         ];
+    }
+
+    public const LIST_SORTABLE_COLUMNS = ['name', 'surname', 'email', 'phone', 'type', 'brand'];
+    public function scopeForListing(Builder $query, string $sort, string $direction, ?string $type, ?string $brand)
+    {
+        return $query
+            ->with('portfolio')
+            ->withExists([
+                'allEditionRegistrations as has_live_guest_registration' => fn ($q) => $q->withTrashed()->where('attendee_edition.is_guest', true),
+                'editionRegistrationHistory as has_archived_guest_registration' => fn ($q) => $q->where('is_guest', true),
+            ])
+            ->when($type, fn ($q, $type) => $q->where('type', $type))
+            ->when($brand, fn ($q, $brand) => $q->where('brand', 'like', "%{$brand}%"))
+            ->orderBy($sort, $direction)
+            ->when(in_array($sort, ['name', 'surname'], true), function ($q) use ($sort, $direction) {
+                $q->orderBy($sort === 'name' ? 'surname' : 'name', $direction);
+            });
+    }
+
+    public static function flagGuests($people)
+    {
+        return $people->each(function (Person $person) {
+            $person->has_been_guest = $person->has_live_guest_registration || $person->has_archived_guest_registration;
+        });
     }
 
     public function portfolio(): BelongsTo

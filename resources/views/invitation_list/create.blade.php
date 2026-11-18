@@ -2,7 +2,7 @@
     @section('title', 'Nueva lista de invitaciones')
     <x-slot:heading>Lista de invitaciones — {{ $edition->event->name }}</x-slot:heading>
 
-    <div class="max-w-3xl mx-auto space-y-6">
+    <div class="max-w-5xl mx-auto space-y-6">
         <div class="bg-gray-700 rounded-lg p-5">
             <p class="text-white font-semibold text-base">{{ $edition->event->name }}</p>
             <p class="text-gray-300 text-sm mt-1">
@@ -165,43 +165,54 @@
                                class="px-5 py-8 text-gray-400 text-sm text-center">
                                 Ninguna persona de este portfolio tiene la marca seleccionada.
                             </p>
-                            <ul class="divide-y divide-gray-600">
-                                @foreach ($portfolio->persons as $person)
-                                    <li x-show="matchesBrand({{ $person->id }})"
-                                        class="hover:bg-gray-600 transition-colors flex items-center gap-4 px-5 py-3">
-                                        <label class="flex items-center gap-4 flex-1 min-w-0 cursor-pointer select-none">
-                                            <input type="checkbox"
-                                                name="persons[]"
-                                                value="{{ $person->id }}"
-                                                :checked="isSelected({{ $person->id }})"
-                                                @change="togglePerson({{ $person->id }})"
-                                                class="w-4 h-4 accent-teal-500 shrink-0">
-                                            <div class="flex-1 min-w-0">
-                                                <p class="text-white text-sm font-medium">
-                                                    {{ $person->name }} {{ $person->surname }}
-                                                </p>
-                                                <p class="text-gray-400 text-xs truncate">
-                                                    {{ $person->email }} &middot; {{ $person->phone }}
-                                                    @if ($person->brand)
-                                                        &middot; {{ $person->brand }}
-                                                    @endif
-                                                </p>
-                                            </div>
-                                        </label>
-
-                                        <div x-show="isSelected({{ $person->id }})" x-cloak
-                                             class="flex items-center gap-1.5 shrink-0">
-                                            <span class="text-xs text-gray-400 whitespace-nowrap">Registros</span>
-                                            <input type="number"
-                                                name="registrations[{{ $person->id }}]"
-                                                x-model.number="registrations[{{ $person->id }}]"
-                                                :disabled="!isSelected({{ $person->id }})"
-                                                min="0"
-                                                class="w-16 bg-gray-800 border border-gray-500 rounded px-2 py-1 text-white text-sm text-center">
-                                        </div>
-                                    </li>
-                                @endforeach
-                            </ul>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm">
+                                    <thead>
+                                        <tr class="border-b border-gray-600 bg-gray-600">
+                                            <th class="px-3 py-3 w-10"></th>
+                                            <th class="px-3 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Nombre</th>
+                                            <th class="px-3 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Apellidos</th>
+                                            <th class="px-3 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Teléfono</th>
+                                            <th class="px-3 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">E-mail</th>
+                                            <th class="px-3 py-3 text-left text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Marca</th>
+                                            <th class="px-3 py-3 text-center text-gray-400 text-xs uppercase tracking-wide whitespace-nowrap">Registros</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-600">
+                                        @foreach ($portfolio->persons as $person)
+                                            <tr x-show="matchesBrand({{ $person->id }})"
+                                                @click="if (!$event.target.closest('input')) togglePerson({{ $person->id }})"
+                                                :class="isSelected({{ $person->id }}) ? 'bg-gray-600' : ''"
+                                                class="hover:bg-gray-600 transition-colors duration-150 cursor-pointer select-none">
+                                                <td class="px-3 py-3 text-center">
+                                                    <input type="checkbox"
+                                                        name="persons[]"
+                                                        value="{{ $person->id }}"
+                                                        :checked="isSelected({{ $person->id }})"
+                                                        @change="togglePerson({{ $person->id }})"
+                                                        aria-label="Seleccionar a {{ $person->name }} {{ $person->surname }}"
+                                                        class="w-4 h-4 accent-teal-500">
+                                                </td>
+                                                <td class="px-3 py-3 text-white whitespace-nowrap font-medium">{{ $person->name }}</td>
+                                                <td class="px-3 py-3 text-gray-300 whitespace-nowrap">{{ $person->surname }}</td>
+                                                <td class="px-3 py-3 text-gray-300 whitespace-nowrap">{{ $person->phone }}</td>
+                                                <td class="px-3 py-3 text-gray-300 whitespace-nowrap">{{ $person->email }}</td>
+                                                <td class="px-3 py-3 text-gray-300 whitespace-nowrap">{{ $person->brand ?? '-' }}</td>
+                                                <td class="px-3 py-3 text-center">
+                                                    <input type="number"
+                                                        x-show="isSelected({{ $person->id }})" x-cloak
+                                                        name="registrations[{{ $person->id }}]"
+                                                        x-model.number="registrations[{{ $person->id }}]"
+                                                        :disabled="!isSelected({{ $person->id }})"
+                                                        min="0"
+                                                        aria-label="Registros para {{ $person->name }} {{ $person->surname }}"
+                                                        class="w-16 bg-gray-800 border border-gray-500 rounded px-2 py-1 text-white text-sm text-center">
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
                         @endif
                     </div>
                 @endforeach
