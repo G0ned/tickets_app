@@ -17,24 +17,18 @@
 
         <div id="reader" class="w-full bg-black rounded-lg overflow-hidden"></div>
 
-        <style>
-            #reader__dashboard_section_csr,
-            #reader__dashboard_section_csr span,
-            #reader__dashboard_section_csr button,
-            #reader__dashboard_section_swaplink,
-            #reader__dashboard_section_fsr,
-            #reader__dashboard_section_fsr span,
-            #reader__dashboard_section_fsr button,
-            #reader__status_span,
-            #reader__header_message {
-                color: #f9fafb !important;
-            }
-        </style>
+        <div id="camera-error" class="hidden w-full text-center space-y-3">
+            <p id="camera-error-msg" class="text-red-400 text-sm"></p>
+            <button type="button" id="camera-retry"
+                    class="py-2 px-4 rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                Activar cámara
+            </button>
+        </div>
     </div>
 
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script>
-        const html5QrcodeScanner = new Html5QrcodeScanner('reader', { fps: 10, qrbox: 250 });
+        const html5QrcodeScanner = new Html5Qrcode('reader');
 
         let isProcessing = false;
 
@@ -157,6 +151,22 @@
             resultRow.classList.add('grid-rows-[0fr]');
         }
 
-        html5QrcodeScanner.render(onScanSuccess);
+        function startCamera() {
+            const errorBox = document.getElementById('camera-error');
+            errorBox.classList.add('hidden');
+
+            html5QrcodeScanner
+                .start({ facingMode: 'environment' }, { fps: 10, qrbox: 250 }, onScanSuccess, () => {})
+                .catch((err) => {
+                    const denied = /NotAllowed|Permission/i.test(String(err));
+                    document.getElementById('camera-error-msg').innerText = denied
+                        ? 'Permiso de cámara denegado. Permítelo en el navegador y pulsa "Activar cámara".'
+                        : 'No se pudo iniciar la cámara (¿está en uso o la página no usa HTTPS?).';
+                    errorBox.classList.remove('hidden');
+                });
+        }
+
+        document.getElementById('camera-retry').addEventListener('click', startCamera);
+        startCamera();
     </script>
 </x-layout>
