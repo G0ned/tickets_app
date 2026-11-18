@@ -31,6 +31,10 @@
                                 file:bg-gray-700 file:text-white
                                 hover:file:bg-blue-600
                                 cursor-pointer" />
+                            <p class="mt-1 text-xs text-gray-500">
+                                Formatos permitidos: JPG, PNG o WEBP. Tamaño máximo: 2 MB.
+                            </p>
+                            <x-form-error name="poster" />
                         </div>
                         <div class="mx-4">
                             <x-form-label for="date">Público</x-form-label>

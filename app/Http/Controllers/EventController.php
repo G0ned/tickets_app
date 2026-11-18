@@ -95,7 +95,7 @@ class EventController extends Controller
 
         $event_new_data = request()->validate([
             'name' => ['required', 'string'],
-            'poster_path' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp|max:2048'],
+            'poster_path' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'public' => ['required', 'boolean'],
             'desc' => ['required', 'string'],
             'survey_url' => ['nullable', 'url', 'max:2048'],

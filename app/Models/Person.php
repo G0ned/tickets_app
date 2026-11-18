@@ -21,6 +21,7 @@ class Person extends Model
         'surname',
         'email',
         'phone',
+        'zip_code',
         'passport',
         'type',
         'brand',
