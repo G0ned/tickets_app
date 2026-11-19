@@ -25,6 +25,7 @@ class EventController extends Controller
     public function show(Event $event)
     {
         $event->load(['createdBy', 'editions']);
+        $event->setRelation('editions', $event->editions->sortBy('date')->values());
         $cancelledEditions = $event->editions()->onlyTrashed()->get();
         $pendingEdition = $event->editions
             ->reject(fn ($edition) => $edition->hasEnded())
