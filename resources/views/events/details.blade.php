@@ -144,7 +144,7 @@
                             </div>
                             <div>
                                 <span class="text-gray-400 text-xs uppercase tracking-wide">Duración</span>
-                                <p class="text-white">{{ $edition->duration }} min</p>
+                                <p class="text-white">{{ $edition->duration }} h</p>
                             </div>
                             <div>
                                 <span class="text-gray-400 text-xs uppercase tracking-wide">Ubicación</span>
